@@ -100,8 +100,10 @@
         where tid = #{id}
     </select>
     <select id="queryNotScore" resultType="java.util.Map" parameterType="user">
-        select u.id , u.name , username , d.name as department , t.name as technology
-        from  `user` u,
+        select u.id , u.name , username , d.name as department , t.name as technology,
+        IFNULL (s.grade_id, 0 ) as selected
+        from  `user` u left join
+        grade_score s on u.id = score_id and s.grade_id = #{id},
         department d,
         technology t
         where
@@ -120,13 +122,6 @@
                 #{item}
             </foreach>
         </if>
-        and u.id not in(
-        select score_id
-        FROM
-        grade_score s
-        WHERE
-        grade_id = #{id}
-        )
         <if test="name != null and name !=''">
         and u.name like BINARY "%"#{name}"%"
         </if>
