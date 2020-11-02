@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.ProjectUserDao">
+    <insert id="add">
+        insert into project_user(project_id , user_id , power_id)
+        values
+        <foreach collection="projectUsers" item="item" separator=",">
+        <if test="item != null and item !=''">
+            (#{id} , #{item} , 2)
+        </if>
+        </foreach>
+    </insert>
+    <insert id="addGeneral">
+        insert ignore into project_user(project_id , user_id , power_id)
+        values
+        <foreach collection="general" item="item" separator=",">
+            <if test="item != null and item !=''">
+                (#{id} , #{item} , 1)
+            </if>
+        </foreach>
+    </insert>
+    <insert id="addPrincipal" parameterType="excelProject">
+        insert ignore into project_user(project_id , user_id , power_id)
+        values (#{pid} , #{principalId} , 2)
+    </insert>
+    <delete id="del">
+        delete
+        from project_user
+        where project_id = #{id}
+        and power_id = 2
+    </delete>
+    <delete id="delGeneral">
+        delete
+        from project_user
+        where project_id = #{id}
+        and power_id = 1
+    </delete>
+    <select id="queryPrincipalById" resultType="java.util.Map">
+        select u.name , t.name as tec
+        from
+        project_user pu,
+        `user` u,
+        technology t
+        where
+         pu.project_id = #{id}
+        and power_id = 2
+        and pu.user_id = u.id
+        and u.tid = t.id
+    </select>
+</mapper>

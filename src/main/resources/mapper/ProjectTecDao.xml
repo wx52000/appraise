@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.ProjectTecDao">
+    <insert id="add" parameterType="project">
+        insert into project_tec(project_id , tec_id )
+        values
+        <foreach collection="projectTec" item="item" separator=",">
+            (#{id} , #{item})
+        </foreach>
+    </insert>
+    <insert id="addExcel" parameterType="excelProject">
+        insert ignore into project_tec(project_id , tec_id )
+        values (#{pid} , #{tid})
+    </insert>
+    <delete id="del" parameterType="project">
+        delete
+        from project_tec
+        where project_id = #{id}
+    </delete>
+    <select id="query" resultType="java.util.Map">
+        select t.name as label , t.id as value
+        from
+        project_tec pt,
+        technology t
+        where pt.project_id = #{id}
+        and pt.tec_id = t.id
+    </select>
+</mapper>

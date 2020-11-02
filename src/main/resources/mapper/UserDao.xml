@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wxx.java.appraise.dao.UserDao">
+    <resultMap id="tecUser" type="technology">
+        <result column="tid" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <collection property="list" javaType="ARRAYLIST"
+                    column="tid" select="getPrincipal"/>
+    </resultMap>
+    <insert id="add" parameterType="user" useGeneratedKeys="true" keyProperty="id">
+        insert into user(pid , did , tid , `name` , username , paw)
+        values (#{pid} , #{did} , #{tid} , #{name} , #{username} , "1234")
+    </insert>
+    <insert id="addExcel">
+        insert into user(pid , did , tid , `name` , username)
+        value
+        <foreach collection="list" index="index" item="item" separator=",">
+        ( 3, #{item.department} , #{item.technology} , #{item.name} , #{item.username})
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        did = values(did),
+        tid = values(tid)
+    </insert>
+    <update id="upd">
+        update user
+        <set>
+            <if test="pid != null and pid !=''">
+                pid = #{pid}
+            </if>
+            <if test="did != null and did !=''">
+                did = #{did}
+            </if>
+            <if test="tid != null and tid !=''">
+                tid = #{tid}
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <update id="paw">
+        update user
+        set paw = #{paw} , paw_state = 1
+        where id = #{id}
+    </update>
+    <delete id="del">
+        delete u , s
+        from  `user` u
+        left  join  grade_score s on u.id = s.score_id
+        where u.id = #{id}
+    </delete>
+    <select id="login" resultType="java.util.Map">
+        select `name` , u.id , pid , paw_state as pawState , tid ,
+        GROUP_CONCAT(up.position_id) as `position`
+        from `user` u left join
+        user_position up on up.user_id = u.id
+        where u.username = #{username}
+        and u.paw = #{paw}
+    </select>
+    <select id="queryById" resultType="wxx.java.appraise.entity.User">
+        select *
+        from user
+        where id = #{id}
+    </select>
+    <select id="query" resultType="java.util.Map" parameterType="user">
+        select u.id , u.name , u.username , d.name as department , t.name as technology , p.name as power
+        from `user` u,
+        technology t ,
+        power p ,
+        department d
+        where u.pid = p.id
+        and u.tid = t.id
+        and u.did = d.id
+        <if test="name != null and name != ''">
+        and u.name like "%"#{name}"%"
+        </if>
+        <if test="username != null and username != ''">
+            and u.username like "%"#{username}"%"
+        </if>
+        <if test="dIds != null and dIds != ''">
+            and d.id in
+            <foreach collection="dIds" item="item" separator="," close=")" open="(">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tIds != null and tIds != ''">
+            and t.id in
+            <foreach collection="tIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="selectName != null and selectName != ''">
+            order by ${selectName}
+        </if>
+        <if test="selectType == 1">
+        desc
+        </if>
+    </select>
+    <select id="queryByTid" resultType="java.util.Map">
+        select id , `name` , username
+        from  `user`
+        where tid = #{id}
+    </select>
+    <select id="queryNotScore" resultType="java.util.Map" parameterType="user">
+        select u.id , u.name , username , d.name as department , t.name as technology
+        from  `user` u,
+        department d,
+        technology t
+        where
+        u.id &lt;&gt; #{id}
+        and d.id = u.did
+        and t.id = u.tid
+        <if test="dIds != null and dIds != ''">
+            and d.id in
+            <foreach collection="dIds" item="item" separator="," close=")" open="(">
+                #{item}
+            </foreach>
+        </if>
+        <if test="tIds != null and tIds != ''">
+            and t.id in
+            <foreach collection="tIds" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        and u.id not in(
+        select score_id
+        FROM
+        grade_score s
+        WHERE
+        grade_id = #{id}
+        )
+        <if test="name != null and name !=''">
+        and u.name like BINARY "%"#{name}"%"
+        </if>
+        <if test="username != null and username != ''">
+        and u.username like "%"#{username}"%"
+        </if>
+    </select>
+    <select id="queryByUsername" resultType="java.lang.Integer" parameterType="list">
+    select id
+    from user
+    where username in
+        <foreach collection="list" item="user" index="index" open="(" separator="," close=")">
+        #{user.username}
+        </foreach>
+    </select>
+    <select id="queryByTec" resultType="java.util.Map">
+        select id as `value` , `name` as label
+        from
+        `user`
+        where tid = #{id}
+    </select>
+    <select id="queryPrincipal" resultType="map" >
+    SELECT DISTINCT
+        pt.tec_id AS tid,
+        pu.user_id AS uid
+    FROM
+        project_tec pt
+        LEFT JOIN (
+        SELECT
+            u.tid,
+            pu.project_id,
+            pu.user_id
+        FROM
+            project_user pu,
+            `user` u
+        WHERE
+            pu.power_id = 2
+            AND pu.user_id = u.id
+        ) AS pu on pt.project_id = pu.project_id and pt.tec_id = pu.tid
+    WHERE
+        pt.project_id = #{id}
+    </select>
+    <select id="queryByName" resultType="java.util.Map">
+        select id  , `name`
+        from
+        `user`
+        where `name` like "%"#{name}"%"
+    </select>
+    <select id="selectByName" resultType="java.lang.Integer">
+        select id
+        from `user`
+        where `name` = #{name}
+    </select>
+</mapper>

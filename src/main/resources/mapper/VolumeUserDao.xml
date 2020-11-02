@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.VolumeUserDao">
+    <insert id="addDesigner">
+        insert ignore into volume_user(volume_id , user_id , power_id )
+        values (#{id} , #{designer} , 4  )
+    </insert>
+    <insert id="addChecker">
+        insert ignore into volume_user(volume_id , user_id , power_id )
+        values (#{id} , #{checker} , 5 )
+    </insert>
+    <insert id="addExcelDesigner">
+        insert ignore into volume_user(volume_id , user_id , power_id )
+        values (#{vid} , #{designerId} , 4  )
+    </insert>
+    <insert id="addExcelChecker">
+        insert ignore into volume_user(volume_id , user_id , power_id )
+        values (#{vid} , #{checkerId} , 5  )
+    </insert>
+    <delete id="del">
+        delete
+        from volume_user
+        where volume_id = #{id}
+        and power_id = #{power}
+    </delete>
+</mapper>

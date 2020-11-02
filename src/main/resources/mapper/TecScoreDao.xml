@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.TecScoreDao">
+    <insert id="appraise" parameterType="list">
+        insert into tec_score(gt_id , designer , personal , coordinate , `month` , `year`)
+        value
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.gtId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} , YEAR(CURDATE()))
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        designer = values(designer),
+        personal = values(personal),
+        coordinate = values(coordinate)
+    </insert>
+    <update id="backups">
+        insert into tec_score_backups(id , gt_id , designer , personal , coordinate , `month` , `year`)
+        select *
+        from tec_score
+    </update>
+    <delete id="delete">
+        delete
+        from tec_score
+    </delete>
+
+    <select id="queryByGradeId" resultType="java.util.Map">
+        select gt.id as gtId ,
+        CASE gt.state when 0 then "false"
+        when  1 then "true" end as state ,
+        d.name as department, t.name as technology,
+        s.designer , s.personal , s.coordinate
+        from
+        `user` u,
+        technology t,
+        department d,
+        grade_tec gt  left join
+        tec_score s on s.gt_id = gt.id
+        where gt.grade_id = #{id}
+        and gt.tec_id = t.id
+        and u.id = gt.grade_id
+        and t.did = d.id
+    </select>
+    <select id="queryScore" resultType="java.util.Map">
+        SELECT distinct  m.department, m.technology, m.score
+        FROM(
+        SELECT d.NAME AS department, t.NAME AS technology,
+        AVG(( s.designer + s.personal + s.coordinate )/ 3) AS score ,gt.tec_id
+        FROM
+        tec_score s,
+        `user` u,
+        department d,
+        technology t,
+        grade_tec gt
+        WHERE
+        u.did = d.id
+        AND gt.tec_id = u.tid
+        AND u.tid = t.id
+        AND gt.id = s.gt_id
+        GROUP BY gt.tec_id) as m,
+        `user` u
+        <where>
+            <choose>
+                <when test="pid == 1">
+                </when>
+                <otherwise>
+                u.id = #{id}
+                and m.tec_id = u.tid
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+    <select id="query" resultType="java.util.Map">
+        select u.name , d.name as department , t.name as technology ,
+        s.designer ,  s.personal , s.coordinate
+        from tec_score s,
+        `user` u,
+        department d,
+        technology t,
+        grade_tec gt
+        where
+        u.did = d.id
+        and gt.tec_id = t.id
+        and gt.grade_id = u.id
+        and gt.id = s.gt_id
+    </select>
+    <select id="excel" resultType="wxx.java.appraise.entity.TechnologyExcel">
+        SELECT distinct  m.department, m.technology, m.score
+        FROM(
+        SELECT d.NAME AS department, t.NAME AS technology,
+        AVG(( designer + personal + coordinate )/ 3) AS score ,gt.tec_id
+        FROM
+        tec_score s,
+        `user` u,
+        department d,
+        technology t,
+        grade_tec gt
+        WHERE
+        u.did = d.id
+        AND gt.tec_id = u.tid
+        AND u.tid = t.id
+        AND gt.id = s.gt_id
+        GROUP BY gt.tec_id) as m,
+        `user` u
+        <where>
+            <choose>
+                <when test="pid == 1">
+                </when>
+                <otherwise>
+                    u.id = #{id}
+                    and m.tec_id = u.tid
+                </otherwise>
+            </choose>
+        </where>
+    </select>
+</mapper>

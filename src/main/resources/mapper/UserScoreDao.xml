@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wxx.java.appraise.dao.UserScoreDao">
+    <insert id="add" parameterType="list">
+        insert into user_score(gs_id , designer , personal , coordinate)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+        (#{item.gsId} , #{item.designer} ,#{item.personal} ,#{item.coordinate})
+        </foreach>
+    </insert>
+    <insert id="appraise" parameterType="list">
+        insert into user_score( gs_id , designer , personal , coordinate , `month` , `year`)
+        value
+        <foreach collection="list" item="item" index="index" separator=",">
+            (#{item.gsId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} ,Year(CURDATE()))
+        </foreach>
+        ON DUPLICATE KEY UPDATE
+        designer = values(designer),
+        personal = values(personal),
+        coordinate = values(coordinate)
+    </insert>
+    <insert id="backups">
+        insert into user_score_backups(gs_id , designer , personal , coordinate , `month` , `year`)
+        select *
+        from user_score
+    </insert>
+    <delete id="del">
+        delete
+        from user_score
+        where gs_id = #{gsId}
+    </delete>
+    <delete id="delete">
+        delete
+        from user_score
+    </delete>
+
+    <select id="queryByGradeId" resultType="java.util.Map" parameterType="user">
+        select gs.id as id , gs.grade_id as gradeId , gs.score_id as scoreId ,
+        CASE gs.state when 0 then "false"
+        when  1 then "true" end as state ,
+        u.name as name , d.name as department, t.name as technology,u.username,
+        s.designer , s.personal , s.coordinate
+        from user u,
+        technology t,
+        department d ,
+        grade_score gs left join
+        user_score s on s.gs_id = gs.id
+        where gs.grade_id = #{id}
+        and gs.score_id = u.id
+        and u.did = d.id
+        and u.tid = t.id
+        <if test="queryByd != null and queryByd != ''">
+        and u.did in
+        <foreach collection="queryByd" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        </if>
+        <if test="queryByt != null and queryByt != ''">
+            and u.tid in
+            <foreach collection="queryByt" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        order by department , technology
+    </select>
+    <select id="queryScore" resultType="java.util.Map" parameterType="user">
+        SELECT distinct m.sNAME AS name, m.department, m.technology, m.score , m.username
+        FROM(
+        SELECT u.NAME AS sName, d.NAME AS department, t.NAME AS technology, u.username,
+         gs.score_id, AVG (( designer + personal + coordinate )/ 3) AS score
+        FROM
+        user_score s,
+        `USER` u,
+        department d,
+        technology t,
+        grade_score gs
+        WHERE
+        u.did = d.id
+        AND u.tid = t.id
+        AND gs.score_id = u.id
+        AND gs.id = s.gs_id
+        GROUP BY
+        gs.score_id) as m
+        <where>
+        <choose>
+         <when test="pid == 1">
+         </when>
+         <otherwise>
+        and m.score_id = #{id}
+         </otherwise>
+        </choose>
+        </where> 
+    </select>
+    <select id="query" resultType="java.util.Map">
+        select m.sname , m.department , m.technology , m .designer ,
+         m.personal , u.name as gname , m.coordinate
+        from (select u.name as sname, d.name as department , t.name as technology ,
+        designer , personal , gs.grade_id , coordinate
+        from
+        user_score s,
+        `user` u,
+        department d,
+        technology t,
+        grade_score gs
+        where
+        u.did = d.id
+        and u.tid = t.id
+        and gs.score_id = u.id
+        and gs.id = s.gs_id
+        ) as m,
+        user  u
+        where
+        m.grade_id = u.id
+    </select>
+    <select id="excel1" resultType="wxx.java.appraise.entity.PersonalExcel" parameterType="user">
+        SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
+        gs.score_id, AVG(( designer + personal + coordinate )/ 3) AS score
+        FROM
+        user_score s,
+        `USER` u,
+        department d,
+        technology t,
+        grade_score gs
+        WHERE
+        u.did = d.id
+        AND u.tid = t.id
+        AND gs.score_id = u.id
+        AND gs.id = s.gs_id
+        GROUP BY
+        gs.score_id
+    </select>
+</mapper>

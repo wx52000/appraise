@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wxx.java.appraise.dao.TechnologyDao">
+    <resultMap id="tecMap" type="technology">
+        <result column="id" property="id" jdbcType="INTEGER"></result>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <collection property="list" javaType="ARRAYLIST"
+                    column="id = id" select="getUser"/>
+    </resultMap>
+    <resultMap id="proTec" type="technology">
+        <result column="id" property="id" jdbcType="INTEGER"></result>
+        <result column="name" property="name" jdbcType="VARCHAR"></result>
+        <collection property="list" javaType="ARRAYLIST"
+                    column="tid = id" select="getPrincipal"/>
+    </resultMap>
+    <insert id="add">
+        insert into technology(name , did)
+        values (#{name} , #{did})
+    </insert>
+    <delete id="del">
+        delete
+        from technology
+        where id = #{id}
+    </delete>
+
+    <select id="query" resultType="wxx.java.appraise.entity.Technology">
+        select *
+        from technology
+        <where>
+        <if test="id != null and id != ''">
+            did = #{id}
+        </if>
+        </where>
+    </select>
+    <select id="queryByName" resultType="java.lang.Integer">
+        select id
+        from technology
+        where name = #{name}
+    </select>
+    <select id="queryToSelected" resultMap="tecMap">
+        select id , name
+        from technology
+    </select>
+    <select id="getUser" resultType="map">
+        select id , `name`
+        from
+        `user`
+        where  tid = #{id}
+    </select>
+    <select id="queryByPro" resultType="wxx.java.appraise.entity.Technology">
+        select id , `name`
+        from
+        technology t ,
+        project_tec pt
+        where pt.project_id = #{tid}
+        and pt.tec_id = #{id}
+    </select>
+    <select id="queryById" resultType="java.util.Map" parameterType="project">
+        select id , `name`
+        from technology
+        where id in
+        <foreach collection="projectTec" open="(" close=")" item="item" separator=",">
+            #{item}
+        </foreach>
+    </select>
+
+</mapper>

@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.VolumeDao">
+    <insert id="addFormPro">
+        <foreach collection="volumes" item="item" separator=",">
+        insert into volume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="item.pid != null and item.pid != ''">
+                project_id,
+            </if>
+            <if test="item.number != null and item.number != ''">
+                `number`,
+            </if>
+            <if test="item.name != null and item.name != ''">
+                `name`,
+            </if>
+            <if test="item.grade != null and item.grade != ''">
+                grade,
+            </if>
+            <if test="item.tecId != null and item.tecId != ''">
+                tec_id,
+            </if>
+            <if test="item.plannedPublicationDate != null and item.plannedPublicationDate != ''">
+                planned_publication_date,
+            </if>
+        </trim>
+        value
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="item.pid != null and item.pid != ''">
+                #{item.pid},
+            </if>
+            <if test="item.number != null and item.number != ''">
+                #{item.number},
+            </if>
+            <if test="item.name != null and item.name != ''">
+                #{item.name },
+            </if>
+            <if test="item.grade != null and item.grade != ''">
+                #{item.grade},
+            </if>
+            <if test="item.tecId != null and item.tecId != ''">
+                #{item.tecId },
+            </if>
+            <if test="item.plannedPublicationDate != null and item.plannedPublicationDate != ''">
+                #{item.plannedPublicationDate}
+            </if>
+            </trim>
+        </foreach>
+    </insert>
+    <insert id="add" parameterType="volume" useGeneratedKeys="true" keyProperty="id">
+        insert into volume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pid != null and pid != ''">
+                `project_id`,
+            </if>
+            <if test="number != null and number != ''">
+                `number`,
+            </if>
+            <if test="name != null and name != ''">
+                `name`,
+            </if>
+            <if test="grade != null and grade != ''">
+                grade,
+            </if>
+            <if test="tecId != null and tecId != ''">
+                tec_id,
+            </if>
+            <if test="plannedPublicationDate != null and plannedPublicationDate != ''">
+                planned_publication_date,
+            </if>
+            <if test="professionalDate != null and professionalDate != ''">
+                professional_date,
+            </if>
+            <if test="withdrawalDate != null and withdrawalDate != ''">
+                withdrawal_date,
+            </if>
+            <if test="creator != null and creator != ''">
+                creator,
+            </if>
+            <if test="creatorDate != null and creatorDate != ''">
+                create_time,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="pid != null and pid != ''">
+            #{pid},
+        </if>
+        <if test="number != null and number != ''">
+            #{number},
+        </if>
+        <if test="name != null and name != ''">
+            #{name},
+        </if>
+        <if test="grade != null and grade != ''">
+            #{grade},
+        </if>
+        <if test="tecId != null and tecId != ''">
+            #{tecId},
+        </if>
+        <if test="plannedPublicationDate != null and plannedPublicationDate != ''">
+            #{plannedPublicationDate},
+        </if>
+        <if test="professionalDate != null and professionalDate != ''">
+            #{professionalDate},
+        </if>
+        <if test="withdrawalDate != null and withdrawalDate != ''">
+            #{withdrawalDate},
+        </if>
+            <if test="creator != null and creator != ''">
+                #{creator},
+            </if>
+            <if test="creatorDate != null and creatorDate != ''">
+                #{creatorDate},
+            </if>
+
+        </trim>
+    </insert>
+    <insert id="addExcelVolume" parameterType="excelProject">
+        <selectKey resultType="integer" keyProperty="vid" order="AFTER">
+            select id
+            from volume
+            where `number` = #{number}
+        </selectKey>
+       insert ignore into volume
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pid != null and pid != ''">
+                `project_id`,
+            </if>
+            <if test="number != null and number != ''">
+                `number`,
+            </if>
+            <if test="volumeName != null and volumeName != ''">
+                `name`,
+            </if>
+            <if test="grade != null and grade != ''">
+                grade,
+            </if>
+            <if test="tid != null and tid != ''">
+                tec_id,
+            </if>
+            <if test="plannedPublicationDate != null and plannedPublicationDate != ''">
+                planned_publication_date,
+            </if>
+            <if test="actualPublicationDate != null and actualPublicationDate != ''">
+                actual_publication_date,
+            </if>
+            <if test="professionalDate != null and professionalDate != ''">
+                professional_date,
+            </if>
+            <if test="withdrawalDate != null and withdrawalDate != ''">
+                withdrawal_date,
+            </if>
+            <if test="checkerCompletionDate != null and checkerCompletionDate != ''">
+                checker_date,
+            </if>
+            <if test="principalCompletionDate != null and principalCompletionDate != ''">
+                principal_date,
+            </if>
+            <if test="headmanCompletionDate != null and headmanCompletionDate != ''">
+                headman_date,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="pid != null and pid != ''">
+                #{pid},
+            </if>
+            <if test="number != null and number != ''">
+                #{number},
+            </if>
+            <if test="volumeName != null and volumeName != ''">
+                #{volumeName},
+            </if>
+            <if test="grade != null and grade != ''">
+                #{grade},
+            </if>
+            <if test="tid != null and tid != ''">
+                #{tid},
+            </if>
+            <if test="plannedPublicationDate != null and plannedPublicationDate != ''">
+                #{plannedPublicationDate},
+            </if>
+            <if test="actualPublicationDate != null and actualPublicationDate != ''">
+                #{actualPublicationDate},
+            </if>
+            <if test="professionalDate != null and professionalDate != ''">
+                #{professionalDate},
+            </if>
+            <if test="withdrawalDate != null and withdrawalDate != ''">
+                #{withdrawalDate},
+            </if>
+            <if test="checkerCompletionDate != null and checkerCompletionDate != ''">
+                #{checkerCompletionDate},
+            </if>
+            <if test="principalCompletionDate != null and principalCompletionDate != ''">
+                #{principalCompletionDate},
+            </if>
+            <if test="headmanCompletionDate != null and headmanCompletionDate != ''">
+                #{headmanCompletionDate},
+            </if>
+        </trim>
+    </insert>
+    <update id="upd">
+        update volume
+        <set>
+        <if test="number != null and number !=''">
+            `number`  = #{number},
+        </if>
+        <if test="name != null and name !=''">
+            `name`  = #{name},
+        </if>
+        <if test="grade != null and grade !=''">
+            `grade`  = #{grade},
+        </if>
+        <if test="tecId != null and tecId !=''">
+            `tec_id`  = #{tecId},
+        </if>
+        <if test="plannedPublicationDate != null and plannedPublicationDate !=''">
+            `planned_publication_date`  = #{plannedPublicationDate},
+        </if>
+        <if test="actualPublicationDate != null and actualPublicationDate !=''">
+            `actual_publication_date`  = #{actualPublicationDate},
+        </if>
+        <if test="professionalDate != null and professionalDate !=''">
+            `professional_date`  = #{professionalDate},
+        </if>
+        <if test="withdrawalDate != null and withdrawalDate !=''">
+            `withdrawal_date`  = #{withdrawalDate},
+        </if>
+        <if test="shotDate != null and shotDate !=''">
+            `shot_date`  = #{shotDate} ,
+        </if>
+        <if test="completeDate != null and completeDate !=''">
+            `complete_time`  = #{completeDate} ,
+        </if>
+            <if test="headmanDate != null and headmanDate !=''">
+                `headman_date`  = #{headmanDate} ,
+            </if>
+            <if test="checkerDate != null and checkerDate !=''">
+                `checker_date`  = #{checkerDate} ,
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <select id="queryById" resultType="java.util.Map">
+        select v.id , v.number , v.name as name , v.grade, t.name as tec, t.id as tid,
+         v.planned_publication_date ,
+         v.actual_publication_date ,
+         v.professional_date ,
+         v.withdrawal_date ,
+         v.shot_date ,
+         v.complete_time,
+         GROUP_CONCAT(distinct designer.name Separator ',' ) AS designer,
+         GROUP_CONCAT(distinct checker.name Separator ',' ) as checker
+        from
+        volume v LEFT JOIN
+        (select  vu.volume_id , u.name
+        from volume_user vu,
+        `user` u
+        where vu.volume_id = #{id}
+        and u.id = vu.user_id
+        and power_id = 4 ) as designer ON v.id = designer.volume_id LEFT JOIN
+        (select  vu.volume_id , u.name
+        from volume_user vu,
+        `user` u
+        where vu.volume_id = #{id}
+        and u.id = vu.user_id
+        and power_id = 5 ) as checker ON designer.volume_id = checker.volume_id,
+        technology t
+        where v.id = #{id}
+        and t.id = v.tec_id
+    </select>
+</mapper>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="wxx.java.appraise.dao.RangeDao">
+    <update id="update">
+        update `range`
+        set min = #{min},
+            max = #{max}
+        where id = 1
+    </update>
+    <select id="query" resultType="wxx.java.appraise.entity.Range">
+        select *
+        from `range`
+    </select>
+</mapper>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.GradeScoreDao">
+    <insert id="add" parameterType="gradeScore">
+        insert ignore into grade_score(grade_id ,score_id)
+        values
+        <foreach collection="list" item="item" separator=",">
+        ( #{item.gradeId} , #{item.scoreId})
+        </foreach>
+
+    </insert>
+    <insert id="addExcel">
+        insert ignore into grade_score(grade_id ,score_id)
+        value
+        <foreach collection="grade" item="g" separator=",">
+            <foreach collection="score" item="s" separator="," >
+            (#{g} , #{s})
+            </foreach>
+        </foreach>
+    </insert>
+    <insert id="amongExcel">
+        insert ignore into grade_score(grade_id ,score_id)
+        value
+        <foreach collection="list" item="grade" separator=",">
+            <foreach collection="list" item="score" separator="," >
+            <if test="grade != score ">
+                ( #{grade} , #{score})
+            </if>
+            </foreach>
+        </foreach>
+    </insert>
+    <update id="updState">
+        <foreach collection="list" item="item" index="index" separator=";">
+            update grade_score
+            <set>
+                <trim suffixOverrides=",">
+                        state = 1,
+                </trim>
+            </set>
+            where id = #{item.gsId}
+        </foreach>
+    </update>
+    <update id="resetState">
+        update grade_score
+        set state = 0
+    </update>
+    <delete id="del">
+        delete
+        from grade_score
+        where grade_id = #{gradeId}
+        and score_id = #{scoreId}
+    </delete>
+    <delete id="delAll">
+        delete
+        from grade_score
+    </delete>
+    <select id="queryTec" resultType="java.util.Map">
+        select distinct  t.id as `value` , t.name as text
+        from
+        `user` u,
+        grade_score gs,
+        technology t
+        where gs.grade_id =#{id}
+        and gs.score_id = u.id
+        and u.tid = t.id
+    </select>
+    <select id="queryDep" resultType="java.util.Map">
+        select distinct  d.id as `value` , d.name as text
+        from
+        `user` u,
+        grade_score gs,
+        department d
+        where gs.grade_id =#{id}
+        and gs.score_id = u.id
+        and u.did = d.id
+    </select>
+</mapper>
