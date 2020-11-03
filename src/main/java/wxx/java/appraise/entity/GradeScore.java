@@ -10,7 +10,15 @@ public class GradeScore {
 
     private Integer scoreId;
 
-    private List<Integer> scoreIds;
+    private List<Integer> addScoreId;
+
+    private List<Integer> delScoreId;
+
+    private List<Integer> tec;
+
+    private List<Integer> dep;
+
+    private Integer  stateAll;
 
     public Integer getId() {
         return id;
@@ -36,11 +44,43 @@ public class GradeScore {
         this.scoreId = scoreId;
     }
 
-  public List<Integer> getScoreIds() {
-    return scoreIds;
+  public List<Integer> getAddScoreId() {
+    return addScoreId;
   }
 
-  public void setScoreIds(List<Integer> scoreIds) {
-    this.scoreIds = scoreIds;
+  public void setAddScoreId(List<Integer> addScoreId) {
+    this.addScoreId = addScoreId;
+  }
+
+  public List<Integer> getDelScoreId() {
+    return delScoreId;
+  }
+
+  public void setDelScoreId(List<Integer> delScoreId) {
+    this.delScoreId = delScoreId;
+  }
+
+  public List<Integer> getTec() {
+    return tec;
+  }
+
+  public void setTec(List<Integer> tec) {
+    this.tec = tec;
+  }
+
+  public List<Integer> getDep() {
+    return dep;
+  }
+
+  public void setDep(List<Integer> dep) {
+    this.dep = dep;
+  }
+
+  public Integer getStateAll() {
+    return stateAll;
+  }
+
+  public void setStateAll(Integer stateAll) {
+    this.stateAll = stateAll;
   }
 }
