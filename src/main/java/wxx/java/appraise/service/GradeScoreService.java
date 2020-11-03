@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface GradeScoreService {
 
-    void add(List<GradeScore> gradeScore);
+    void manage(GradeScore gradeScore);
 
     void del(GradeScore  gradeScore);
 

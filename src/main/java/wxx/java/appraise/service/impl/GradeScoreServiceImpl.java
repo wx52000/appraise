@@ -18,8 +18,9 @@ public class GradeScoreServiceImpl implements GradeScoreService {
     }
 
     @Override
-    public void add(List<GradeScore> gradeScore) {
+    public void manage(GradeScore gradeScore) {
 //        System.out.println(gradeScore);
+        gradeScoreDao.del(gradeScore);
         gradeScoreDao.add(gradeScore);
     }
 

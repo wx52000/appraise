@@ -11,7 +11,7 @@ import java.util.Map;
 @Repository
 public interface GradeScoreDao {
 
-    void add(List<GradeScore> list);
+    void add(GradeScore list);
 
     void del(GradeScore gradeScore);
 

@@ -1,5 +1,7 @@
 package wxx.java.appraise.entity;
 
+import java.util.List;
+
 public class GradeScore {
 
     private Integer id;
@@ -7,6 +9,8 @@ public class GradeScore {
     private Integer gradeId;
 
     private Integer scoreId;
+
+    private List<Integer> scoreIds;
 
     public Integer getId() {
         return id;
@@ -31,4 +35,12 @@ public class GradeScore {
     public void setScoreId(Integer scoreId) {
         this.scoreId = scoreId;
     }
+
+  public List<Integer> getScoreIds() {
+    return scoreIds;
+  }
+
+  public void setScoreIds(List<Integer> scoreIds) {
+    this.scoreIds = scoreIds;
+  }
 }

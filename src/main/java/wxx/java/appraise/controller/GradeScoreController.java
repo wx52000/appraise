@@ -10,8 +10,6 @@ import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.GradeScoreService;
 import wxx.java.appraise.tools.ExcelDataListener;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("gradeScore")
 public class GradeScoreController {
@@ -27,17 +25,12 @@ public class GradeScoreController {
         this.excelDataListener = excelDataListener;
     }
 
-    @RequestMapping("add")
-    public Result add(@RequestBody List<GradeScore> gradeScore){
-        gradeScoreService.add(gradeScore);
+    @RequestMapping("manage")
+    public Result manage(@RequestBody GradeScore gradeScore){
+        gradeScoreService.manage(gradeScore);
         return Result.ok();
     }
 
-    @RequestMapping("del")
-    public Result del(@RequestBody GradeScore gradeScore){
-        gradeScoreService.del(gradeScore);
-        return Result.ok();
-    }
 
     @RequestMapping("queryTec")
     public Result queryTec(@RequestHeader Integer id){

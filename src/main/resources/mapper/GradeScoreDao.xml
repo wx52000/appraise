@@ -4,10 +4,9 @@
     <insert id="add" parameterType="gradeScore">
         insert ignore into grade_score(grade_id ,score_id)
         values
-        <foreach collection="list" item="item" separator=",">
-        ( #{item.gradeId} , #{item.scoreId})
+        <foreach collection="scoreIds" item="item" separator=",">
+        ( #{gradeId} , #{item})
         </foreach>
-
     </insert>
     <insert id="addExcel">
         insert ignore into grade_score(grade_id ,score_id)
@@ -48,7 +47,10 @@
         delete
         from grade_score
         where grade_id = #{gradeId}
-        and score_id = #{scoreId}
+        and score_id not in
+        <foreach collection="scoreIds" item="item" open="(" close=")" separator=",">
+        #{item}
+        </foreach>
     </delete>
     <delete id="delAll">
         delete
