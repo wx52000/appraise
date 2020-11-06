@@ -24,7 +24,19 @@ public class TechnologyServiceImpl implements TechnologyService {
         return technologyDao.query(id);
     }
 
-    @Override
+  @Override
+  public List<Technology> queryNotUser() {
+    return technologyDao.queryNotUser();
+  }
+
+  @Override
+  public List<Map> evaluate(Integer id) {
+
+    return technologyDao.evaluate(id);
+  }
+
+
+  @Override
     public Integer queryByName(String name) {
         return technologyDao.queryByName(name);
     }
@@ -34,7 +46,16 @@ public class TechnologyServiceImpl implements TechnologyService {
         technologyDao.add(technology);
     }
 
-    @Override
+  @Override
+  public Integer addString(String name, Integer d) {
+      Technology technology = new Technology();
+      technology.setName(name);
+      technology.setDid(d);
+      technologyDao.add(technology);
+    return technology.getId();
+  }
+
+  @Override
     public void del(Integer id) {
         technologyDao.del(id);
     }

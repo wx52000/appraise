@@ -2,25 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="wxx.java.appraise.dao.UserScoreDao">
     <insert id="add" parameterType="list">
-        insert into user_score(gs_id , designer , personal , coordinate)
+        insert into user_score(grade_id , score_id , designer , personal , coordinate)
         values
         <foreach collection="list" item="item" index="index" separator=",">
-        (#{item.gsId} , #{item.designer} ,#{item.personal} ,#{item.coordinate})
+        (#{item.gradeId} ,#{item.scoreId} , #{item.designer} ,#{item.personal} ,#{item.coordinate})
         </foreach>
     </insert>
     <insert id="appraise" parameterType="list">
-        insert into user_score( gs_id , designer , personal , coordinate , `month` , `year`)
+        insert into user_score( grade_id , score_id , designer , personal , coordinate , `month` , `year` , `date` )
         value
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.gsId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} ,Year(CURDATE()))
+            (#{item.gradeId} ,#{item.scoreId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} ,Year(CURDATE()) , #{item.date})
         </foreach>
         ON DUPLICATE KEY UPDATE
         designer = values(designer),
         personal = values(personal),
-        coordinate = values(coordinate)
+        coordinate = values(coordinate),
+        `month` = values(`month`),
+        `year` = values(`year`),
+        `date` = values(`date`)
     </insert>
     <insert id="backups">
-        insert into user_score_backups(gs_id , designer , personal , coordinate , `month` , `year`)
+        insert into user_score_backups(grade_id , score_id  , designer , personal , coordinate , `month` , `year`)
         select *
         from user_score
     </insert>
@@ -89,7 +92,7 @@
         and m.score_id = #{id}
          </otherwise>
         </choose>
-        </where> 
+        </where>
     </select>
     <select id="query" resultType="java.util.Map">
         select m.sname , m.department , m.technology , m .designer ,

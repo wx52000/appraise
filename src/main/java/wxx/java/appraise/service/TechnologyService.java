@@ -10,9 +10,15 @@ public interface TechnologyService {
 
     List<Technology> query(Integer id);
 
+    List<Technology> queryNotUser();
+
+    List<Map> evaluate(Integer id);
+
     Integer queryByName(String name);
 
     void add(Technology technology);
+
+    Integer addString(String name,Integer d);
 
     void del(Integer id);
 

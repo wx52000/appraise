@@ -9,11 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import wxx.java.appraise.entity.ExcelData;
 import wxx.java.appraise.entity.ExcelProject;
+import wxx.java.appraise.entity.UserExcel;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.GradeScoreService;
 import wxx.java.appraise.service.GradeTecService;
 import wxx.java.appraise.tools.ExcelDataListener;
 import wxx.java.appraise.tools.ExcelProjectListener;
+import wxx.java.appraise.tools.UserExcelListener;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,6 +31,7 @@ public class ExcelController {
     private ExcelDataListener excelDataListener;
     private GradeTecService gradeTecService;
     private ExcelProjectListener excelProjectListener;
+    private UserExcelListener userExcelListener;
     @Autowired
     public  void  setGradeScoreService(GradeScoreService gradeScoreService){
         this.gradeScoreService = gradeScoreService;
@@ -46,7 +49,11 @@ public class ExcelController {
     public void setExcelProjectListener(ExcelProjectListener excelProjectListener){
         this.excelProjectListener = excelProjectListener;
     }
-
+    @Autowired
+    public void setUserExcelListener(UserExcelListener userExcelListener){
+      this.userExcelListener = userExcelListener;
+    }
+//两表导入  ---已经弃用
     @RequestMapping("personalExcel")
     public Result personalExcel(@RequestParam("file") MultipartFile[] files){
         InputStream fileStream = null;
@@ -82,7 +89,7 @@ public class ExcelController {
 
         return Result.ok();
     }
-
+  //表内数据相互  ---已经弃用
     @RequestMapping("amongExcel")
     public Result amongExcel(@RequestParam("file") MultipartFile file){
         InputStream fileStream = null;
@@ -111,6 +118,27 @@ public class ExcelController {
         gradeScoreService.amongExcel(list);
         return Result.ok();
     }
+
+  @RequestMapping("userExcel")
+  public Result userExcel(@RequestParam("file") MultipartFile file){
+    InputStream fileStream = null;
+    Sheet sheet = new Sheet(1, 2, UserExcel.class);
+    try {
+      fileStream = file.getInputStream();
+      EasyExcelFactory.readBySax(fileStream,sheet,userExcelListener);
+    } catch (IOException e) {
+      e.printStackTrace();
+    } finally {
+      try {
+        if (fileStream != null) {
+          fileStream.close();
+        }
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return Result.ok();
+  }
 
     @RequestMapping("project")
     public Result project(@RequestParam("file") MultipartFile file){

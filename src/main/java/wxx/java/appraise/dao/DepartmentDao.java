@@ -10,6 +10,8 @@ public interface DepartmentDao {
 
     List<Department> query();
 
+    List<Department> queryNotUser();
+
     void add(Department department);
 
     void del(Integer id);

@@ -24,6 +24,16 @@ public class TechnologyController {
         return Result.ok(technologyService.query(id));
     }
 
+    @RequestMapping("queryNotUser")
+    public Result queryNotUser() {
+      return Result.ok(technologyService.queryNotUser());
+    }
+
+    @RequestMapping("evaluate")
+    public Result evaluate(@RequestHeader Integer id) {
+      return Result.ok(technologyService.evaluate(id));
+    }
+
     @RequestMapping("add")
     public Result add(@RequestBody Technology technology){
         technologyService.add(technology);

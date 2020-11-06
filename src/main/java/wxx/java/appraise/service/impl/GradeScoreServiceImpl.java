@@ -20,7 +20,6 @@ public class GradeScoreServiceImpl implements GradeScoreService {
     @Override
     public void manage(GradeScore gradeScore) {
 //        System.out.println(gradeScore);
-
         if (gradeScore.getAddScoreId().size() != 0)
           gradeScoreDao.add(gradeScore);
         if (gradeScore.getDelScoreId().size() != 0)

@@ -25,6 +25,8 @@ public interface UserService {
 
     List<Map> queryByTid(Integer id);
 
+      PageInfo<Map> queryNotSelf(User user);
+
     PageInfo<Map> queryNotScore(User user);
 
     List<Map> queryByTec(Integer id);

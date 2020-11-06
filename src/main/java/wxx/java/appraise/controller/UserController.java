@@ -54,6 +54,11 @@ public class UserController {
         return Result.ok(userService.queryByTid(id));
     }
 
+    @RequestMapping("queryNotSelf")
+    public Result queryNotSelf(@RequestBody User user){
+      return Result.ok(userService.queryNotSelf(user));
+    }
+
     @RequestMapping("queryNotScore")
     public Result queryNotScore(@RequestBody User user){
         return Result.ok(userService.queryNotScore(user));

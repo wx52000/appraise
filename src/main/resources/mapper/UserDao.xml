@@ -11,15 +11,16 @@
         insert into user(pid , did , tid , `name` , username , paw)
         values (#{pid} , #{did} , #{tid} , #{name} , #{username} , "1234")
     </insert>
-    <insert id="addExcel">
-        insert into user(pid , did , tid , `name` , username)
+    <insert id="addExcel" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+        insert into user(pid , did , tid , `name` , username ,grade)
         value
         <foreach collection="list" index="index" item="item" separator=",">
-        ( 3, #{item.department} , #{item.technology} , #{item.name} , #{item.username})
+        ( 4, #{item.department} , #{item.technology} , #{item.name} , #{item.username} , #{item.grade})
         </foreach>
         ON DUPLICATE KEY UPDATE
         did = values(did),
-        tid = values(tid)
+        tid = values(tid),
+        grade = values(grade)
     </insert>
     <update id="upd">
         update user
@@ -175,4 +176,34 @@
         from `user`
         where `name` = #{name}
     </select>
+  <select id="queryNotSelf" resultType="java.util.Map">
+        select distinct u.id , u.name as name, u.username ,
+        d.name as department , t.name as technology ,
+        us.designer , us.personal , us.coordinate
+        from `user` u left join
+        user_score us on us.grade_id = #{id} and u.id = us.score_id ,
+        department d,
+        technology t
+        where u.id &lt;&gt; #{id}
+        and u.did = d.id
+        and u.tid = t.id
+    <if test="dIds != null and dIds != ''">
+      and d.id in
+      <foreach collection="dIds" item="item" separator="," close=")" open="(">
+        #{item}
+      </foreach>
+    </if>
+    <if test="tIds != null and tIds != ''">
+      and t.id in
+      <foreach collection="tIds" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="selectName != null and selectName != ''">
+      order by ${selectName}
+    </if>
+    <if test="selectType == 1">
+      desc
+    </if>
+  </select>
 </mapper>

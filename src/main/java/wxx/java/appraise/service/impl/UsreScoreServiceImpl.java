@@ -52,7 +52,7 @@ public class UsreScoreServiceImpl implements UserScoreService {
             month = calendar.get(Calendar.MONTH)+1;
         else month = calendar.get(Calendar.MONTH);
         userScoreDao.appraise(list,month);
-        gradeScoreDao.updState(list);
+//        gradeScoreDao.updState(list);
 
     }
 

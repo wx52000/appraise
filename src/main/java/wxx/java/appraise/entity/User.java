@@ -19,6 +19,8 @@ public class User {
 
     private String username;
 
+    private Integer grade;
+
     private String paw;
 
     private Integer pageIndex;
@@ -36,7 +38,6 @@ public class User {
     private String selectName;
 
     private Integer selectType;
-
 
 
     public User() {
@@ -90,7 +91,16 @@ public class User {
         this.username = username;
     }
 
-    public String getPaw() {
+
+  public Integer getGrade() {
+    return grade;
+  }
+
+  public void setGrade(Integer grade) {
+    this.grade = grade;
+  }
+
+  public String getPaw() {
         return paw;
     }
 

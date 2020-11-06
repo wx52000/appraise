@@ -4,13 +4,17 @@ public class TecScore {
 
     private Integer id;
 
-    private Integer gtId;
+    private Integer gradeId;
+
+    private Integer tecId;
 
     private Double designer;
 
     private Double personal;
 
     private Double coordinate;
+
+    private Long date;
 
     public Integer getId() {
         return id;
@@ -20,15 +24,23 @@ public class TecScore {
         this.id = id;
     }
 
-    public Integer getGtId() {
-        return gtId;
+    public Integer getTecId() {
+      return tecId;
     }
 
-    public void setGtId(Integer gtId) {
-        this.gtId = gtId;
+    public void setTecId(Integer tecId) {
+      this.tecId = tecId;
     }
 
-    public Double getDesigner() {
+    public Long getDate() {
+      return date;
+    }
+
+  public void setDate(Long date) {
+    this.date = date;
+  }
+
+  public Double getDesigner() {
         return designer;
     }
 
@@ -50,5 +62,13 @@ public class TecScore {
 
     public void setCoordinate(Double coordinate) {
         this.coordinate = coordinate;
+    }
+
+    public Integer getGradeId() {
+      return gradeId;
+    }
+
+    public void setGradeId(Integer gradeId) {
+      this.gradeId = gradeId;
     }
 }

@@ -2,18 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="wxx.java.appraise.dao.TecScoreDao">
     <insert id="appraise" parameterType="list">
-        insert into tec_score(gt_id , designer , personal , coordinate , `month` , `year`)
+        insert into tec_score(grade_id , tec_id , designer , personal , coordinate , `month` , `year` ,`date`)
         value
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.gtId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} , YEAR(CURDATE()))
+            (#{item.gradeId} , #{item.tecId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} , YEAR(CURDATE()) , #{item.date})
         </foreach>
         ON DUPLICATE KEY UPDATE
         designer = values(designer),
         personal = values(personal),
-        coordinate = values(coordinate)
+        coordinate = values(coordinate),
+        `month` = values(`month`),
+        `year` = values(`year`),
+        `date` = values(`date`)
     </insert>
     <update id="backups">
-        insert into tec_score_backups(id , gt_id , designer , personal , coordinate , `month` , `year`)
+        insert into tec_score_backups(grade_id , tec_id , designer , personal , coordinate , `month` , `year` , `date`)
         select *
         from tec_score
     </update>

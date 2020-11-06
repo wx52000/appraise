@@ -25,6 +25,12 @@ public class DepartmentController {
     public Result query(){
         return Result.ok(departmentService.query());
     }
+
+    @RequestMapping("queryNotUser")
+    public Result queryNotUser() {
+      return Result.ok(departmentService.queryNotUser());
+    }
+
     @RequestMapping("add")
     public Result add(@RequestBody Department department){
         departmentService.add(department);

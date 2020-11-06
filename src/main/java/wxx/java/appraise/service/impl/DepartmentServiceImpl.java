@@ -21,14 +21,25 @@ public class DepartmentServiceImpl implements DepartmentService {
         return departmentDao.query();
     }
 
-    @Override
+  @Override
+  public List<Department> queryNotUser() {
+    return departmentDao.queryNotUser();
+  }
+
+  @Override
     public void add(Department department) {
         departmentDao.add(department);
     }
 
-    @Override
-    public void del(Integer id) {
+  @Override
+  public Integer addString(String s) {
+    Department department = new Department(s);
+    departmentDao.add(department);
+    return department.getId();
+  }
 
+  @Override
+    public void del(Integer id) {
         departmentDao.del(id);
     }
 

@@ -13,9 +13,9 @@
         <collection property="list" javaType="ARRAYLIST"
                     column="tid = id" select="getPrincipal"/>
     </resultMap>
-    <insert id="add">
-        insert into technology(name , did)
-        values (#{name} , #{did})
+    <insert id="add" parameterType="technology" useGeneratedKeys="true" keyProperty="id">
+        insert into technology(`name`, did)
+        values (#{name} , #{did} )
     </insert>
     <delete id="del">
         delete
@@ -63,5 +63,29 @@
             #{item}
         </foreach>
     </select>
+    <select id="queryNotUser" resultType="wxx.java.appraise.entity.Technology">
+        select *
+        from technology t
+        where exists (
+        select u.*
+        from `user` u
+        where u.tid = t.id
+        )
+    </select>
+  <select id="evaluate" resultType="java.util.Map">
+    select d.name as department , t.name as technology , t.id as tecId ,
+    ts.designer , ts.personal , ts.coordinate
+    from technology t
+    left join department d
+    on t.did = d.id
+    left  join tec_score ts
+    on t.id = ts.tec_id and ts.grade_id = #{id}
+    where
+     exists (
+    select u.*
+    from `user` u
+    where u.tid = t.id
+    )
+  </select>
 
 </mapper>

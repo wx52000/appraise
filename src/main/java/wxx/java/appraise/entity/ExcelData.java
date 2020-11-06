@@ -5,6 +5,7 @@ import com.alibaba.excel.metadata.BaseRowModel;
 
 public class ExcelData extends BaseRowModel {
 
+    private Integer id;
     @ExcelProperty(value = "姓名" , index = 0)
     private String name;
 
@@ -17,7 +18,20 @@ public class ExcelData extends BaseRowModel {
     @ExcelProperty(value = "工号", index = 3)
     private String username;
 
-    public String getName() {
+    @ExcelProperty(value = "职位" , index = 4)
+    private String position;
+
+    private Integer grade;
+
+  public Integer getId() {
+    return id;
+  }
+
+  public void setId(Integer id) {
+    this.id = id;
+  }
+
+  public String getName() {
         return name;
     }
 
@@ -48,4 +62,20 @@ public class ExcelData extends BaseRowModel {
     public void setUsername(String username) {
         this.username = username;
     }
+
+  public String getPosition() {
+    return position;
+  }
+
+  public void setPosition(String position) {
+    this.position = position;
+  }
+
+  public Integer getGrade() {
+    return grade;
+  }
+
+  public void setGrade(Integer grade) {
+    this.grade = grade;
+  }
 }

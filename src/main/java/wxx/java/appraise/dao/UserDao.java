@@ -27,6 +27,8 @@ public interface UserDao {
 
     List<Map> queryByTid(Integer id);
 
+    List<Map> queryNotSelf(User user);
+
     List<Map> queryNotScore(User user);
 
     List<Map> queryByTec(Integer id);

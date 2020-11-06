@@ -61,7 +61,18 @@ public class UserServiceImpl implements UserService {
         return userDao.queryByTid(id);
     }
 
-    @Override
+  @Override
+  public PageInfo<Map> queryNotSelf(User user) {
+      User user1 = userDao.queryById(user.getId());
+      if (user1.getGrade() == 1) {
+        PageHelper.startPage(user.getPageIndex(), user.getPageSize(), true);
+        PageInfo<Map> pageInfo = new PageInfo<>(userDao.queryNotSelf(user));
+        return pageInfo;
+      }else
+        return null;
+  }
+
+  @Override
     public PageInfo<Map> queryNotScore(User user) {
         PageHelper.startPage(user.getPageIndex(),user.getPageSize(),true);
         PageInfo<Map> pageInfo = new PageInfo<>(userDao.queryNotScore(user));

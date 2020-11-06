@@ -12,6 +12,11 @@ public interface TechnologyDao {
 
     List<Technology> query(Integer id);
 
+    List<Technology> queryNotUser();
+
+    //评价页面
+    List<Map> evaluate(Integer id);
+
     Integer queryByName(String name);
 
     void add(Technology technology);

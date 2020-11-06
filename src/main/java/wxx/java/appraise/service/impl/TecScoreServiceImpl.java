@@ -45,7 +45,7 @@ public class TecScoreServiceImpl implements TecScoreService {
             month = calendar.get(Calendar.MONTH)+1;
         else month = calendar.get(Calendar.MONTH);
         tecScoreDao.appraise(list,month);
-        gradeTecDao.updState(list);
+//        gradeTecDao.updState(list);
     }
 
     @Override
