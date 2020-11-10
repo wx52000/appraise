@@ -70,20 +70,18 @@
         SELECT distinct m.sNAME AS name, m.department, m.technology, m.score , m.username
         FROM(
         SELECT u.NAME AS sName, d.NAME AS department, t.NAME AS technology, u.username,
-         gs.score_id, AVG (( designer + personal + coordinate )/ 3) AS score
+        s.score_id ,  AVG (( designer + personal + coordinate )/ 3) AS score
         FROM
         user_score s,
         `USER` u,
         department d,
-        technology t,
-        grade_score gs
+        technology t
         WHERE
         u.did = d.id
         AND u.tid = t.id
-        AND gs.score_id = u.id
-        AND gs.id = s.gs_id
+        AND s.score_id = u.id
         GROUP BY
-        gs.score_id) as m
+        s.score_id) as m
         <where>
         <choose>
          <when test="pid == 1">
@@ -98,18 +96,16 @@
         select m.sname , m.department , m.technology , m .designer ,
          m.personal , u.name as gname , m.coordinate
         from (select u.name as sname, d.name as department , t.name as technology ,
-        designer , personal , gs.grade_id , coordinate
+        designer , personal , s.grade_id , coordinate
         from
         user_score s,
         `user` u,
         department d,
-        technology t,
-        grade_score gs
+        technology t
         where
         u.did = d.id
         and u.tid = t.id
-        and gs.score_id = u.id
-        and gs.id = s.gs_id
+        and s.score_id = u.id
         ) as m,
         user  u
         where
@@ -117,19 +113,17 @@
     </select>
     <select id="excel1" resultType="wxx.java.appraise.entity.PersonalExcel" parameterType="user">
         SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
-        gs.score_id, AVG(( designer + personal + coordinate )/ 3) AS score
+        s.score_id, AVG(( designer + personal + coordinate )/ 3) AS score
         FROM
         user_score s,
         `USER` u,
         department d,
-        technology t,
-        grade_score gs
+        technology t
         WHERE
         u.did = d.id
         AND u.tid = t.id
-        AND gs.score_id = u.id
-        AND gs.id = s.gs_id
+        AND s.score_id = u.id
         GROUP BY
-        gs.score_id
+        s.score_id
     </select>
 </mapper>

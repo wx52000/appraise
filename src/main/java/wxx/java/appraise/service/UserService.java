@@ -23,6 +23,8 @@ public interface UserService {
 
     PageInfo<Map> query(User user);
 
+    Map queryToupd(Integer id);
+
     List<Map> queryByTid(Integer id);
 
       PageInfo<Map> queryNotSelf(User user);

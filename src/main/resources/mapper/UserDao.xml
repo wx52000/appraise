@@ -8,8 +8,8 @@
                     column="tid" select="getPrincipal"/>
     </resultMap>
     <insert id="add" parameterType="user" useGeneratedKeys="true" keyProperty="id">
-        insert into user(pid , did , tid , `name` , username , paw)
-        values (#{pid} , #{did} , #{tid} , #{name} , #{username} , "1234")
+        insert into user(pid , did , tid , `name` , username , paw , grade)
+        values (#{pid} , #{did} , #{tid} , #{name} , #{username} , "1234" , #{grade})
     </insert>
     <insert id="addExcel" parameterType="list" useGeneratedKeys="true" keyProperty="id">
         insert into user(pid , did , tid , `name` , username ,grade)
@@ -23,19 +23,23 @@
         grade = values(grade)
     </insert>
     <update id="upd">
-        update user
+        update `user`
         <set>
             <if test="pid != null and pid !=''">
-                pid = #{pid}
+                pid = #{pid},
             </if>
             <if test="did != null and did !=''">
-                did = #{did}
+                did = #{did},
             </if>
             <if test="tid != null and tid !=''">
-                tid = #{tid}
+                tid = #{tid},
+            </if>
+            <if test="grade != null">
+            grade = #{grade,jdbcType=INTEGER},
             </if>
         </set>
-        where id = #{id}
+        <where> id = #{id}
+        </where>
     </update>
     <update id="paw">
         update user
@@ -62,7 +66,7 @@
         where id = #{id}
     </select>
     <select id="query" resultType="java.util.Map" parameterType="user">
-        select u.id , u.name , u.username , d.name as department , t.name as technology , p.name as power
+        select u.id , u.name , u.username , u.grade , d.name as department , t.name as technology , p.name as power
         from `user` u,
         technology t ,
         power p ,
@@ -205,5 +209,16 @@
     <if test="selectType == 1">
       desc
     </if>
+  </select>
+  <select id="queryToupd" resultType="java.util.Map">
+    select u.id , u.name , u.username , u.grade , d.name as department , t.name as technology , p.name as power
+        from `user` u,
+        technology t ,
+        power p ,
+        department d
+        where u.pid = p.id
+        and u.tid = t.id
+        and u.did = d.id
+        and u.id = #{id}
   </select>
 </mapper>

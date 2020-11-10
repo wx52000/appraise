@@ -46,19 +46,16 @@
         SELECT distinct  m.department, m.technology, m.score
         FROM(
         SELECT d.NAME AS department, t.NAME AS technology,
-        AVG(( s.designer + s.personal + s.coordinate )/ 3) AS score ,gt.tec_id
+        AVG(( s.designer + s.personal + s.coordinate )/ 3) AS score ,s.tec_id
         FROM
         tec_score s,
         `user` u,
         department d,
-        technology t,
-        grade_tec gt
+        technology t
         WHERE
         u.did = d.id
-        AND gt.tec_id = u.tid
-        AND u.tid = t.id
-        AND gt.id = s.gt_id
-        GROUP BY gt.tec_id) as m,
+        AND s.tec_id = u.tid
+        GROUP BY s.tec_id) as m,
         `user` u
         <where>
             <choose>
@@ -77,31 +74,26 @@
         from tec_score s,
         `user` u,
         department d,
-        technology t,
-        grade_tec gt
+        technology t
         where
         u.did = d.id
-        and gt.tec_id = t.id
-        and gt.grade_id = u.id
-        and gt.id = s.gt_id
+        and s.tec_id = t.id
     </select>
     <select id="excel" resultType="wxx.java.appraise.entity.TechnologyExcel">
         SELECT distinct  m.department, m.technology, m.score
         FROM(
         SELECT d.NAME AS department, t.NAME AS technology,
-        AVG(( designer + personal + coordinate )/ 3) AS score ,gt.tec_id
+        AVG(( designer + personal + coordinate )/ 3) AS score ,s.tec_id
         FROM
         tec_score s,
         `user` u,
         department d,
-        technology t,
-        grade_tec gt
+        technology t
         WHERE
         u.did = d.id
-        AND gt.tec_id = u.tid
+        AND s.tec_id = u.tid
         AND u.tid = t.id
-        AND gt.id = s.gt_id
-        GROUP BY gt.tec_id) as m,
+        GROUP BY s.tec_id) as m,
         `user` u
         <where>
             <choose>

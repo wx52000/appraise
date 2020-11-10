@@ -49,6 +49,12 @@ public class UserController {
         return Result.ok(userService.query(user));
     }
 
+    @RequestMapping("queryToupd")
+    public Result queryToupd(@RequestHeader Integer id){
+
+      return Result.ok(userService.queryToupd(id));
+    }
+
     @RequestMapping("queryByTid")
     public Result queryByTid(@RequestHeader Integer id){
         return Result.ok(userService.queryByTid(id));

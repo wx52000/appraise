@@ -25,6 +25,8 @@ public interface UserDao {
 
     List<Map> query(User user);
 
+    Map queryToupd(Integer id);
+
     List<Map> queryByTid(Integer id);
 
     List<Map> queryNotSelf(User user);

@@ -56,7 +56,12 @@ public class UserServiceImpl implements UserService {
         return pageInfo;
     }
 
-    @Override
+  @Override
+  public Map queryToupd(Integer id) {
+    return userDao.queryToupd(id);
+  }
+
+  @Override
     public List<Map> queryByTid(Integer id) {
         return userDao.queryByTid(id);
     }

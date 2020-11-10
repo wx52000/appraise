@@ -3,8 +3,10 @@ package wxx.java.appraise.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wxx.java.appraise.dao.TechnologyDao;
+import wxx.java.appraise.dao.UserDao;
 import wxx.java.appraise.entity.Project;
 import wxx.java.appraise.entity.Technology;
+import wxx.java.appraise.entity.User;
 import wxx.java.appraise.service.TechnologyService;
 
 import java.util.List;
@@ -13,10 +15,15 @@ import java.util.Map;
 @Service
 public class TechnologyServiceImpl implements TechnologyService {
     private TechnologyDao technologyDao;
+    private UserDao userDao;
     @Autowired
     public  void  setTechnologyDao(TechnologyDao technologyDao ){
 
         this.technologyDao = technologyDao;
+    }
+    @Autowired
+    public void setUserDao(UserDao userDao){
+      this.userDao = userDao;
     }
 
     @Override
@@ -31,8 +38,11 @@ public class TechnologyServiceImpl implements TechnologyService {
 
   @Override
   public List<Map> evaluate(Integer id) {
-
-    return technologyDao.evaluate(id);
+    User user1 = userDao.queryById(id);
+    if (user1.getGrade() == 1) {
+      return technologyDao.evaluate(id);
+    }else
+      return null;
   }
 
 
