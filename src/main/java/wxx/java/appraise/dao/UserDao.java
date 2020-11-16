@@ -32,7 +32,8 @@ public interface UserDao {
     List<Map> queryNotSelf(User user);
 
     List<Map> queryNotScore(User user);
-
+    //已进行评价的人员名单
+    List<Map> queryAppraise();
     //没有进行评价的人员名单
     List<Map> queryNotAppraise();
     //没有被评价过的人员名单

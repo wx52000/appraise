@@ -85,6 +85,11 @@ public class UserServiceImpl implements UserService {
     }
 
   @Override
+  public List<Map> queryAppraise() {
+    return userDao.queryAppraise();
+  }
+
+  @Override
   public List<Map> queryNotAppraise() {
     return userDao.queryNotAppraise();
   }

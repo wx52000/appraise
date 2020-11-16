@@ -232,10 +232,10 @@
     )
   </select>
   <select id="queryNotScored" resultType="java.util.Map">
-      select `name`
+    select `name`
     from `user` u
     where
-    and not exists (select id
+    not exists (select id
     from user_score s
     where u.id = s.score_id
     )
@@ -250,4 +250,14 @@
     where u.id = s.grade_id
     )
   </select>
+  <select id="queryAppraise" resultType="java.util.Map">
+    select `name`
+    from `user` u
+    where
+    u.grade = 1
+    and exists (select id
+    from user_score s
+    where u.id = s.grade_id
+    )
+    </select>
 </mapper>

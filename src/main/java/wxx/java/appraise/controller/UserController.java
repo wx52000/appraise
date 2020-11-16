@@ -70,6 +70,11 @@ public class UserController {
         return Result.ok(userService.queryNotScore(user));
     }
 
+    @RequestMapping("queryAppraise")
+    public Result queryAppraise(){
+      return Result.ok(userService.queryAppraise());
+    }
+
     @RequestMapping("queryNotAppraise")
     public Result queryNotAppraise(){
       return Result.ok(userService.queryNotAppraise());
@@ -82,7 +87,7 @@ public class UserController {
 
     @RequestMapping("queryNotTecApp")
     public Result queryNotTecApp(){
-      return Result.ok(userService.queryNotAppraise());
+      return Result.ok(userService.queryNotTecApp());
     }
 
     @RequestMapping("queryByTec")
