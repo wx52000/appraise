@@ -70,6 +70,21 @@ public class UserController {
         return Result.ok(userService.queryNotScore(user));
     }
 
+    @RequestMapping("queryNotAppraise")
+    public Result queryNotAppraise(){
+      return Result.ok(userService.queryNotAppraise());
+    }
+
+    @RequestMapping("queryNotScored")
+    public Result queryNotScored(){
+      return Result.ok(userService.queryNotScored());
+    }
+
+    @RequestMapping("queryNotTecApp")
+    public Result queryNotTecApp(){
+      return Result.ok(userService.queryNotAppraise());
+    }
+
     @RequestMapping("queryByTec")
     public Result queryByTec(@RequestHeader Integer id){
         return Result.ok(userService.queryByTec(id));

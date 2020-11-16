@@ -31,6 +31,13 @@ public interface UserService {
 
     PageInfo<Map> queryNotScore(User user);
 
+    //没有进行评价的人员名单
+    List<Map> queryNotAppraise();
+    //没有被评价过的人员名单
+    List<Map> queryNotScored();
+    //没有对专业级进行打分的人员名单
+    List<Map> queryNotTecApp();
+
     List<Map> queryByTec(Integer id);
 
     List<Map> queryByName(User user);

@@ -84,7 +84,22 @@ public class UserServiceImpl implements UserService {
         return pageInfo;
     }
 
-    @Override
+  @Override
+  public List<Map> queryNotAppraise() {
+    return userDao.queryNotAppraise();
+  }
+
+  @Override
+  public List<Map> queryNotScored() {
+    return userDao.queryNotScored();
+  }
+
+  @Override
+  public List<Map> queryNotTecApp() {
+    return userDao.queryNotTecApp();
+  }
+
+  @Override
     public List<Map> queryByTec(Integer id) {
         return userDao.queryByTec(id);
     }

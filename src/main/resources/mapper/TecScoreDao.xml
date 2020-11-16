@@ -76,7 +76,8 @@
         department d,
         technology t
         where
-        u.did = d.id
+        u.id = s.grade_id
+        and u.did = d.id
         and s.tec_id = t.id
     </select>
     <select id="excel" resultType="wxx.java.appraise.entity.TechnologyExcel">

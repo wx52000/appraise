@@ -221,4 +221,33 @@
         and u.did = d.id
         and u.id = #{id}
   </select>
+  <select id="queryNotAppraise" resultType="java.util.Map">
+    select `name`
+    from `user` u
+    where
+    u.grade = 1
+    and not exists (select id
+    from user_score s
+    where u.id = s.grade_id
+    )
+  </select>
+  <select id="queryNotScored" resultType="java.util.Map">
+      select `name`
+    from `user` u
+    where
+    and not exists (select id
+    from user_score s
+    where u.id = s.score_id
+    )
+    </select>
+  <select id="queryNotTecApp" resultType="java.util.Map">
+    select `name`
+    from `user` u
+    where
+    u.grade = 1
+    and not exists (select id
+    from tec_score s
+    where u.id = s.grade_id
+    )
+  </select>
 </mapper>
