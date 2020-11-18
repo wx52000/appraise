@@ -20,6 +20,8 @@ public interface TecScoreDao {
 
     List<Map> query(User user);
 
+    List<String> detail(Integer id);
+
     List<TechnologyExcel> excel(User user);
 
     void backups();

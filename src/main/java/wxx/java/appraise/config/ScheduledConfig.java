@@ -3,7 +3,6 @@ package wxx.java.appraise.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import wxx.java.appraise.service.GradeScoreService;
 import wxx.java.appraise.service.GradeTecService;
 import wxx.java.appraise.service.TecScoreService;
@@ -35,15 +34,15 @@ public class ScheduledConfig {
     public void setTecScoreService(TecScoreService tecScoreService){
         this.tecScoreService = tecScoreService;
     }
-    @Scheduled(cron =" 0 0 0 20 * ? ")
-    public void  reset(){
-        gradeScoreService.resetState();
-        gradeTecService.resetState();
-        userScoreService.backups();
-        tecScoreService.backups();
-        userScoreService.delete();
-        tecScoreService.delete();
-    }
+//    @Scheduled(cron =" 0 0 0 20 * ? ")
+//    public void  reset(){
+//        gradeScoreService.resetState();
+//        gradeTecService.resetState();
+//        userScoreService.backups();
+//        tecScoreService.backups();
+//        userScoreService.delete();
+//        tecScoreService.delete();
+//    }
 
 
 }

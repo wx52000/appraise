@@ -13,6 +13,7 @@ import wxx.java.appraise.entity.User;
 import wxx.java.appraise.entity.UserScore;
 import wxx.java.appraise.service.UserScoreService;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -57,8 +58,9 @@ public class UsreScoreServiceImpl implements UserScoreService {
     }
 
     @Override
-    public List<Map> queryScore(Integer id) {
-        User user = userDao.queryById(id);
+    public List<Map> queryScore(User user) {
+        User user1 = userDao.queryById(user.getId());
+        user.setPid(user1.getPid());
         Calendar calendar = Calendar.getInstance();
         user.setThisMonth(calendar.get(Calendar.MONTH)+1);
         user.setThisDay(calendar.get(Calendar.DATE));
@@ -66,12 +68,24 @@ public class UsreScoreServiceImpl implements UserScoreService {
     }
 
     @Override
-    public List<Map> query(Integer id) {
-        User user = userDao.queryById(id);
+    public List<Map> query(User user) {
         return userScoreDao.query(user);
     }
 
-    @Override
+  @Override
+  public List<List<String>> detail() {
+      List<List<String>> data = new ArrayList<>();
+      List<Map> user = userDao.queryAll();
+      for (int i = 0; i< user.size() ; i++){
+        List<String> list = new ArrayList<>();
+        list.add(user.get(i).get("name").toString());
+        list.addAll(userScoreDao.detail((Integer) user.get(i).get("id")));
+        data.add(list);
+      }
+    return data;
+  }
+
+  @Override
     public void add(List<UserScore> list) {
         userScoreDao.add(list);
     }

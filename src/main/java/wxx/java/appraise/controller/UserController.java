@@ -7,8 +7,18 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import wxx.java.appraise.entity.User;
+import wxx.java.appraise.entity.UserOut;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.UserService;
+import wxx.java.appraise.tools.Download;
+import wxx.java.appraise.tools.ExcelProperty;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
 
 @RestController
 @RequestMapping("user")
@@ -71,23 +81,23 @@ public class UserController {
     }
 
     @RequestMapping("queryAppraise")
-    public Result queryAppraise(){
-      return Result.ok(userService.queryAppraise());
+    public Result queryAppraise(@RequestBody User user){
+      return Result.ok(userService.queryAppraise(user));
     }
 
     @RequestMapping("queryNotAppraise")
-    public Result queryNotAppraise(){
-      return Result.ok(userService.queryNotAppraise());
+    public Result queryNotAppraise(@RequestBody User user){
+      return Result.ok(userService.queryNotAppraise(user));
     }
 
     @RequestMapping("queryNotScored")
-    public Result queryNotScored(){
-      return Result.ok(userService.queryNotScored());
+    public Result queryNotScored(@RequestBody User user){
+      return Result.ok(userService.queryNotScored(user));
     }
 
     @RequestMapping("queryNotTecApp")
-    public Result queryNotTecApp(){
-      return Result.ok(userService.queryNotTecApp());
+    public Result queryNotTecApp(@RequestBody User user){
+      return Result.ok(userService.queryNotTecApp(user));
     }
 
     @RequestMapping("queryByTec")
@@ -106,6 +116,37 @@ public class UserController {
         return Result.ok();
     }
 
+  @RequestMapping("excel")
+  public Result personExcel(HttpServletRequest request , HttpServletResponse response) {
+    String s = "";
+    Integer type = Integer.valueOf(request.getParameter("type"));
+    Date date = new Date();
+    try {
+      List<UserOut> list = new ArrayList<>();
+      User user = new User();
+      if (type == 1){
+        list = userService.queryAppraise(user);
+      }else if (type == 2) {
+        list = userService.queryNotAppraise(user);
+      }else if (type == 3){
+        list = userService.queryNotScored(user);
+      }else if (type == 4){
+        list = userService.queryNotTecApp(user);
+      }
+      ExcelProperty excelProperty = new ExcelProperty();
+      String fileName = request.getParameter("name") + ".xlsx";
+      Future<String> future = excelProperty.userExcel(list, fileName);
+      s = future.get();
+      Download.downloadFile(response, fileName, fileName);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+    return Result.ok(s);
+  }
 
 
-}
+  }

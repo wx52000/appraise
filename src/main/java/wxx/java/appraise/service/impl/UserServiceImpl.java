@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import wxx.java.appraise.dao.UserDao;
 import wxx.java.appraise.entity.ExcelData;
 import wxx.java.appraise.entity.User;
+import wxx.java.appraise.entity.UserOut;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.UserService;
 
@@ -57,6 +58,16 @@ public class UserServiceImpl implements UserService {
     }
 
   @Override
+  public List<String> queryGrade() {
+    return userDao.queryGrade();
+  }
+
+  @Override
+  public List<Map> queryAll() {
+    return userDao.queryAll();
+  }
+
+  @Override
   public Map queryToupd(Integer id) {
     return userDao.queryToupd(id);
   }
@@ -85,23 +96,23 @@ public class UserServiceImpl implements UserService {
     }
 
   @Override
-  public List<Map> queryAppraise() {
-    return userDao.queryAppraise();
+  public List<UserOut> queryAppraise(User user) {
+    return userDao.queryAppraise(user);
   }
 
   @Override
-  public List<Map> queryNotAppraise() {
-    return userDao.queryNotAppraise();
+  public List<UserOut> queryNotAppraise(User user) {
+    return userDao.queryNotAppraise(user);
   }
 
   @Override
-  public List<Map> queryNotScored() {
-    return userDao.queryNotScored();
+  public List<UserOut> queryNotScored(User user) {
+    return userDao.queryNotScored(user);
   }
 
   @Override
-  public List<Map> queryNotTecApp() {
-    return userDao.queryNotTecApp();
+  public List<UserOut> queryNotTecApp(User user) {
+    return userDao.queryNotTecApp(user);
   }
 
   @Override

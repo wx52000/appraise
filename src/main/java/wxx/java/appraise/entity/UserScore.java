@@ -19,6 +19,7 @@ public class UserScore {
     private Long date;
 
 
+
     public Integer getId() {
         return id;
     }

@@ -15,9 +15,11 @@ public interface UserScoreService {
 
     void appraise(@Param("list") List<UserScore> list);
 
-    List<Map> queryScore(Integer id);
+    List<Map> queryScore(User user);
 
-    List<Map> query(Integer id);
+    List<Map> query(User user);
+
+    List<List<String>> detail();
 
     void add(List<UserScore> list);
 

@@ -17,7 +17,7 @@ public class down360Controller {
     public void down360(HttpServletResponse response) {
         String s = "";
         try {
-            String fileName = "360急速浏览器.exe".toString();
+            String fileName = "360急速浏览器.exe";
             InputStream inputStream = new FileInputStream("D:\\excel\\360CSE.exe");
             response.reset();
             response.setContentType("bin");

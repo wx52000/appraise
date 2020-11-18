@@ -9,6 +9,7 @@ import wxx.java.appraise.entity.TecScore;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.TecScoreService;
+import wxx.java.appraise.service.UserService;
 import wxx.java.appraise.tools.Download;
 import wxx.java.appraise.tools.ExcelProperty;
 
@@ -25,6 +26,12 @@ import java.util.concurrent.Future;
 public class TecScoreController {
 
     private TecScoreService tecScoreService;
+    private UserService userService;
+
+    @Autowired
+    public void setUserService(UserService userService){
+      this.userService = userService;
+    }
     @Autowired
     public void setTecScoreService(TecScoreService tecScoreService){
         this.tecScoreService = tecScoreService;
@@ -47,12 +54,33 @@ public class TecScoreController {
     }
 
     @RequestMapping("query")
-    public Result query(@RequestHeader Integer id){
-        return Result.ok(tecScoreService.query(id));
+    public Result query(@RequestBody User user){
+        return Result.ok(tecScoreService.query(user));
 
     }
 
-    @RequestMapping("excel")
+    @RequestMapping("detail")
+    public Result detail(HttpServletResponse response){
+      String s= "";
+      try {
+
+        Calendar calendar = Calendar.getInstance();
+        ExcelProperty excelProperty = new ExcelProperty();
+        Future<String> future = excelProperty
+          .personalDetailsExcel(userService.queryGrade(),tecScoreService.detail());
+        s = future.get();
+        String fileName = calendar.get(Calendar.MONTH)+1 + "月个人评分详情表.xlsx";
+        Download.downloadFile( response , "excel.xlsx" , fileName);
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      } catch (ExecutionException e) {
+        e.printStackTrace();
+      }
+      return  Result.ok(s);
+    }
+
+
+  @RequestMapping("excel")
     public Result excel(HttpServletRequest request , HttpServletResponse response) throws IOException {
         String s = "";
         try {

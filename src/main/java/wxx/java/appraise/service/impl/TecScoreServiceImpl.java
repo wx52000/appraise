@@ -4,12 +4,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import wxx.java.appraise.dao.GradeTecDao;
 import wxx.java.appraise.dao.TecScoreDao;
+import wxx.java.appraise.dao.TechnologyDao;
 import wxx.java.appraise.dao.UserDao;
 import wxx.java.appraise.entity.TecScore;
+import wxx.java.appraise.entity.Technology;
 import wxx.java.appraise.entity.TechnologyExcel;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.service.TecScoreService;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
@@ -19,6 +22,11 @@ public class TecScoreServiceImpl implements TecScoreService {
     private TecScoreDao tecScoreDao;
     private UserDao userDao;
     private GradeTecDao gradeTecDao;
+    private TechnologyDao technologyDao;
+    @Autowired
+    public  void  setTechnologyDao(TechnologyDao technologyDao){
+      this.technologyDao = technologyDao;
+    }
     @Autowired
     public void  setTecScoreDao(TecScoreDao tecScoreDao){
         this.tecScoreDao = tecScoreDao;
@@ -58,12 +66,24 @@ public class TecScoreServiceImpl implements TecScoreService {
     }
 
     @Override
-    public List<Map> query(Integer id) {
-        User user = userDao.queryById(id);
+    public List<Map> query(User user) {
         return tecScoreDao.query(user);
     }
 
-    @Override
+  @Override
+  public List<List<String>> detail() {
+      List<List<String>> data = new ArrayList<>();
+      List<Technology> tec = technologyDao.queryNotUser();
+      for (int i = 0; i< tec.size() ; i++){
+        List<String> list = new ArrayList<>();
+        list.add(tec.get(i).getName());
+        list.addAll(tecScoreDao.detail((Integer) tec.get(i).getId()));
+        data.add(list);
+      }
+      return data;
+  }
+
+  @Override
     public List<TechnologyExcel> excel(User user) {
         user = userDao.queryById(user.getId());
         return tecScoreDao.excel(user);

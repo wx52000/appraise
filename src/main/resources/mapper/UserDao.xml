@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="wxx.java.appraise.dao.UserDao">
-    <resultMap id="tecUser" type="technology">
+    <resultMap  id="tecUser" type="technology">
         <result column="tid" property="id" jdbcType="INTEGER"/>
         <result column="name" property="name" jdbcType="VARCHAR"/>
         <collection property="list" javaType="ARRAYLIST"
@@ -221,43 +221,142 @@
         and u.did = d.id
         and u.id = #{id}
   </select>
-  <select id="queryNotAppraise" resultType="java.util.Map">
-    select `name`
-    from `user` u
+  <select id="queryNotAppraise" resultType="wxx.java.appraise.entity.UserOut">
+    select u.`name` , username , d.name as department ,t.name as technology
+    from `user` u,
+    department d,
+    technology t
     where
     u.grade = 1
+    and u.did = d.id
+    and u.tid = t.id
     and not exists (select id
     from user_score s
     where u.id = s.grade_id
     )
+    <if test="dIds != null and dIds != ''">
+      and d.id in
+      <foreach collection="dIds" item="item" separator="," close=")" open="(">
+        #{item}
+      </foreach>
+    </if>
+    <if test="tIds != null and tIds != ''">
+      and t.id in
+      <foreach collection="tIds" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="selectName != null and selectName != ''">
+      order by ${selectName}
+    </if>
+    <if test="selectType == 1">
+      desc
+    </if>
   </select>
-  <select id="queryNotScored" resultType="java.util.Map">
-    select `name`
-    from `user` u
+  <select id="queryNotScored" resultType="wxx.java.appraise.entity.UserOut">
+    select u.`name` , username , d.name as department ,t.name as technology
+    from `user` u,
+    department d,
+    technology t
     where
-    not exists (select id
+     u.did = d.id
+    and u.tid = t.id
+    and not exists (select id
     from user_score s
     where u.id = s.score_id
     )
+    <if test="dIds != null and dIds != ''">
+      and d.id in
+      <foreach collection="dIds" item="item" separator="," close=")" open="(">
+        #{item}
+      </foreach>
+    </if>
+    <if test="tIds != null and tIds != ''">
+      and t.id in
+      <foreach collection="tIds" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="selectName != null and selectName != ''">
+      order by ${selectName}
+    </if>
+    <if test="selectType == 1">
+      desc
+    </if>
     </select>
-  <select id="queryNotTecApp" resultType="java.util.Map">
-    select `name`
-    from `user` u
+  <select id="queryNotTecApp" resultType="wxx.java.appraise.entity.UserOut">
+    select u.`name` , username , d.name as department ,t.name as technology
+    from `user` u,
+    department d,
+    technology t
     where
     u.grade = 1
+    and u.did = d.id
+    and u.tid = t.id
     and not exists (select id
     from tec_score s
     where u.id = s.grade_id
     )
+    <if test="dIds != null and dIds != ''">
+      and d.id in
+      <foreach collection="dIds" item="item" separator="," close=")" open="(">
+        #{item}
+      </foreach>
+    </if>
+    <if test="tIds != null and tIds != ''">
+      and t.id in
+      <foreach collection="tIds" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="selectName != null and selectName != ''">
+      order by ${selectName}
+    </if>
+    <if test="selectType == 1">
+      desc
+    </if>
   </select>
-  <select id="queryAppraise" resultType="java.util.Map">
-    select `name`
-    from `user` u
+  <select id="queryAppraise" resultType="wxx.java.appraise.entity.UserOut">
+    select u.`name` , username , d.name as department ,t.name as technology
+    from `user` u,
+    department d,
+    technology t
     where
     u.grade = 1
-    and exists (select id
+    and u.did = d.id
+    and u.tid = t.id
+    and  exists (select id
     from user_score s
     where u.id = s.grade_id
     )
+    <if test="dIds != null and dIds != ''">
+      and d.id in
+      <foreach collection="dIds" item="item" separator="," close=")" open="(">
+        #{item}
+      </foreach>
+    </if>
+    <if test="tIds != null and tIds != ''">
+      and t.id in
+      <foreach collection="tIds" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="selectName != null and selectName != ''">
+      order by ${selectName}
+    </if>
+    <if test="selectType == 1">
+      desc
+    </if>
     </select>
+  <select id="queryGrade" resultType="java.lang.String">
+    SELECT `name`
+    FROM `user`
+    WHERE grade = 1
+    ORDER BY username
+  </select>
+  <select id="queryAll" resultType="java.util.Map">
+    SELECT id , `name`
+    FROM `user`
+    ORDER BY username
+  </select>
 </mapper>

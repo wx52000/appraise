@@ -17,7 +17,9 @@ public interface TecScoreService {
 
     List<Map> queryScore(Integer id);
 
-    List<Map> query(Integer id);
+    List<Map> query(User user);
+
+    List<List<String>> detail();
 
     List<TechnologyExcel> excel(User user);
 

@@ -77,8 +77,26 @@
         technology t
         where
         u.id = s.grade_id
-        and u.did = d.id
+        and t.did = d.id
         and s.tec_id = t.id
+      <if test="dIds != null and dIds != ''">
+        and d.id in
+        <foreach collection="dIds" item="item" separator="," close=")" open="(">
+          #{item}
+        </foreach>
+      </if>
+      <if test="tIds != null and tIds != ''">
+        and t.id in
+        <foreach collection="tIds" item="item" separator="," open="(" close=")">
+          #{item}
+        </foreach>
+      </if>
+      <if test="selectName != null and selectName != ''">
+        order by ${selectName}
+      </if>
+      <if test="selectType == 1">
+        desc
+      </if>
     </select>
     <select id="excel" resultType="wxx.java.appraise.entity.TechnologyExcel">
         SELECT distinct  m.department, m.technology, m.score
@@ -107,4 +125,15 @@
             </choose>
         </where>
     </select>
+  <select id="detail" resultType="java.lang.String">
+    SELECT
+      CONCAT_WS( ',', designer, personal, coordinate ) ,u.username
+      FROM
+        `user` u
+        LEFT JOIN tec_score s ON u.id = s.grade_id
+        AND s.tec_id = #{id}
+    WHERE
+      u.grade = 1
+    ORDER BY u.username
+  </select>
 </mapper>

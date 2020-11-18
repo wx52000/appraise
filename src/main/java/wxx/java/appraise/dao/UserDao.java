@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import wxx.java.appraise.entity.ExcelData;
 import wxx.java.appraise.entity.User;
+import wxx.java.appraise.entity.UserOut;
 
 import java.util.List;
 import java.util.Map;
@@ -24,6 +25,10 @@ public interface UserDao {
     void upd(User user);
 
     List<Map> query(User user);
+    //查询有权限打分的人员名单
+    List<String> queryGrade();
+    //根据工号排序
+    List<Map> queryAll();
 
     Map queryToupd(Integer id);
 
@@ -33,13 +38,13 @@ public interface UserDao {
 
     List<Map> queryNotScore(User user);
     //已进行评价的人员名单
-    List<Map> queryAppraise();
+    List<UserOut> queryAppraise(User user);
     //没有进行评价的人员名单
-    List<Map> queryNotAppraise();
+    List<UserOut> queryNotAppraise(User user);
     //没有被评价过的人员名单
-    List<Map> queryNotScored();
+    List<UserOut> queryNotScored(User user);
     //没有对专业级进行打分的人员名单
-    List<Map> queryNotTecApp();
+    List<UserOut> queryNotTecApp(User user);
 
     List<Map> queryByTec(Integer id);
     //用于设总选择时模糊查询

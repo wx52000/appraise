@@ -26,8 +26,11 @@ public interface UserScoreDao {
 
     List<PersonalExcel> excel1(User user);
 
+    List<String> detail(Integer id);
+
     void backups();
 
     void delete();
+
 
 }
