@@ -40,6 +40,8 @@ public class User {
     private Integer selectType;
 
 
+
+
     public User() {
     }
 

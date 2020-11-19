@@ -71,6 +71,7 @@ public class UserScoreController {
         return Result.ok();
     }
 
+    //详情下载，本月
     @RequestMapping("detail")
     public Result detail(HttpServletResponse response){
       String s= "";
@@ -91,6 +92,7 @@ public class UserScoreController {
       return  Result.ok(s);
     }
 
+    //整体数据下载
     @RequestMapping("personExcel")
     public Result personExcel(HttpServletRequest request , HttpServletResponse response) {
         String s = "";

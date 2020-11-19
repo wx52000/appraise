@@ -54,4 +54,6 @@ public interface UserService {
     void paw(User user);
 
     List<Map> queryPrincipal(Integer id);
+
+    List<Map> userAll();
 }

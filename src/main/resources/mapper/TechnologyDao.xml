@@ -87,5 +87,16 @@
     where u.tid = t.id
     )
   </select>
+    <select id="queryBydepNoU" resultType="java.util.Map">
+        select *
+        from technology t
+        where
+        t.did = #{id}
+        and exists (
+        select u.*
+        from `user` u
+        where u.tid = t.id
+        )
+    </select>
 
 </mapper>

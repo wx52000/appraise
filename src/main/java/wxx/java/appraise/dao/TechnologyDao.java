@@ -14,6 +14,8 @@ public interface TechnologyDao {
 
     List<Technology> queryNotUser();
 
+    List<Map> queryBydepNoU(Integer id);
+
     //评价页面
     List<Map> evaluate(Integer id);
 

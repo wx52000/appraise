@@ -116,6 +116,11 @@ public class UserController {
         return Result.ok();
     }
 
+    @RequestMapping("userAll")
+    public Result userAll(){
+      return Result.ok(userService.userAll());
+    }
+
   @RequestMapping("excel")
   public Result personExcel(HttpServletRequest request , HttpServletResponse response) {
     String s = "";

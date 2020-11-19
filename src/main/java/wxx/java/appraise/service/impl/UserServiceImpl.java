@@ -4,19 +4,34 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import wxx.java.appraise.dao.DepartmentDao;
+import wxx.java.appraise.dao.TechnologyDao;
 import wxx.java.appraise.dao.UserDao;
+import wxx.java.appraise.entity.Department;
 import wxx.java.appraise.entity.ExcelData;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.entity.UserOut;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.UserService;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class UserServiceImpl implements UserService {
     private UserDao userDao;
+    private DepartmentDao departmentDao;
+    private TechnologyDao technologyDao;
+    @Autowired
+    public void setDepartmentDao(DepartmentDao departmentDao){
+      this.departmentDao = departmentDao;
+    }
+    @Autowired
+    public void setTechnologyDao(TechnologyDao technologyDao){
+      this.technologyDao = technologyDao;
+    }
     @Autowired
     public void setUserDao(UserDao userDao){
         this.userDao = userDao;
@@ -139,4 +154,32 @@ public class UserServiceImpl implements UserService {
     public List<Map> queryPrincipal(Integer id) {
         return userDao.queryPrincipal(id);
     }
+
+  @Override
+
+  public List<Map> userAll() {
+      List<Map> list = new ArrayList<>();
+      List<Department> dep = departmentDao.queryNotUser();
+      for (int i = 0 ; i < dep.size(); i++){
+        Map map = new HashMap();
+        map.put("id",dep.get(i).getId());
+        map.put("pid",0);
+        map.put("label",dep.get(i).getName());
+        List<Map> tecList = new ArrayList<>();
+        List<Map> tec = technologyDao.queryBydepNoU(dep.get(i).getId());
+        for (int j = 0; j < tec.size(); j++){
+          Map map1 = new HashMap();
+          map1.put("id",dep.get(i).getId() + "-" + tec.get(j).get("id"));
+          map1.put("pid" , dep.get(i).getId());
+          map1.put("label", tec.get(j).get("name"));
+          map1.put("children", userDao.queryByT((Integer) tec.get(j).get("id")));
+          tecList.add(map1);
+        }
+        map.put("children" , tecList);
+        list.add(map);
+      }
+    return list;
+  }
+
+
 }

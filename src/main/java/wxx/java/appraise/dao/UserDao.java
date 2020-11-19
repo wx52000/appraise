@@ -32,7 +32,11 @@ public interface UserDao {
 
     Map queryToupd(Integer id);
 
+    //根据专业查询
     List<Map> queryByTid(Integer id);
+
+    //根据专业查询，用于前端transfer的数据
+    List<Map> queryByT(Integer id);
 
     List<Map> queryNotSelf(User user);
 

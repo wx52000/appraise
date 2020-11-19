@@ -359,4 +359,13 @@
     FROM `user`
     ORDER BY username
   </select>
+  <select id="queryByT" resultType="java.util.Map">
+    select concat_ws("-",t.did, t.id ,u.id ) as id,
+     concat_ws("-",t.did, t.id) as pid,
+     u.name as label
+     from `user` u,
+     technology t
+     where t.id = #{id}
+     and u.tid = t.id
+  </select>
 </mapper>
