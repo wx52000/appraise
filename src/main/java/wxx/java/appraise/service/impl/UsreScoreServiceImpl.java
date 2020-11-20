@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import wxx.java.appraise.dao.GradeScoreDao;
 import wxx.java.appraise.dao.UserDao;
 import wxx.java.appraise.dao.UserScoreDao;
+import wxx.java.appraise.entity.PartExcel;
 import wxx.java.appraise.entity.PersonalExcel;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.entity.UserScore;
@@ -106,7 +107,27 @@ public class UsreScoreServiceImpl implements UserScoreService {
         return userScoreDao.queryByGradeId(user);
     }
 
-    @Override
+  @Override
+  public List<PartExcel> part(Integer mode, List<Map> toData) {
+      User user = new User();
+      List<Integer> users = new ArrayList<>();
+      user.setUsers(users);
+      for (int i = 0;i< toData.size();i++){
+        user.getUsers()
+          .add(Integer.valueOf(toData.get(i).get("id").toString()
+            .substring(toData.get(i).get("id").toString().lastIndexOf( "-" )+1)));
+      }
+      if (toData.size() > 0) {
+        if (mode == 0) {
+          return userScoreDao.part0(user);
+        } else {
+          return userScoreDao.part1(user);
+        }
+      }else
+        return  null;
+  }
+
+  @Override
     public void backups() {
         userScoreDao.backups();
     }

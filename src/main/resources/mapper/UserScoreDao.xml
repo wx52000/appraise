@@ -174,4 +174,46 @@
       u.grade = 1
     ORDER BY u.username
   </select>
+  <select id="part0" resultType="wxx.java.appraise.entity.PartExcel">
+    select u1.name as grade , u2.name as score ,us.personal,us.designer,us.coordinate ,
+    d.name as dep , t.name as tec
+    from
+    `user` u1,
+    `user` u2,
+    user_score us,
+    department d,
+    technology t
+    where
+    u1.id = us.grade_id
+    and u2.id = us.score_id
+    and d.id = u2.did
+    and t.id = u2.tid
+    <if test="users != null and users != ''">
+      and u1.id in
+      <foreach collection="users" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+  <select id="part1" resultType="wxx.java.appraise.entity.PartExcel">
+    select u1.name as grade , u2.name as score ,us.personal,us.designer,us.coordinate ,
+    d.name as dep , t.name as tec
+    from
+    `user` u1,
+    `user` u2,
+    user_score us,
+    department d,
+    technology t
+    where
+    u1.id = us.grade_id
+    and u2.id = us.score_id
+    and d.id = u2.did
+    and t.id = u2.tid
+    <if test="users != null and users != ''">
+      and u2.id in
+      <foreach collection="users" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+  </select>
 </mapper>

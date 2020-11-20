@@ -2,6 +2,7 @@ package wxx.java.appraise.service;
 
 import com.github.pagehelper.PageInfo;
 import org.apache.ibatis.annotations.Param;
+import wxx.java.appraise.entity.PartExcel;
 import wxx.java.appraise.entity.PersonalExcel;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.entity.UserScore;
@@ -28,6 +29,8 @@ public interface UserScoreService {
     List<PersonalExcel> excel1(User user);
 
     List<Map> selectByGradeId(User user);
+
+    List<PartExcel> part(Integer mode , List<Map> toData);
 
     void backups();
 

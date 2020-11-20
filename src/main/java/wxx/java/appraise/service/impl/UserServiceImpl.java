@@ -157,7 +157,7 @@ public class UserServiceImpl implements UserService {
 
   @Override
 
-  public List<Map> userAll() {
+  public List<Map> userAll(Integer mode) {
       List<Map> list = new ArrayList<>();
       List<Department> dep = departmentDao.queryNotUser();
       for (int i = 0 ; i < dep.size(); i++){
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService {
           map1.put("id",dep.get(i).getId() + "-" + tec.get(j).get("id"));
           map1.put("pid" , dep.get(i).getId());
           map1.put("label", tec.get(j).get("name"));
-          map1.put("children", userDao.queryByT((Integer) tec.get(j).get("id")));
+          map1.put("children", userDao.queryByT((Integer) tec.get(j).get("id"),mode));
           tecList.add(map1);
         }
         map.put("children" , tecList);

@@ -55,5 +55,5 @@ public interface UserService {
 
     List<Map> queryPrincipal(Integer id);
 
-    List<Map> userAll();
+    List<Map> userAll(Integer mode);
 }

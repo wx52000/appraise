@@ -367,5 +367,8 @@
      technology t
      where t.id = #{id}
      and u.tid = t.id
+     <if test="mode == 0 ">
+      and  u.grade = 1
+     </if>
   </select>
 </mapper>

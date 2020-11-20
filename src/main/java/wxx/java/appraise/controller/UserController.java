@@ -117,8 +117,8 @@ public class UserController {
     }
 
     @RequestMapping("userAll")
-    public Result userAll(){
-      return Result.ok(userService.userAll());
+    public Result userAll(@RequestHeader Integer mode){
+      return Result.ok(userService.userAll(mode));
     }
 
   @RequestMapping("excel")

@@ -6,10 +6,7 @@ import com.alibaba.excel.metadata.Sheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
-import wxx.java.appraise.entity.ExcelProject;
-import wxx.java.appraise.entity.PersonalExcel;
-import wxx.java.appraise.entity.TechnologyExcel;
-import wxx.java.appraise.entity.UserOut;
+import wxx.java.appraise.entity.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -58,7 +55,7 @@ public class ExcelProperty {
         outputStream = new FileOutputStream("D:/excel/excel.xlsx");
         excelWriter = EasyExcelFactory.getWriter(outputStream);
         //将要输出的内容填充到Sheet里
-        Sheet sheet = new Sheet(1, 0, PersonalExcel.class);
+        Sheet sheet = new Sheet(1, 0);
         //设置sheet表名
         sheet.setSheetName("个人得分表");
         sheet.setHead(ExcelOutputHead.head(grade));
@@ -80,6 +77,36 @@ public class ExcelProperty {
       }
       return new AsyncResult<>("Excel生成成功");
     }
+
+  @Async
+  public Future<String> personalPartExcel(List<PartExcel> list,String name) {
+    OutputStream outputStream = null;
+    ExcelWriter excelWriter = null;
+    try {
+      outputStream = new FileOutputStream("D:/excel/"+name);
+      excelWriter = EasyExcelFactory.getWriter(outputStream);
+      //将要输出的内容填充到Sheet里
+      Sheet sheet = new Sheet(1, 0, PartExcel.class);
+      //设置sheet表名
+      sheet.setSheetName("详细信息表");
+      /**
+       * 写数据到Write上下文中
+       * 第一个参数：要写入的内容
+       * 第二个参数：要写入的sheet目标
+       */
+      excelWriter.write(list,sheet);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }finally {
+      excelWriter.finish();
+      try {
+        outputStream.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return new AsyncResult<>("Excel生成成功");
+  }
 
 
     @Async

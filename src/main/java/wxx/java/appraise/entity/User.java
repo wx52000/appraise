@@ -35,6 +35,8 @@ public class User {
 
     private List<Integer> dIds;
 
+    private List<Integer> users;
+
     private String selectName;
 
     private Integer selectType;
@@ -188,5 +190,14 @@ public class User {
 
   public void setSelectType(Integer selectType) {
     this.selectType = selectType;
+  }
+
+
+  public List<Integer> getUsers() {
+    return users;
+  }
+
+  public void setUsers(List<Integer> users) {
+    this.users = users;
   }
 }

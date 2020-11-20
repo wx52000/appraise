@@ -2,6 +2,7 @@ package wxx.java.appraise.dao;
 
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+import wxx.java.appraise.entity.PartExcel;
 import wxx.java.appraise.entity.PersonalExcel;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.entity.UserScore;
@@ -28,9 +29,13 @@ public interface UserScoreDao {
 
     List<String> detail(Integer id);
 
+    //根据打分人
+    List<PartExcel> part0(User user);
+    //根据被打分人
+    List<PartExcel> part1(User user);
+
     void backups();
 
     void delete();
-
 
 }

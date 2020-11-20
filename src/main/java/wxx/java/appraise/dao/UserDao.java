@@ -36,7 +36,7 @@ public interface UserDao {
     List<Map> queryByTid(Integer id);
 
     //根据专业查询，用于前端transfer的数据
-    List<Map> queryByT(Integer id);
+    List<Map> queryByT(@Param("id") Integer id , @Param("mode") Integer mode);
 
     List<Map> queryNotSelf(User user);
 

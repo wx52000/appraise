@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import wxx.java.appraise.entity.PartParam;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.entity.UserScore;
 import wxx.java.appraise.result.Result;
@@ -91,6 +92,30 @@ public class UserScoreController {
       }
       return  Result.ok(s);
     }
+
+  @RequestMapping("part")
+  public Result part(@RequestBody PartParam partParam){
+    String s= "";
+    String fileName = "";
+    try {
+      Calendar calendar = Calendar.getInstance();
+      fileName = calendar.getTimeInMillis() + "个人评分详情表.xlsx";
+      ExcelProperty excelProperty = new ExcelProperty();
+      Future<String> future = excelProperty
+        .personalPartExcel(userScoreService.part(partParam.getMode(),partParam.getList()),fileName);
+      s = future.get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+    return  Result.ok(fileName);
+  }
+  @RequestMapping("partDownload")
+  public Result partDownload(HttpServletResponse response ,HttpServletRequest request){
+    Download.downloadFile( response , request.getParameter("fileName") ,request.getParameter("fileName"));
+    return Result.ok();
+  }
 
     //整体数据下载
     @RequestMapping("personExcel")
