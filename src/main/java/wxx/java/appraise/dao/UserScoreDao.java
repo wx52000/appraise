@@ -15,9 +15,13 @@ public interface UserScoreDao {
 
     List<Map> queryByGradeId(User user);
 
-    void appraise(@Param("list") List<UserScore> list,@Param("month")Integer month);
+    void appraise(@Param("list") List<UserScore> list,
+                  @Param("month")Integer month,@Param("year")Integer year);
 
+    //查询当前月整体数据
     List<Map> queryScore(User user);
+    //查询以前月份整体数据
+    List<Map> queryScorePast(User user);
 
     List<Map> query(User user);
 
@@ -25,7 +29,10 @@ public interface UserScoreDao {
 
     void del(UserScore userScore);
 
+    //本月数据
     List<PersonalExcel> excel1(User user);
+    //以往数据
+    List<PersonalExcel> excel2(User user);
 
     List<String> detail(Integer id);
 

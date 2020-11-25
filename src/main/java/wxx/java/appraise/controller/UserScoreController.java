@@ -124,14 +124,12 @@ public class UserScoreController {
         try {
             User user = new User();
             user.setId(Integer.valueOf(request.getParameter("id")));
-            Calendar calendar = Calendar.getInstance();
-            user.setThisMonth(calendar.get(Calendar.MONTH)+1);
-            user.setThisDay(calendar.get(Calendar.DATE));
+            user.setThisMonth(Integer.valueOf(request.getParameter("month")));
             ExcelProperty excelProperty = new ExcelProperty();
             Future<String> future = excelProperty
               .personalExcel(userScoreService.excel1(user));
             s = future.get();
-            String fileName = calendar.get(Calendar.MONTH)+1 + "月个人得分汇总表.xlsx";
+            String fileName = user.getThisMonth() + "月个人得分汇总表.xlsx";
             Download.downloadFile( response , "excel.xlsx" , fileName);
         } catch (InterruptedException e) {
             e.printStackTrace();

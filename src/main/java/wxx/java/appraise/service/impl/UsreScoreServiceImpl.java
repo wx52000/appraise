@@ -15,9 +15,10 @@ import wxx.java.appraise.entity.UserScore;
 import wxx.java.appraise.service.UserScoreService;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+
+import static wxx.java.appraise.tools.AppraiseDate.appDate;
 
 @Transactional
 @Service
@@ -39,6 +40,7 @@ public class UsreScoreServiceImpl implements UserScoreService {
         this.gradeScoreDao = gradeScoreDao;
     }
 
+
     @Override
     public PageInfo<Map> queryByGradeId(User user) {
         PageHelper.startPage(user.getPageIndex(),user.getPageSize(),true);
@@ -48,24 +50,32 @@ public class UsreScoreServiceImpl implements UserScoreService {
 
     @Override
     public void appraise(List<UserScore> list) {
-        Calendar calendar = Calendar.getInstance();
-        Integer month = 0;
-        if (calendar.get(Calendar.DAY_OF_MONTH) >= 20)
-            month = calendar.get(Calendar.MONTH)+1;
-        else month = calendar.get(Calendar.MONTH);
-        userScoreDao.appraise(list,month);
-//        gradeScoreDao.updState(list);
-
+        Map<Object,Integer> map = appDate();
+        Integer month = map.get("month");
+        Integer year = map.get("year");
+        userScoreDao.appraise(list,month,year);
     }
 
     @Override
     public List<Map> queryScore(User user) {
-        User user1 = userDao.queryById(user.getId());
-        user.setPid(user1.getPid());
-        Calendar calendar = Calendar.getInstance();
-        user.setThisMonth(calendar.get(Calendar.MONTH)+1);
-        user.setThisDay(calendar.get(Calendar.DATE));
+      Map<Object,Integer> map = appDate();
+      Integer month = map.get("month");
+      Integer year = map.get("year");
+      user.setThisYear(year);
+      User user1 = userDao.queryById(user.getId());
+      user.setPid(user1.getPid());
+      if (month == user.getThisMonth()) {
         return userScoreDao.queryScore(user);
+      }else {
+        if ( month == 1){
+          user.setThisYear(--year);
+      }else if (month == 2){
+          if (user.getThisMonth() == 12){
+            user.setThisYear(--year);
+          }
+        }
+        return userScoreDao.queryScorePast(user);
+      }
     }
 
     @Override
@@ -98,8 +108,24 @@ public class UsreScoreServiceImpl implements UserScoreService {
 
     @Override
     public List<PersonalExcel> excel1(User user) {
-
+      Map<Object,Integer> map = appDate();
+      Integer month = map.get("month");
+      Integer year = map.get("year");
+      user.setThisYear(year);
+      User user1 = userDao.queryById(user.getId());
+      user.setPid(user1.getPid());
+      if (month.equals(user.getThisMonth())) {
         return userScoreDao.excel1(user);
+      }else {
+        if ( month == 1){
+          user.setThisYear(--year);
+        }else if (month == 2){
+          if (user.getThisMonth() == 12){
+            user.setThisYear(--year);
+          }
+        }
+        return userScoreDao.excel2(user);
+      }
     }
 
     @Override

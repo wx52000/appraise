@@ -6,16 +6,14 @@ import wxx.java.appraise.dao.GradeTecDao;
 import wxx.java.appraise.dao.TecScoreDao;
 import wxx.java.appraise.dao.TechnologyDao;
 import wxx.java.appraise.dao.UserDao;
-import wxx.java.appraise.entity.TecScore;
-import wxx.java.appraise.entity.Technology;
-import wxx.java.appraise.entity.TechnologyExcel;
-import wxx.java.appraise.entity.User;
+import wxx.java.appraise.entity.*;
 import wxx.java.appraise.service.TecScoreService;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
+
+import static wxx.java.appraise.tools.AppraiseDate.appDate;
 
 @Service
 public class TecScoreServiceImpl implements TecScoreService {
@@ -47,22 +45,32 @@ public class TecScoreServiceImpl implements TecScoreService {
 
     @Override
     public void appraise(List<TecScore> list) {
-        Calendar calendar = Calendar.getInstance();
-        Integer month = 0;
-        if (calendar.get(Calendar.DAY_OF_MONTH) >= 20)
-            month = calendar.get(Calendar.MONTH)+1;
-        else month = calendar.get(Calendar.MONTH);
-        tecScoreDao.appraise(list,month);
-//        gradeTecDao.updState(list);
+        Map<Object,Integer> map = appDate();
+        Integer month = map.get("month");
+        Integer year = map.get("year");
+        tecScoreDao.appraise(list,month,year);
     }
 
     @Override
-    public List<Map> queryScore(Integer id) {
-        User user = userDao.queryById(id);
-        Calendar calendar = Calendar.getInstance();
-        user.setThisMonth(calendar.get(Calendar.MONTH)+1);
-        user.setThisDay(calendar.get(Calendar.DATE));
+    public List<Map> queryScore(User user) {
+      Map<Object,Integer> map = appDate();
+      Integer month = map.get("month");
+      Integer year = map.get("year");
+      user.setThisYear(year);
+      User user1 = userDao.queryById(user.getId());
+      user.setPid(user1.getPid());
+      if (month == user.getThisMonth()) {
         return tecScoreDao.queryScore(user);
+      }else {
+        if ( month == 1){
+          user.setThisYear(--year);
+        }else if (month == 2){
+          if (user.getThisMonth() == 12){
+            user.setThisYear(--year);
+          }
+        }
+        return tecScoreDao.queryScorePast(user);
+      }
     }
 
     @Override
@@ -85,11 +93,40 @@ public class TecScoreServiceImpl implements TecScoreService {
 
   @Override
     public List<TechnologyExcel> excel(User user) {
-        user = userDao.queryById(user.getId());
-        return tecScoreDao.excel(user);
+    Map<Object,Integer> map = appDate();
+    Integer month = map.get("month");
+    Integer year = map.get("year");
+    user.setThisYear(year);
+    User user1 = userDao.queryById(user.getId());
+    user.setPid(user1.getPid());
+    if (month == user.getThisMonth()) {
+      return tecScoreDao.excel(user);
+    }else {
+      if ( month == 1){
+        user.setThisYear(--year);
+      }else if (month == 2){
+        if (user.getThisMonth() == 12){
+          user.setThisYear(--year);
+        }
+      }
+      return tecScoreDao.excel1(user);
+    }
     }
 
-    @Override
+  @Override
+  public List<TecPartExcel> part(List<Map> toData) {
+    User user = new User();
+    List<Integer> users = new ArrayList<>();
+    user.setUsers(users);
+    for (int i = 0;i< toData.size();i++){
+      user.getUsers()
+        .add(Integer.valueOf(toData.get(i).get("id").toString()
+          .substring(toData.get(i).get("id").toString().lastIndexOf( "-" )+1)));
+    }
+    return tecScoreDao.part(user);
+  }
+
+  @Override
     public void backups() {
         tecScoreDao.backups();
     }

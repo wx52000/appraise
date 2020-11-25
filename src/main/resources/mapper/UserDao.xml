@@ -54,7 +54,7 @@
     </delete>
     <select id="login" resultType="java.util.Map">
         select `name` , u.id , pid , paw_state as pawState , tid ,
-        GROUP_CONCAT(up.position_id) as `position`
+        GROUP_CONCAT(up.position_id) as `position` ,u.grade
         from `user` u left join
         user_position up on up.user_id = u.id
         where u.username = #{username}

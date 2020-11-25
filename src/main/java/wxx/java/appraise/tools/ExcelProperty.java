@@ -135,7 +135,38 @@ public class ExcelProperty {
         return new AsyncResult<>("Excel生成成功");
     }
 
-    @Async
+  @Async
+  public Future<String> tecPartExcel(List<TecPartExcel> list,String name) {
+    OutputStream outputStream = null;
+    ExcelWriter excelWriter = null;
+    try {
+      outputStream = new FileOutputStream("D:/excel/"+name);
+      excelWriter = EasyExcelFactory.getWriter(outputStream);
+      //将要输出的内容填充到Sheet里
+      Sheet sheet = new Sheet(1, 0, TecPartExcel.class);
+      //设置sheet表名
+      sheet.setSheetName("详细信息表");
+      /**
+       * 写数据到Write上下文中
+       * 第一个参数：要写入的内容
+       * 第二个参数：要写入的sheet目标
+       */
+      excelWriter.write(list,sheet);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }finally {
+      excelWriter.finish();
+      try {
+        outputStream.close();
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
+    }
+    return new AsyncResult<>("Excel生成成功");
+  }
+
+
+  @Async
     public Future<String> ProjectExcel(List list) throws IOException {
         OutputStream outputStream = null;
         ExcelWriter excelWriter = null;

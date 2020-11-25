@@ -17,6 +17,10 @@ public class ScheduledConfig {
     private UserScoreService userScoreService;
     private TecScoreService tecScoreService;
 
+    //此处为每月自动更新时间
+    public static final Integer setDay = 25;
+    private static final String setTime =  "0 0 0 25 * ?";
+
     @Autowired
     public  void  setUserScore(GradeScoreService gradeScoreService){
         this.gradeScoreService = gradeScoreService;
@@ -34,7 +38,7 @@ public class ScheduledConfig {
     public void setTecScoreService(TecScoreService tecScoreService){
         this.tecScoreService = tecScoreService;
     }
-//    @Scheduled(cron =" 0 0 0 20 * ? ")
+//    @Scheduled(cron = setTime)
 //    public void  reset(){
 //        gradeScoreService.resetState();
 //        gradeTecService.resetState();

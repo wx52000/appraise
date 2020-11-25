@@ -13,7 +13,7 @@
         insert into user_score( grade_id , score_id , designer , personal , coordinate , `month` , `year` , `date` )
         value
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.gradeId} ,#{item.scoreId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} ,Year(CURDATE()) , #{item.date})
+            (#{item.gradeId} ,#{item.scoreId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} ,#{year} , #{item.date})
         </foreach>
         ON DUPLICATE KEY UPDATE
         designer = values(designer),
@@ -111,6 +111,52 @@
         </choose>
         </where>
     </select>
+    <select id="queryScorePast" resultType="java.util.Map">
+      SELECT distinct m.sNAME AS name, m.department, m.technology, m.score , m.username
+      FROM(
+      SELECT u.NAME AS sName, d.NAME AS department, t.NAME AS technology, u.username,
+      s.score_id ,  AVG (( designer + personal + coordinate )/ 3) AS score
+      FROM
+      user_score_backups s,
+      `USER` u,
+      department d,
+      technology t
+      WHERE
+      u.did = d.id
+      AND u.tid = t.id
+      AND s.score_id = u.id
+      AND s.month = #{thisMonth}
+      AND S.year = #{thisYear}
+      <if test="dIds != null and dIds != ''">
+        and d.id in
+        <foreach collection="dIds" item="item" separator="," close=")" open="(">
+          #{item}
+        </foreach>
+      </if>
+      <if test="tIds != null and tIds != ''">
+        and t.id in
+        <foreach collection="tIds" item="item" separator="," open="(" close=")">
+          #{item}
+        </foreach>
+      </if>
+        GROUP BY
+        s.score_id) as m
+      <if test="selectName != null and selectName != ''">
+        order by ${selectName}
+      </if>
+      <if test="selectType == 1">
+        desc
+      </if>
+      <where>
+        <choose>
+          <when test="pid == 1">
+          </when>
+          <otherwise>
+            and m.score_id = #{id}
+          </otherwise>
+        </choose>
+      </where>
+    </select>
     <select id="query" resultType="java.util.Map">
         select m.sname , m.department , m.technology , m .designer ,
          m.personal , u.name as gname , m.coordinate
@@ -163,6 +209,23 @@
         GROUP BY
         s.score_id
     </select>
+  <select id="excel2" resultType="wxx.java.appraise.entity.PersonalExcel">
+        SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
+        s.score_id, AVG(( designer + personal + coordinate )/ 3) AS score
+        FROM
+        user_score_backups s,
+        `USER` u,
+        department d,
+        technology t
+        WHERE
+        u.did = d.id
+        AND u.tid = t.id
+        AND s.score_id = u.id
+        AND s.month = #{thisMonth}
+        AND S.year = #{thisYear}
+        GROUP BY
+        s.score_id
+  </select>
   <select id="detail" resultType="java.lang.String">
     SELECT
       CONCAT_WS( ',', designer, personal, coordinate ) ,u.username

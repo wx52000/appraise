@@ -30,7 +30,7 @@ public interface UserScoreService {
 
     List<Map> selectByGradeId(User user);
 
-    List<PartExcel> part(Integer mode , List<Map> toData);
+    List<PartExcel>  part(Integer mode , List<Map> toData);
 
     void backups();
 

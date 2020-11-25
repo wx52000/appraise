@@ -5,7 +5,7 @@
         insert into tec_score(grade_id , tec_id , designer , personal , coordinate , `month` , `year` ,`date`)
         value
         <foreach collection="list" item="item" index="index" separator=",">
-            (#{item.gradeId} , #{item.tecId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} , YEAR(CURDATE()) , #{item.date})
+            (#{item.gradeId} , #{item.tecId} , #{item.designer} ,#{item.personal} ,#{item.coordinate} ,#{month} ,#{year}, #{item.date})
         </foreach>
         ON DUPLICATE KEY UPDATE
         designer = values(designer),
@@ -49,12 +49,11 @@
         AVG(( s.designer + s.personal + s.coordinate )/ 3) AS score ,s.tec_id
         FROM
         tec_score s,
-        `user` u,
         department d,
         technology t
         WHERE
-        u.did = d.id
-        AND s.tec_id = u.tid
+        t.did = d.id
+        AND s.tec_id = t.id
         GROUP BY s.tec_id) as m,
         `user` u
         <where>
@@ -68,6 +67,33 @@
             </choose>
         </where>
     </select>
+  <select id="queryScorePast" resultType="java.util.Map">
+    SELECT distinct  m.department, m.technology, m.score
+    FROM(
+    SELECT d.NAME AS department, t.NAME AS technology,
+    AVG(( s.designer + s.personal + s.coordinate )/ 3) AS score ,s.tec_id
+    FROM
+    tec_score_backups s,
+    department d,
+    technology t
+    WHERE
+    t.did = d.id
+    AND s.tec_id = t.id
+    AND s.month = #{thisMonth}
+    AND S.year = #{thisYear}
+    GROUP BY s.tec_id) as m,
+    `user` u
+    <where>
+      <choose>
+        <when test="pid == 1">
+        </when>
+        <otherwise>
+          u.id = #{id}
+          and m.tec_id = u.tid
+        </otherwise>
+      </choose>
+    </where>
+  </select>
     <select id="query" resultType="java.util.Map">
         select u.name , d.name as department , t.name as technology ,
         s.designer ,  s.personal , s.coordinate
@@ -105,26 +131,30 @@
         AVG(( designer + personal + coordinate )/ 3) AS score ,s.tec_id
         FROM
         tec_score s,
-        `user` u,
         department d,
         technology t
         WHERE
-        u.did = d.id
-        AND s.tec_id = u.tid
-        AND u.tid = t.id
-        GROUP BY s.tec_id) as m,
-        `user` u
-        <where>
-            <choose>
-                <when test="pid == 1">
-                </when>
-                <otherwise>
-                    u.id = #{id}
-                    and m.tec_id = u.tid
-                </otherwise>
-            </choose>
-        </where>
+        t.did = d.id
+        AND s.tec_id = t.id
+        GROUP BY s.tec_id) as m
     </select>
+  <select id="excel1" resultType="wxx.java.appraise.entity.TechnologyExcel">
+        SELECT distinct  m.department, m.technology, m.score
+        FROM(
+        SELECT d.NAME AS department, t.NAME AS technology,
+        AVG(( designer + personal + coordinate )/ 3) AS score ,s.tec_id
+        FROM
+        tec_score_backups s,
+        department d,
+        technology t
+        WHERE
+        t.did = d.id
+        AND s.tec_id = t.id
+        AND s.month = #{thisMonth}
+        AND S.year = #{thisYear}
+        GROUP BY s.tec_id) as m
+  </select>
+
   <select id="detail" resultType="java.lang.String">
     SELECT
       CONCAT_WS( ',', designer, personal, coordinate ) ,u.username
@@ -135,5 +165,24 @@
     WHERE
       u.grade = 1
     ORDER BY u.username
+  </select>
+  <select id="part" resultType="wxx.java.appraise.entity.TecPartExcel">
+    select u.name as grade ,ts.personal,ts.designer,ts.coordinate ,
+    d.name as dep , t.name as tec
+    from
+    `user` u,
+    tec_score ts,
+    department d,
+    technology t
+    where
+    u.id = ts.grade_id
+    and t.id = ts.tec_id
+    and d.id = t.did
+    <if test="users != null and users != ''">
+      and u.id in
+      <foreach collection="users" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
   </select>
 </mapper>

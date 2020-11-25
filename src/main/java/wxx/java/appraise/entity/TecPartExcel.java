@@ -3,27 +3,25 @@ package wxx.java.appraise.entity;
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.metadata.BaseRowModel;
 
-public class PartExcel extends BaseRowModel {
+public class TecPartExcel extends BaseRowModel {
 
   @ExcelProperty(value = "打分人" , index = 0)
   private String grade;
 
-  @ExcelProperty(value = "被打分人" , index = 1)
-  private String score;
 
-  @ExcelProperty(value = "部门" , index = 5)
-  private String department;
+  @ExcelProperty(value = "部门" , index = 2)
+  private String dep;
 
-  @ExcelProperty(value = "专业" , index = 6)
-  private String technology;
+  @ExcelProperty(value = "专业" , index = 1)
+  private String tec;
 
-  @ExcelProperty(value = "进度得分" , index = 3)
+  @ExcelProperty(value = "进度得分" , index = 4)
   private String personal;
 
-  @ExcelProperty(value = "质量得分" , index = 2)
+  @ExcelProperty(value = "质量得分" , index = 3)
   private String designer;
 
-  @ExcelProperty(value = "配合得分" , index = 4)
+  @ExcelProperty(value = "配合得分" , index = 5)
   private String coordinate;
 
   public String getGrade() {
@@ -34,28 +32,20 @@ public class PartExcel extends BaseRowModel {
     this.grade = grade;
   }
 
-  public String getScore() {
-    return score;
+  public String getDep() {
+    return dep;
   }
 
-  public void setScore(String score) {
-    this.score = score;
+  public void setDep(String dep) {
+    this.dep = dep;
   }
 
-  public String getDepartment() {
-    return department;
+  public String getTec() {
+    return tec;
   }
 
-  public void setDepartment(String department) {
-    this.department = department;
-  }
-
-  public String getTechnology() {
-    return technology;
-  }
-
-  public void setTechnology(String technology) {
-    this.technology = technology;
+  public void setTec(String tec) {
+    this.tec = tec;
   }
 
   public String getPersonal() {

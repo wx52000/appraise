@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import wxx.java.appraise.entity.PartParam;
 import wxx.java.appraise.entity.TecScore;
 import wxx.java.appraise.entity.User;
 import wxx.java.appraise.result.Result;
@@ -49,8 +50,8 @@ public class TecScoreController {
     }
 
     @RequestMapping("queryScore")
-    public Result queryScore(@RequestHeader Integer id){
-        return Result.ok(tecScoreService.queryScore(id));
+    public Result queryScore(@RequestBody User user){
+        return Result.ok(tecScoreService.queryScore(user));
     }
 
     @RequestMapping("query")
@@ -79,6 +80,25 @@ public class TecScoreController {
       return  Result.ok(s);
     }
 
+  @RequestMapping("part")
+  public Result part(@RequestBody PartParam partParam){
+    String s= "";
+    String fileName = "";
+    try {
+      Calendar calendar = Calendar.getInstance();
+      fileName = calendar.getTimeInMillis() + "专业评分详情表.xlsx";
+      ExcelProperty excelProperty = new ExcelProperty();
+      Future<String> future = excelProperty
+        .tecPartExcel(tecScoreService.part(partParam.getList()),fileName);
+      s = future.get();
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+    } catch (ExecutionException e) {
+      e.printStackTrace();
+    }
+    return  Result.ok(fileName);
+  }
+
 
   @RequestMapping("excel")
     public Result excel(HttpServletRequest request , HttpServletResponse response) throws IOException {
@@ -86,13 +106,11 @@ public class TecScoreController {
         try {
             User user = new User();
             user.setId(Integer.valueOf(request.getParameter("id")));
-            Calendar calendar = Calendar.getInstance();
-            user.setThisMonth(calendar.get(Calendar.MONTH)+1);
-            user.setThisDay(calendar.get(Calendar.DATE));
+            user.setThisMonth(Integer.valueOf(request.getParameter("month")));
             ExcelProperty excelProperty = new ExcelProperty();
             Future<String> future = excelProperty.technologyExcel(tecScoreService.excel(user));
             s = future.get();
-            String fileName = calendar.get(Calendar.MONTH)+1 + "月技术得分汇总表.xlsx";
+            String fileName = user.getThisMonth() + "月专业得分汇总表.xlsx";
             Download.downloadFile( response , "excel1.xlsx" , fileName);
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -27,6 +27,8 @@ public class User {
 
     private Integer pageSize;
 
+    private Integer thisYear;
+
     private Integer thisMonth;
 
     private Integer thisDay;
@@ -124,7 +126,16 @@ public class User {
         return pageSize;
     }
 
-    public void setPageSize(Integer pageSize) {
+
+    public Integer getThisYear() {
+      return thisYear;
+    }
+
+    public void setThisYear(Integer thisYear) {
+      this.thisYear = thisYear;
+    }
+
+  public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
 
