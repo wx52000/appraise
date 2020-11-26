@@ -67,6 +67,19 @@
         </if>
         order by department , technology
     </select>
+    <select id="queryByScoreId" resultType="java.util.Map">
+    select `month`, AVG (( designer + personal + coordinate )/ 3) AS score
+    from user_score
+    where score_id = #{id}
+    </select>
+  <select id="queryByScoreIdPast" resultType="java.util.Map">
+    select `month`, AVG (( designer + personal + coordinate )/ 3) AS score
+    from user_score_backups
+    where score_id = #{id}
+    group by `month`
+    order by `month` desc
+    limit 2
+  </select>
     <select id="queryScore" resultType="java.util.Map" parameterType="user">
         SELECT distinct m.sNAME AS name, m.department, m.technology, m.score , m.username
         FROM(
@@ -194,6 +207,45 @@
         desc
       </if>
     </select>
+    <select id="queryPast" resultType="java.util.Map">
+      select m.sname , m.department , m.technology , m .designer ,
+      m.personal , u.name as gname , m.coordinate
+      from (select u.name as sname, d.name as department , t.name as technology ,
+      designer , personal , s.grade_id , coordinate
+      from
+      user_score_backups s,
+      `user` u,
+      department d,
+      technology t
+      where
+      u.did = d.id
+      and u.tid = t.id
+      and s.score_id = u.id
+      AND s.month = #{thisMonth}
+      AND S.year = #{thisYear}
+      <if test="dIds != null and dIds != ''">
+        and d.id in
+        <foreach collection="dIds" item="item" separator="," close=")" open="(">
+          #{item}
+        </foreach>
+      </if>
+      <if test="tIds != null and tIds != ''">
+        and t.id in
+        <foreach collection="tIds" item="item" separator="," open="(" close=")">
+          #{item}
+        </foreach>
+      </if>
+      ) as m,
+      user  u
+      where
+      m.grade_id = u.id
+      <if test="selectName != null and selectName != ''">
+        order by ${selectName}
+      </if>
+      <if test="selectType == 1">
+        desc
+      </if>
+    </select>
     <select id="excel1" resultType="wxx.java.appraise.entity.PersonalExcel" parameterType="user">
         SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
         s.score_id, AVG(( designer + personal + coordinate )/ 3) AS score
@@ -237,6 +289,19 @@
       u.grade = 1
     ORDER BY u.username
   </select>
+  <select id="detailPast" resultType="java.lang.String">
+    SELECT
+      CONCAT_WS( ',', designer, personal, coordinate ) ,u.username
+      FROM
+        `user` u
+        LEFT JOIN user_score_backups s ON u.id = s.grade_id
+        AND s.score_id = #{uid}
+        AND s.month = #{user.thisMonth}
+        AND S.year = #{user.thisYear}
+    WHERE
+      u.grade = 1
+    ORDER BY u.username
+  </select>
   <select id="part0" resultType="wxx.java.appraise.entity.PartExcel">
     select u1.name as grade , u2.name as score ,us.personal,us.designer,us.coordinate ,
     d.name as dep , t.name as tec
@@ -251,6 +316,29 @@
     and u2.id = us.score_id
     and d.id = u2.did
     and t.id = u2.tid
+    <if test="users != null and users != ''">
+      and u1.id in
+      <foreach collection="users" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+  <select id="partPast0" resultType="wxx.java.appraise.entity.PartExcel">
+    select u1.name as grade , u2.name as score ,us.personal,us.designer,us.coordinate ,
+    d.name as dep , t.name as tec
+    from
+    `user` u1,
+    `user` u2,
+    user_score_backups us,
+    department d,
+    technology t
+    where
+    u1.id = us.grade_id
+    and u2.id = us.score_id
+    and d.id = u2.did
+    and t.id = u2.tid
+    AND us.month = #{thisMonth}
+    AND uS.year = #{thisYear}
     <if test="users != null and users != ''">
       and u1.id in
       <foreach collection="users" item="item" separator="," open="(" close=")">
@@ -279,4 +367,29 @@
       </foreach>
     </if>
   </select>
+  <select id="partPast1" resultType="wxx.java.appraise.entity.PartExcel">
+    select u1.name as grade , u2.name as score ,us.personal,us.designer,us.coordinate ,
+    d.name as dep , t.name as tec
+    from
+    `user` u1,
+    `user` u2,
+    user_score_backups us,
+    department d,
+    technology t
+    where
+    u1.id = us.grade_id
+    and u2.id = us.score_id
+    and d.id = u2.did
+    and t.id = u2.tid
+    AND us.month = #{thisMonth}
+    AND uS.year = #{thisYear}
+    <if test="users != null and users != ''">
+      and u2.id in
+      <foreach collection="users" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+
+
 </mapper>

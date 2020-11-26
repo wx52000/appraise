@@ -49,6 +49,14 @@ public class UsreScoreServiceImpl implements UserScoreService {
     }
 
     @Override
+    public List<Map> queryByScoreId(User user) {
+      List<Map> list = new ArrayList<>();
+      list.add(userScoreDao.queryByScoreId(user));
+      list.addAll(userScoreDao.queryByScoreIdPast(user));
+      return list;
+    }
+
+  @Override
     public void appraise(List<UserScore> list) {
         Map<Object,Integer> map = appDate();
         Integer month = map.get("month");
@@ -80,19 +88,56 @@ public class UsreScoreServiceImpl implements UserScoreService {
 
     @Override
     public List<Map> query(User user) {
+      Map<Object,Integer> map = appDate();
+      Integer month = map.get("month");
+      Integer year = map.get("year");
+      user.setThisYear(year);
+      User user1 = userDao.queryById(user.getId());
+      user.setPid(user1.getPid());
+      if (month == user.getThisMonth()) {
         return userScoreDao.query(user);
+      }else {
+        if ( month == 1){
+          user.setThisYear(--year);
+        }else if (month == 2){
+          if (user.getThisMonth() == 12){
+            user.setThisYear(--year);
+          }
+        }
+        return userScoreDao.queryPast(user);
+      }
     }
 
   @Override
-  public List<List<String>> detail() {
-      List<List<String>> data = new ArrayList<>();
-      List<Map> user = userDao.queryAll();
-      for (int i = 0; i< user.size() ; i++){
+  public List<List<String>> detail(User user) {
+    List<List<String>> data = new ArrayList<>();
+    List<Map> users = userDao.queryAll();
+    Map<Object,Integer> map = appDate();
+    Integer month = map.get("month");
+    Integer year = map.get("year");
+    user.setThisYear(year);
+    if (month == user.getThisMonth()) {
+      for (int i = 0; i< users.size() ; i++){
         List<String> list = new ArrayList<>();
-        list.add(user.get(i).get("name").toString());
-        list.addAll(userScoreDao.detail((Integer) user.get(i).get("id")));
+        list.add(users.get(i).get("name").toString());
+        list.addAll(userScoreDao.detail((Integer) users.get(i).get("id")));
         data.add(list);
       }
+    }else {
+      if ( month == 1){
+        user.setThisYear(--year);
+      }else if (month == 2){
+        if (user.getThisMonth() == 12){
+          user.setThisYear(--year);
+        }
+      }
+      for (int i = 0; i< users.size() ; i++){
+        List<String> list = new ArrayList<>();
+        list.add(users.get(i).get("name").toString());
+        list.addAll(userScoreDao.detailPast(user,(Integer) users.get(i).get("id")));
+        data.add(list);
+      }
+    }
     return data;
   }
 
@@ -134,23 +179,46 @@ public class UsreScoreServiceImpl implements UserScoreService {
     }
 
   @Override
-  public List<PartExcel> part(Integer mode, List<Map> toData) {
+  public List<PartExcel> part(Integer mode, List<Map> toData,Integer month) {
       User user = new User();
       List<Integer> users = new ArrayList<>();
       user.setUsers(users);
+      user.setThisMonth(month);
       for (int i = 0;i< toData.size();i++){
         user.getUsers()
           .add(Integer.valueOf(toData.get(i).get("id").toString()
             .substring(toData.get(i).get("id").toString().lastIndexOf( "-" )+1)));
       }
-      if (toData.size() > 0) {
-        if (mode == 0) {
-          return userScoreDao.part0(user);
-        } else {
-          return userScoreDao.part1(user);
+      Map<Object,Integer> map = appDate();
+      Integer month1 = map.get("month");
+      Integer year = map.get("year");
+      user.setThisYear(year);
+      if (month1.equals(user.getThisMonth())) {
+        if (toData.size() > 0) {
+          if (mode == 0) {
+            return userScoreDao.part0(user);
+          } else {
+            return userScoreDao.part1(user);
+          }
+        }else
+          return  null;
+      }else {
+        if ( month1 == 1){
+          user.setThisYear(--year);
+        }else if (month1 == 2){
+          if (user.getThisMonth() == 12){
+            user.setThisYear(--year);
+          }
         }
-      }else
-        return  null;
+        if (toData.size() > 0) {
+          if (mode == 0) {
+            return userScoreDao.partPast0(user);
+          } else {
+            return userScoreDao.partPast1(user);
+          }
+        }else
+          return  null;
+    }
   }
 
   @Override

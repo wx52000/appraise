@@ -15,6 +15,10 @@ public interface TecScoreDao {
 
     List<Map> queryByGradeId(Integer id);
 
+    Map queryByScoreId(User user);
+
+    List<Map> queryByScoreIdPast(User user);
+
     void appraise(@Param("list") List<TecScore> list,
                   @Param("month") Integer month , @Param("year")Integer year);
 
@@ -24,14 +28,21 @@ public interface TecScoreDao {
 
     List<Map> query(User user);
 
+    List<Map> queryPast(User user);
+
     List<String> detail(Integer id);
+
+    List<String> detailPast(@Param("tid") Integer tid,@Param("user")User user);
 
     //本月数据
     List<TechnologyExcel> excel(User user);
     //上月数据
     List<TechnologyExcel> excel1(User user);
 
+//    本月根据打分人
     List<TecPartExcel> part(User user);
+//以往根据打分人
+    List<TecPartExcel> partPast(User user);
 
     void backups();
 

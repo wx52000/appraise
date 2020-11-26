@@ -39,6 +39,11 @@ public class UserScoreController {
         return Result.ok(userScoreService.queryByGradeId(user));
     }
 
+    @RequestMapping("queryByScoreId")
+    public Result queryByScoreId(@RequestBody User user){
+      return Result.ok(userScoreService.queryByScoreId(user));
+    }
+
     @RequestMapping("selectByGradeId")
     public Result selectByGradeId(@RequestBody User user){
         return Result.ok(userScoreService.selectByGradeId(user));
@@ -74,16 +79,16 @@ public class UserScoreController {
 
     //详情下载，本月
     @RequestMapping("detail")
-    public Result detail(HttpServletResponse response){
+    public Result detail(HttpServletResponse response,HttpServletRequest request){
       String s= "";
       try {
-
-        Calendar calendar = Calendar.getInstance();
+        User user = new User();
+        user.setThisMonth(Integer.valueOf(request.getParameter("month")));
         ExcelProperty excelProperty = new ExcelProperty();
         Future<String> future = excelProperty
-          .personalDetailsExcel(userService.queryGrade(),userScoreService.detail());
+          .personalDetailsExcel(userService.queryGrade(),userScoreService.detail(user));
         s = future.get();
-        String fileName = calendar.get(Calendar.MONTH)+1 + "月个人评分详情表.xlsx";
+        String fileName = user.getThisMonth()+ "月个人评分详情表.xlsx";
         Download.downloadFile( response , "excel.xlsx" , fileName);
       } catch (InterruptedException e) {
         e.printStackTrace();
@@ -102,7 +107,7 @@ public class UserScoreController {
       fileName = calendar.getTimeInMillis() + "个人评分详情表.xlsx";
       ExcelProperty excelProperty = new ExcelProperty();
       Future<String> future = excelProperty
-        .personalPartExcel(userScoreService.part(partParam.getMode(),partParam.getList()),fileName);
+        .personalPartExcel(userScoreService.part(partParam.getMode(),partParam.getList(),partParam.getMonth()),fileName);
       s = future.get();
     } catch (InterruptedException e) {
       e.printStackTrace();

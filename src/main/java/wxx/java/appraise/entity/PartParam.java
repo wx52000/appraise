@@ -8,6 +8,8 @@ public class PartParam {
 
   private Integer mode;
 
+  private Integer month;
+
   public List<Map> getList() {
     return list;
   }
@@ -22,5 +24,14 @@ public class PartParam {
 
   public void setMode(Integer mode) {
     this.mode = mode;
+  }
+
+
+  public Integer getMonth() {
+    return month;
+  }
+
+  public void setMonth(Integer month) {
+    this.month = month;
   }
 }

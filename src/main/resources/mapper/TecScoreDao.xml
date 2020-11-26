@@ -42,6 +42,23 @@
         and u.id = gt.grade_id
         and t.did = d.id
     </select>
+  <select id="queryByScoreId" resultType="java.util.Map">
+    select s.month , AVG(( designer + personal + coordinate )/ 3) AS score
+    from tec_score s,
+    `user` u
+    where u.id = #{id}
+    and u.tid = s.tec_id
+    group by `month`
+  </select>
+  <select id="queryByScoreIdPast" resultType="java.util.Map">
+    select s.month , AVG(( designer + personal + coordinate )/ 3) AS score
+    from tec_score_backups s,
+    `user` u
+    where u.id = #{id}
+    and u.tid = s.tec_id
+    group by `month`
+    limit 2
+  </select>
     <select id="queryScore" resultType="java.util.Map">
         SELECT distinct  m.department, m.technology, m.score
         FROM(
@@ -124,6 +141,38 @@
         desc
       </if>
     </select>
+  <select id="queryPast" resultType="java.util.Map">
+    select u.name , d.name as department , t.name as technology ,
+    s.designer ,  s.personal , s.coordinate
+    from tec_score_backups s,
+    `user` u,
+    department d,
+    technology t
+    where
+    u.id = s.grade_id
+    and t.did = d.id
+    and s.tec_id = t.id
+    AND s.month = #{thisMonth}
+    AND S.year = #{thisYear}
+    <if test="dIds != null and dIds != ''">
+      and d.id in
+      <foreach collection="dIds" item="item" separator="," close=")" open="(">
+        #{item}
+      </foreach>
+    </if>
+    <if test="tIds != null and tIds != ''">
+      and t.id in
+      <foreach collection="tIds" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+    <if test="selectName != null and selectName != ''">
+      order by ${selectName}
+    </if>
+    <if test="selectType == 1">
+      desc
+    </if>
+  </select>
     <select id="excel" resultType="wxx.java.appraise.entity.TechnologyExcel">
         SELECT distinct  m.department, m.technology, m.score
         FROM(
@@ -166,6 +215,19 @@
       u.grade = 1
     ORDER BY u.username
   </select>
+  <select id="detailPast" resultType="java.lang.String">
+    SELECT
+      CONCAT_WS( ',', designer, personal, coordinate ) ,u.username
+      FROM
+        `user` u
+        LEFT JOIN tec_score_backups s ON u.id = s.grade_id
+        AND s.tec_id = #{tid}
+        AND s.month = #{user.thisMonth}
+        AND S.year = #{user.thisYear}
+    WHERE
+      u.grade = 1
+    ORDER BY u.username
+  </select>
   <select id="part" resultType="wxx.java.appraise.entity.TecPartExcel">
     select u.name as grade ,ts.personal,ts.designer,ts.coordinate ,
     d.name as dep , t.name as tec
@@ -185,4 +247,27 @@
       </foreach>
     </if>
   </select>
+  <select id="partPast" resultType="wxx.java.appraise.entity.TecPartExcel">
+    select u.name as grade ,ts.personal,ts.designer,ts.coordinate ,
+    d.name as dep , t.name as tec
+    from
+    `user` u,
+    tec_score_backups ts,
+    department d,
+    technology t
+    where
+    u.id = ts.grade_id
+    and t.id = ts.tec_id
+    and d.id = t.did
+    AND ts.month = #{thisMonth}
+    AND ts.year = #{thisYear}
+    <if test="users != null and users != ''">
+      and u.id in
+      <foreach collection="users" item="item" separator="," open="(" close=")">
+        #{item}
+      </foreach>
+    </if>
+  </select>
+
+
 </mapper>

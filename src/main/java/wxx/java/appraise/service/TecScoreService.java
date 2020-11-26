@@ -14,17 +14,19 @@ public interface TecScoreService {
 
     List<Map> queryByGradeId(Integer id);
 
+    List<Map> queryByScoreId(User user);
+
     void appraise(@Param("list") List<TecScore> list);
 
     List<Map> queryScore(User user);
 
     List<Map> query(User user);
 
-    List<List<String>> detail();
+    List<List<String>> detail(User user);
 
     List<TechnologyExcel> excel(User user);
 
-    List<TecPartExcel> part(List<Map> toData);
+    List<TecPartExcel> part(List<Map> toData,Integer month);
 
     void backups();
 

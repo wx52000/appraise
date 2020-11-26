@@ -17,7 +17,6 @@ import wxx.java.appraise.tools.ExcelProperty;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -43,6 +42,11 @@ public class TecScoreController {
         return Result.ok(tecScoreService.queryByGradeId(id));
     }
 
+    @RequestMapping("queryByScoreId")
+    public Result queryByScoreId(@RequestBody User user){
+      return Result.ok(tecScoreService.queryByScoreId(user));
+    }
+
     @RequestMapping("appraise")
     public Result appraise(@RequestBody List<TecScore> list){
         tecScoreService.appraise(list);
@@ -61,16 +65,16 @@ public class TecScoreController {
     }
 
     @RequestMapping("detail")
-    public Result detail(HttpServletResponse response){
+    public Result detail(HttpServletResponse response,HttpServletRequest request){
       String s= "";
       try {
-
-        Calendar calendar = Calendar.getInstance();
+        User user = new User();
+        user.setThisMonth(Integer.valueOf(request.getParameter("month")));
         ExcelProperty excelProperty = new ExcelProperty();
         Future<String> future = excelProperty
-          .personalDetailsExcel(userService.queryGrade(),tecScoreService.detail());
+          .personalDetailsExcel(userService.queryGrade(),tecScoreService.detail(user));
         s = future.get();
-        String fileName = calendar.get(Calendar.MONTH)+1 + "月个人评分详情表.xlsx";
+        String fileName = user.getThisMonth() + "月个人评分详情表.xlsx";
         Download.downloadFile( response , "excel.xlsx" , fileName);
       } catch (InterruptedException e) {
         e.printStackTrace();
@@ -85,11 +89,10 @@ public class TecScoreController {
     String s= "";
     String fileName = "";
     try {
-      Calendar calendar = Calendar.getInstance();
-      fileName = calendar.getTimeInMillis() + "专业评分详情表.xlsx";
+      fileName = partParam.getMonth() + "月专业评分详情表.xlsx";
       ExcelProperty excelProperty = new ExcelProperty();
       Future<String> future = excelProperty
-        .tecPartExcel(tecScoreService.part(partParam.getList()),fileName);
+        .tecPartExcel(tecScoreService.part(partParam.getList(),partParam.getMonth()),fileName);
       s = future.get();
     } catch (InterruptedException e) {
       e.printStackTrace();

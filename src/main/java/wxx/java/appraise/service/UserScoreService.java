@@ -14,13 +14,15 @@ public interface UserScoreService {
 
     PageInfo<Map> queryByGradeId(User user);
 
+    List<Map> queryByScoreId(User user);
+
     void appraise(@Param("list") List<UserScore> list);
 
     List<Map> queryScore(User user);
 
     List<Map> query(User user);
 
-    List<List<String>> detail();
+    List<List<String>> detail(User user);
 
     void add(List<UserScore> list);
 
@@ -30,7 +32,7 @@ public interface UserScoreService {
 
     List<Map> selectByGradeId(User user);
 
-    List<PartExcel>  part(Integer mode , List<Map> toData);
+    List<PartExcel>  part(Integer mode , List<Map> toData,Integer month);
 
     void backups();
 
