@@ -12,10 +12,10 @@ public class PartExcel extends BaseRowModel {
   private String score;
 
   @ExcelProperty(value = "部门" , index = 5)
-  private String department;
+  private String dep;
 
   @ExcelProperty(value = "专业" , index = 6)
-  private String technology;
+  private String tec;
 
   @ExcelProperty(value = "进度得分" , index = 3)
   private String personal;
@@ -42,20 +42,20 @@ public class PartExcel extends BaseRowModel {
     this.score = score;
   }
 
-  public String getDepartment() {
-    return department;
+  public String getDep() {
+    return dep;
   }
 
-  public void setDepartment(String department) {
-    this.department = department;
+  public void setDep(String dep) {
+    this.dep = dep;
   }
 
-  public String getTechnology() {
-    return technology;
+  public String getTec() {
+    return tec;
   }
 
-  public void setTechnology(String technology) {
-    this.technology = technology;
+  public void setTec(String tec) {
+    this.tec = tec;
   }
 
   public String getPersonal() {

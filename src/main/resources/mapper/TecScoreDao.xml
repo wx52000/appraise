@@ -43,7 +43,9 @@
         and t.did = d.id
     </select>
   <select id="queryByScoreId" resultType="java.util.Map">
-    select s.month , AVG(( designer + personal + coordinate )/ 3) AS score
+    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
+    AVG (coordinate ) AS coordinate,
+     AVG (( designer + personal + coordinate )/ 3) AS score
     from tec_score s,
     `user` u
     where u.id = #{id}
@@ -51,8 +53,9 @@
     group by `month`
   </select>
   <select id="queryByScoreIdPast" resultType="java.util.Map">
-    select s.month , AVG(( designer + personal + coordinate )/ 3) AS score
-    from tec_score_backups s,
+    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
+    AVG (coordinate ) AS coordinate,
+     AVG (( designer + personal + coordinate )/ 3) AS score
     `user` u
     where u.id = #{id}
     and u.tid = s.tec_id

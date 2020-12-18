@@ -5,10 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wxx.java.appraise.dao.*;
-import wxx.java.appraise.entity.ExcelProject;
-import wxx.java.appraise.entity.Project;
-import wxx.java.appraise.entity.User;
-import wxx.java.appraise.entity.Volume;
+import wxx.java.appraise.entity.*;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.ProjectService;
 import wxx.java.appraise.tools.StringUtils;
@@ -111,6 +108,13 @@ public class ProjectServiceImpl implements ProjectService {
         if (excelProject.getTec() != null){
             excelProject.setTid(technologyDao.queryByName(excelProject.getTec()));
             projectTecDao.addExcel(excelProject);
+            if (excelProject.getTid() == null){
+              Technology technology = new Technology();
+              technology.setName(excelProject.getTec());
+              technology.setDid(14);
+              technologyDao.add(technology);
+              excelProject.setTid(technology.getId());
+            }
         }
         if (excelProject.getPrincipal() != null){
             User user = new User();
@@ -167,9 +171,9 @@ public class ProjectServiceImpl implements ProjectService {
                 user.setDid(departmentDao.selectByTec(user.getTid()));
                 user.setUsername(StringUtils.generateString(3) + Time.getDate());
                 user.setPaw("1234");
-                if (user.getDid() == null){
+//                if (user.getDid() == null){
 //                    user.setDid();
-                }
+//                }
                 userDao.add(user);
                 Map map = new HashMap();
                 map.put("username" , user.getUsername());

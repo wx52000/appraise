@@ -68,12 +68,16 @@
         order by department , technology
     </select>
     <select id="queryByScoreId" resultType="java.util.Map">
-    select `month`, AVG (( designer + personal + coordinate )/ 3) AS score
+    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
+    AVG (coordinate ) AS coordinate,
+     AVG (( designer + personal + coordinate )/ 3) AS score
     from user_score
     where score_id = #{id}
     </select>
   <select id="queryByScoreIdPast" resultType="java.util.Map">
-    select `month`, AVG (( designer + personal + coordinate )/ 3) AS score
+    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
+    AVG (coordinate ) AS coordinate,
+     AVG (( designer + personal + coordinate )/ 3) AS score
     from user_score_backups
     where score_id = #{id}
     group by `month`
