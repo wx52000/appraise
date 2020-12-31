@@ -13,9 +13,13 @@ public interface ProjectService {
 
     void add(Project project);
 
+    void addNumber(Project project);
+
     void upd(Project project);
 
     void updState(Integer id);
+
+   void spider(Project project);
 
     List<Map> addExcel(ExcelProject excelProject) throws ParseException;
 
@@ -26,6 +30,7 @@ public interface ProjectService {
     List<Map> queryByGeneral(User user);
     //作为主设人查询
     List<Map> queryByPrincipal(User user);
+    List<Map> queryProByPrincipal(User user);
     //作为设计人查询
     List<Map> queryByDesigner(User user);
     //作为互校人查询

@@ -7,6 +7,8 @@ public class Project {
 
     private Integer id;
 
+    private String number;
+
     private String name;
 
     private Integer days;
@@ -31,12 +33,23 @@ public class Project {
 
     private Set<Integer> general;
 
+    private Integer spider;
+
     public Integer getId() {
         return id;
     }
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+
+    public String getNumber() {
+      return number;
+    }
+
+    public void setNumber(String number) {
+      this.number = number;
     }
 
     public String getName() {
@@ -135,4 +148,12 @@ public class Project {
     public void setGeneral(Set<Integer> general) {
         this.general = general;
     }
+
+  public Integer getSpider() {
+    return spider;
+  }
+
+  public void setSpider(Integer spider) {
+    this.spider = spider;
+  }
 }

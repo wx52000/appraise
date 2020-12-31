@@ -24,27 +24,29 @@ public class ExcelProject extends BaseRowModel {
     @ExcelProperty(value = "专业" ,index = 3)
     private String tec;
 
-    @ExcelProperty(value = "图纸等级" ,index = 4)
-    private String grade;
 
-    @ExcelProperty(value = "计划出版日期" ,index = 5)
+    @ExcelProperty(value = "计划出版日期" ,index = 4)
     private String plannedPublicationDate;
 
-    @ExcelProperty(value = "实际最终出版日期" ,index = 6)
+    @ExcelProperty(value = "实际最终出版日期" ,index = 5)
     private String actualPublicationDate;
 
-    @ExcelProperty(value = "接收外专业资料时间" ,index = 7)
-    private String professionalDate;
+    @ExcelProperty(value = "计划出手时间" ,index = 6)
+    private String planned_shot_date;
 
-    @ExcelProperty(value = "对外提资时间（如果有) " ,index = 8)
-    private String withdrawalDate;
+
+    @ExcelProperty(value = "出手日期" ,index = 7)
+    private String shotDate;
+
+    @ExcelProperty(value = "校审完成时间" ,index = 8)
+    private String proofreading_date;
+
+    @ExcelProperty(value = "院交出时间" ,index = 9)
+    private String complete_time;
 
     private Integer designerId;
-    @ExcelProperty(value = "设计人" ,index = 9)
+    @ExcelProperty(value = "设计人" ,index = 10)
     private String designer;
-
-    @ExcelProperty(value = "出手日期" ,index = 10)
-    private String shotDate;
 
     @ExcelProperty(value = "上月底已完成比例" ,index = 11)
     private String designerLastMonth;
@@ -100,40 +102,40 @@ public class ExcelProject extends BaseRowModel {
     private String checkerRemark;
 
 
-    private Integer principalId;
-    @ExcelProperty(value = "主设人校" ,index = 28)
-    private String principal;
-
-    @ExcelProperty(value = "完成日期" ,index = 29)
-    private String principalCompletionDate;
-
-    @ExcelProperty(value = "上周完成比例(%)" ,index = 30)
-    private String principalLastWeek;
-
-    @ExcelProperty(value = "本周完成比例(%)" ,index = 31)
-    private String principalNowWeek;
-
-    @ExcelProperty(value = "延期原因" ,index = 32)
-    private String principalRemark;
-
-    private Integer headmanId;
-    @ExcelProperty(value = "组长校" ,index = 33)
-    private String headman;
-
-    @ExcelProperty(value = "完成日期" ,index = 34)
-    private String headmanCompletionDate;
-
-    @ExcelProperty(value = "上周完成比例(%)" ,index = 35)
-    private String headmanLastWeek;
-
-    @ExcelProperty(value = "本周完成比例(%)" ,index = 36)
-    private String headmanNowWeek;
-
-    @ExcelProperty(value = "延期原因" ,index = 37)
-    private String headmanRemark;
-
-    @ExcelProperty(value = "备注" ,index = 38)
-    private String remark;
+//    private Integer principalId;
+//    @ExcelProperty(value = "主设人校" ,index = 27)
+//    private String principal;
+//
+//    @ExcelProperty(value = "完成日期" ,index = 28)
+//    private String principalCompletionDate;
+//
+//    @ExcelProperty(value = "上周完成比例(%)" ,index = 29)
+//    private String principalLastWeek;
+//
+//    @ExcelProperty(value = "本周完成比例(%)" ,index = 30)
+//    private String principalNowWeek;
+//
+//    @ExcelProperty(value = "延期原因" ,index = 31)
+//    private String principalRemark;
+//
+//    private Integer headmanId;
+//    @ExcelProperty(value = "组长校" ,index = 32)
+//    private String headman;
+//
+//    @ExcelProperty(value = "完成日期" ,index = 33)
+//    private String headmanCompletionDate;
+//
+//    @ExcelProperty(value = "上周完成比例(%)" ,index = 34)
+//    private String headmanLastWeek;
+//
+//    @ExcelProperty(value = "本周完成比例(%)" ,index = 35)
+//    private String headmanNowWeek;
+//
+//    @ExcelProperty(value = "延期原因" ,index = 36)
+//    private String headmanRemark;
+//
+//    @ExcelProperty(value = "备注" ,index = 37)
+//    private String remark;
 
     public String getNumber() {
         return number;
@@ -167,13 +169,6 @@ public class ExcelProject extends BaseRowModel {
         this.tec = tec;
     }
 
-    public String getGrade() {
-        return grade;
-    }
-
-    public void setGrade(String grade) {
-        this.grade = grade;
-    }
 
     public String getPlannedPublicationDate() {
         return plannedPublicationDate;
@@ -191,23 +186,31 @@ public class ExcelProject extends BaseRowModel {
         this.actualPublicationDate = actualPublicationDate;
     }
 
-    public String getProfessionalDate() {
-        return professionalDate;
+    public String getPlanned_shot_date() {
+      return planned_shot_date;
     }
 
-    public void setProfessionalDate(String professionalDate) {
-        this.professionalDate = professionalDate;
+    public void setPlanned_shot_date(String planned_shot_date) {
+      this.planned_shot_date = planned_shot_date;
     }
 
-    public String getWithdrawalDate() {
-        return withdrawalDate;
+    public String getProofreading_date() {
+      return proofreading_date;
     }
 
-    public void setWithdrawalDate(String withdrawalDate) {
-        this.withdrawalDate = withdrawalDate;
+    public void setProofreading_date(String proofreading_date) {
+      this.proofreading_date = proofreading_date;
     }
 
-    public String getDesigner() {
+    public String getComplete_time() {
+      return complete_time;
+    }
+
+    public void setComplete_time(String complete_time) {
+      this.complete_time = complete_time;
+    }
+
+   public String getDesigner() {
         return designer;
     }
 
@@ -359,93 +362,6 @@ public class ExcelProject extends BaseRowModel {
         this.checkerRemark = checkerRemark;
     }
 
-    public String getPrincipal() {
-        return principal;
-    }
-
-    public void setPrincipal(String principal) {
-        this.principal = principal;
-    }
-
-    public String getPrincipalCompletionDate() {
-        return principalCompletionDate;
-    }
-
-    public void setPrincipalCompletionDate(String principalCompletionDate) {
-        this.principalCompletionDate = principalCompletionDate;
-    }
-
-    public String getPrincipalLastWeek() {
-        return principalLastWeek;
-    }
-
-    public void setPrincipalLastWeek(String principalLastWeek) {
-        this.principalLastWeek = principalLastWeek;
-    }
-
-    public String getPrincipalNowWeek() {
-        return principalNowWeek;
-    }
-
-    public void setPrincipalNowWeek(String principalNowWeek) {
-        this.principalNowWeek = principalNowWeek;
-    }
-
-    public String getPrincipalRemark() {
-        return principalRemark;
-    }
-
-    public void setPrincipalRemark(String principalRemark) {
-        this.principalRemark = principalRemark;
-    }
-
-    public String getHeadman() {
-        return headman;
-    }
-
-    public void setHeadman(String headman) {
-        this.headman = headman;
-    }
-
-    public String getHeadmanCompletionDate() {
-        return headmanCompletionDate;
-    }
-
-    public void setHeadmanCompletionDate(String headmanCompletionDate) {
-        this.headmanCompletionDate = headmanCompletionDate;
-    }
-
-    public String getHeadmanLastWeek() {
-        return headmanLastWeek;
-    }
-
-    public void setHeadmanLastWeek(String headmanLastWeek) {
-        this.headmanLastWeek = headmanLastWeek;
-    }
-
-    public String getHeadmanNowWeek() {
-        return headmanNowWeek;
-    }
-
-    public void setHeadmanNowWeek(String headmanNowWeek) {
-        this.headmanNowWeek = headmanNowWeek;
-    }
-
-    public String getHeadmanRemark() {
-        return headmanRemark;
-    }
-
-    public void setHeadmanRemark(String headmanRemark) {
-        this.headmanRemark = headmanRemark;
-    }
-
-    public String getRemark() {
-        return remark;
-    }
-
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
 
     public Integer getPid() {
         return pid;
@@ -485,21 +401,5 @@ public class ExcelProject extends BaseRowModel {
 
     public void setCheckerId(Integer checkerId) {
         this.checkerId = checkerId;
-    }
-
-    public Integer getPrincipalId() {
-        return principalId;
-    }
-
-    public void setPrincipalId(Integer principalId) {
-        this.principalId = principalId;
-    }
-
-    public Integer getHeadmanId() {
-        return headmanId;
-    }
-
-    public void setHeadmanId(Integer headmanId) {
-        this.headmanId = headmanId;
     }
 }

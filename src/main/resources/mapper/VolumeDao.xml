@@ -244,15 +244,7 @@
         where id = #{id}
     </update>
     <select id="queryById" resultType="java.util.Map">
-        select v.id , v.number , v.name as name , v.grade, t.name as tec, t.id as tid,
-         v.planned_publication_date ,
-         v.actual_publication_date ,
-         v.professional_date ,
-         v.withdrawal_date ,
-         v.shot_date ,
-         v.complete_time,
-         GROUP_CONCAT(distinct designer.name Separator ',' ) AS designer,
-         GROUP_CONCAT(distinct checker.name Separator ',' ) as checker
+        select *
         from
         volume v LEFT JOIN
         (select  vu.volume_id , u.name
@@ -271,4 +263,16 @@
         where v.id = #{id}
         and t.id = v.tec_id
     </select>
+  <select id="queryByProjectId" resultType="java.util.Map" parameterType="map">
+    select v.*,
+		GROUP_CONCAT(distinct p1.proportion, "$", p1.remarks , "$" , p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+		GROUP_CONCAT(distinct p2.proportion, "$", p2.remarks , "$" , p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+    from  volume v
+    LEFT JOIN ( SELECT * FROM proportion WHERE #{max}> date and date >= #{min} ORDER BY date LIMIT 4 ) AS p1 ON p1.volume_id = v.id
+    AND p1.type = 0
+    LEFT JOIN ( SELECT * FROM proportion WHERE #{max}> date and date  >= #{min} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
+    AND p2.type = 1
+    where  v.project_id = #{id}
+		GROUP BY v.id
+  </select>
 </mapper>

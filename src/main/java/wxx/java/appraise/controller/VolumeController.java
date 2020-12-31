@@ -24,6 +24,11 @@ public class VolumeController {
         return Result.ok(volumeService.queryById(id));
     }
 
+    @RequestMapping("queryByProjectId")
+    public Result queryByProjectId(@RequestHeader Integer id){
+      return Result.ok(volumeService.queryByProjectId(id));
+    }
+
     @RequestMapping("upd")
     public Result upd(@RequestBody Volume volume){
         volumeService.upd(volume);

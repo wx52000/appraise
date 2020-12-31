@@ -31,6 +31,12 @@ public class ProjectController {
         return Result.ok();
     }
 
+    @RequestMapping("addNumber")
+    public Result addNumber(@RequestBody Project project){
+      projectService.addNumber(project);
+      return Result.ok();
+    }
+
     @RequestMapping("upd")
     public Result upd(@RequestBody Project project){
         projectService.upd(project);
@@ -42,6 +48,12 @@ public class ProjectController {
         projectService.updState(id);
         return Result.ok();
     }
+
+  @RequestMapping("spider")
+  public Result spider(@RequestBody Project project){
+    projectService.spider(project);
+    return Result.ok();
+  }
 
     @RequestMapping("queryById")
     public Result queryById(@RequestHeader Integer id){
@@ -61,6 +73,11 @@ public class ProjectController {
     @RequestMapping("queryByPrincipal")
     public Result queryByPrincipal(@RequestBody User user){
         return Result.ok(projectService.queryByPrincipal(user));
+    }
+
+    @RequestMapping("queryProByPrincipal")
+    public Result queryProByPrincipal(@RequestBody User user){
+      return Result.ok(projectService.queryProByPrincipal(user));
     }
 
     @RequestMapping("queryByDesigner")

@@ -9,8 +9,7 @@ import wxx.java.appraise.entity.Project;
 import wxx.java.appraise.entity.Volume;
 import wxx.java.appraise.service.VolumeService;
 
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional
@@ -35,7 +34,26 @@ public class VolumeServiceImpl implements VolumeService {
         return volumeDao.queryById(id);
     }
 
-    @Override
+  @Override
+  public List<Map> queryByProjectId(Integer id) {
+      Map map = new HashMap();
+      Calendar calendar = Calendar.getInstance();
+      Integer month = calendar.get(Calendar.MONTH);
+      calendar.set(Calendar.DAY_OF_MONTH, 1);// 设置为1号,当前日期既为本月第一天
+      calendar.set(Calendar.HOUR_OF_DAY, 0);
+      calendar.set(Calendar.MINUTE, 0);
+      calendar.set(Calendar.SECOND, 0);
+      calendar.set(Calendar.MILLISECOND, 0);
+      long min = calendar.getTimeInMillis();
+      calendar.set(Calendar.MONTH,++month);
+      long max = calendar.getTimeInMillis();
+      map.put("id",id);
+      map.put("max",max);
+      map.put("min",min);
+    return volumeDao.queryByProjectId(map);
+  }
+
+  @Override
     public void upd(Volume volume) {
         volumeDao.upd(volume);
         if(volume.getDesigner() != null ){

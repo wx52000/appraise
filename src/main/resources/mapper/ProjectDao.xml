@@ -14,7 +14,11 @@
         insert ignore into project(`name`)
         values (#{projectName})
     </insert>
-    <update id="upd" parameterType="project">
+  <insert id="addNumber">
+            insert into project(`number`)
+        values (#{number})
+  </insert>
+  <update id="upd" parameterType="project">
         update project
         <set>
         <if test="name != null and name != ''">
@@ -40,200 +44,100 @@
         set state = 1
         where id = #{id}
     </update>
-    <select id="queryByAdmin" resultType="java.util.Map" parameterType="user" >
+  <update id="spider">
+        update project
+        set spider = #{spider}
+        where id = #{id}
+  </update>
+  <select id="queryByAdmin" resultType="java.util.Map" parameterType="user" >
     SELECT DISTINCT
-        p.id AS pid,
-        p.NAME AS projectName,
-        p.manage_days AS manageDays,
-        p.design_days AS designDays,
-        p.spare_days AS spareDays,
-        v.id AS vid,
-        v.number,
-        v.NAME AS volumeName,
-        v.grade,
-        v.planned_publication_date,
-        v.actual_publication_date,
-        v.professional_date,
-        v.withdrawal_date,
-        v.shot_date,
-        v.complete_time,
-        v.headman_date,
-        v.checker_date,
-        t.id AS tid,
-        t.NAME AS tecName,
-        principal.`name` AS principal,
-        general.`name` AS general,
-        designer.`name` AS designer,
-        checker.`NAME` AS checker,
-        designer.`id` AS designerId,
-        checker.`id` AS checkerId,
-        u.NAME AS creator,
-        GROUP_CONCAT(distinct designerList.proportion, "$", designerList.remarks ORDER BY designerList.date DESC SEPARATOR '##' ) AS designerList,
-        GROUP_CONCAT(distinct checkerList.proportion, "$", checkerList.remarks ORDER BY checkerList.date DESC SEPARATOR '##' ) AS checkerList,
-        GROUP_CONCAT(distinct principalList.proportion, "$", principalList.remarks ORDER BY principalList.date DESC SEPARATOR '##' ) AS principalList
+      p.id,
+      p.`number` ,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      p.state,
+      p.projectPhaseID,
+      p.spider,
+      COUNT(v.id) as amount
     FROM
-        project p
-        LEFT JOIN volume v ON v.project_id = p.id
-        LEFT JOIN project_user pu ON p.id = pu.project_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 1
-        ) AS general ON general.project_id = p.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 2
-        ) AS principal ON principal.project_id = p.id
-        AND principal.tid = v.tec_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 4
-        ) AS designer ON designer.volume_id = v.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 5
-        ) AS checker ON checker.volume_id = v.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS designerList ON v.id = designerList.volume_id
-        AND designerList.user_id = designer.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS checkerList ON v.id = checkerList.volume_id
-        AND checkerList.user_id = checker.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS principalList ON v.id = principalList.volume_id
-        AND principalList.user_id = principal.id
-        LEFT JOIN `user` u ON u.id = p.creator,
-        technology t
+      project p,
+      volume v
     WHERE
-        v.tec_id = t.id
-        and p.state = 0
-    group by v.id
-    ORDER BY
-        p.NAME,
-        v.number
+       v.project_id = p.id
+       	GROUP BY v.project_id
+    UNION DISTINCT
+	    SELECT DISTINCT
+      p.id,
+      p.`number` ,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      p.state,
+      p.projectPhaseID,
+      p.spider,
+      0 as amount
+    FROM
+      project p
+    WHERE
+		NOT EXISTS(SELECT id FROM volume v WHERE p.id = v.project_id)
     </select>
     <select id="queryByGeneral" resultType="java.util.Map" parameterType="user">
     SELECT DISTINCT
-        p.id AS pid,
-        p.NAME AS projectName,
-        p.manage_days AS manageDays,
-        p.design_days AS designDays,
-        p.spare_days AS spareDays,
-        v.id AS vid,
-        v.number,
-        v.NAME AS volumeName,
-        v.grade,
-        v.planned_publication_date,
-        v.actual_publication_date,
-        v.professional_date,
-        v.withdrawal_date,
-        v.shot_date,
-        v.complete_time,
-        v.headman_date,
-        v.checker_date,
-        t.id AS tid,
-        t.NAME AS tecName,
-        designer.`name` AS designer,
-        checker.`NAME` AS checker,
-        principal.`name` AS principal,
-        designer.`id` AS designerId,
-        checker.`id` AS checkerId,
-        principal.`id` AS principalId,
-        GROUP_CONCAT(distinct designerList.proportion, "$", designerList.remarks ORDER BY designerList.date DESC SEPARATOR '##' ) AS designerList,
-        GROUP_CONCAT(distinct checkerList.proportion, "$", checkerList.remarks ORDER BY checkerList.date DESC SEPARATOR '##' ) AS checkerList,
-        GROUP_CONCAT(distinct principalList.proportion, "$", principalList.remarks ORDER BY principalList.date DESC SEPARATOR '##' ) AS principalList
+      p.id,
+      p.`number` ,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      p.state,
+      p.projectPhaseID,
+      COUNT(v.id) as amount
     FROM
-        project p
-        LEFT JOIN volume v on p.id = v.project_id
-        LEFT JOIN project_user pu ON p.id = pu.project_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 2
-        ) AS principal ON principal.project_id = p.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 4
-        ) AS designer ON designer.volume_id = v.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 5
-        ) AS checker ON checker.volume_id = v.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS designerList ON v.id = designerList.volume_id
-        AND designerList.user_id = designer.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS checkerList ON v.id = checkerList.volume_id
-        AND checkerList.user_id = checker.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS principalList ON v.id = principalList.volume_id
-        AND principalList.user_id = principal.id,
-        technology t
+      project p,
+      volume v
     WHERE
-        v.project_id = p.id
-        AND v.tec_id = t.id
-        AND v.tec_id = principal.tid
-        AND pu.user_id = #{id}
-        AND pu.power_id = 1
-        and p.state = 0
-        Group by v.id
-    ORDER BY
-        p.NAME,
-        v.number
+      general = #{name}
+      AND v.project_id = p.id
+      AND general NOT LIKE '%;%'
+       	GROUP BY v.project_id
+    UNION
+    SELECT DISTINCT
+      p.id,
+      p.number,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      p.state,
+      p.projectPhaseID,
+      COUNT(v.id) as amount
+    FROM
+      project p,
+      volume v,
+      ( SELECT id, SUBSTRING_INDEX( general, ';', 1 ) as g FROM project WHERE general LIKE '%;%' ) AS p1
+    WHERE
+      p.id = p1.id
+        AND v.project_id = p.id
+      AND p1.g = #{name}
+      	GROUP BY v.project_id
+    UNION
+    SELECT DISTINCT
+      p.id,
+      p.number,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      p.state,
+      p.projectPhaseID,
+      COUNT(v.id) as amount
+    FROM
+      project p,
+      volume v,
+      ( SELECT id, SUBSTRING_INDEX( general, ';', -1 ) as g FROM project WHERE general LIKE '%;%' ) AS p1
+    WHERE
+      p.id = p1.id
+      AND v.project_id = p.id
+      AND p1.g = #{name}
+        GROUP BY v.project_id
     </select>
     <select id="queryProByAdmin" resultType="java.util.Map">
         SELECT DISTINCT
@@ -324,156 +228,161 @@
         v.number
     </select>
     <select id="queryByPrincipal" resultType="java.util.Map">
-     SELECT DISTINCT
-        p.id AS pid,
-        p.NAME AS projectName,
-        p.manage_days AS manageDays,
-        p.design_days AS designDays,
-        p.spare_days AS spareDays,
-        v.id AS vid,
-        v.number,
-        v.NAME AS volumeName,
-        v.grade,
-        v.planned_publication_date,
-        v.actual_publication_date,
-        v.professional_date,
-        v.withdrawal_date,
-        v.shot_date,
-        v.complete_time,
-        v.headman_date,
-        v.checker_date,
-        t.id AS tid,
-        t.NAME AS tecName,
-        designer.id as designerId,
-        designer.`name` AS designer,
-        checker.id as checkerId,
-        checker.`NAME` AS checker,
-        general.`name` AS general,
-        GROUP_CONCAT(distinct designerList.proportion, "$", designerList.remarks ORDER BY designerList.date DESC SEPARATOR '##' ) AS designerList,
-        GROUP_CONCAT(distinct  checkerList.proportion, "$", checkerList.remarks ORDER BY checkerList.date DESC SEPARATOR '##' ) AS checkerList
+    SELECT DISTINCT
+      p.id AS pid,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      v.id AS vid,
+      v.number,
+      v.NAME AS volumeName,
+      v.dep,
+      v.tec,
+      v.state,
+      v.principal,
+      v.chief,
+      v.designer,
+      v.checker,
+      v.planned_shot_date,
+      v.shot_date,
+      v.proofreading_date,
+      v.formId,
+      v.wfInstId,
+      v.rollId,
+      v.planned_publication_date,
+      v.actual_publication_date,
+    GROUP_CONCAT(distinct p1.proportion, "$", p1.remarks , "$" , p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+		GROUP_CONCAT(distinct p2.proportion, "$", p2.remarks , "$" , p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
     FROM
-        project p
-        LEFT JOIN volume v on p.id = v.project_id
-        LEFT JOIN project_user pu ON p.id = pu.project_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 1
-        ) AS general ON general.project_id = p.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 4
-        ) AS designer ON designer.volume_id = v.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 5
-        ) AS checker ON checker.volume_id = v.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS designerList ON v.id = designerList.volume_id
-        AND designerList.user_id = designer.id
-            LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS checkerList ON v.id = checkerList.volume_id
-        AND checkerList.user_id = checker.id,
-        technology t
+      project p,
+      volume v
+      LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 4 ) AS p1 ON p1.volume_id = v.id
+      AND p1.type = 0
+      LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
+      AND p2.type = 1
     WHERE
-         t.id = v.tec_id
-        AND v.tec_id = #{tid}
-        AND pu.user_id = #{id}
-        AND pu.power_id = 2
-        and p.state = 0
+      v.project_id = p.id
+      AND v.principal = #{name}
+      and v.principal not like '%;%'
         GROUP BY v.id
-    ORDER BY
-        p.NAME,
-        v.number
+      union
+      SELECT DISTINCT
+      p.id AS pid,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      v.id AS vid,
+      v.number,
+      v.NAME AS volumeName,
+      v.dep,
+      v.tec,
+      v.state,
+      v.principal,
+      v.chief,
+      v.designer,
+      v.checker,
+      v.planned_shot_date,
+      v.shot_date,
+      v.proofreading_date,
+      v.formId,
+      v.wfInstId,
+      v.rollId,
+      v.planned_publication_date,
+      v.actual_publication_date,
+    GROUP_CONCAT(distinct p1.proportion, "$", p1.remarks , "$" , p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+		GROUP_CONCAT(distinct p2.proportion, "$", p2.remarks , "$" , p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+    FROM
+      project p,
+      (SELECT id, SUBSTRING_INDEX(principal,';',1) as p FROM volume WHERE principal like '%;%') as v1,
+      volume v
+    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 4 ) AS p1 ON p1.volume_id = v.id
+    AND p1.type = 0
+    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
+    AND p2.type = 1
+    WHERE
+      v.project_id = p.id
+      AND v1.p = #{name}
+      and v.id = v1.id
+      		GROUP BY v.id
+        union
+      SELECT DISTINCT
+      p.id AS pid,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      v.id AS vid,
+      v.number,
+      v.NAME AS volumeName,
+      v.dep,
+      v.tec,
+      v.state,
+      v.principal,
+      v.chief,
+      v.designer,
+      v.checker,
+      v.planned_shot_date,
+      v.shot_date,
+      v.proofreading_date,
+      v.formId,
+      v.wfInstId,
+      v.rollId,
+      v.planned_publication_date,
+      v.actual_publication_date,
+    GROUP_CONCAT(distinct p1.proportion, "$", p1.remarks , "$" , p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+		GROUP_CONCAT(distinct p2.proportion, "$", p2.remarks , "$" , p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+    FROM
+      project p,
+      (SELECT id, SUBSTRING_INDEX(principal,';',-1) as p FROM volume WHERE principal like '%;%') as v1,
+      volume v
+    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 4 ) AS p1 ON p1.volume_id = v.id
+    AND p1.type = 0
+    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
+    AND p2.type = 1
+    WHERE
+      v.project_id = p.id
+      AND v1.p = #{name}
+      and v.id = v1.id
+      		GROUP BY v.id
+    </select>
+    <select id="queryProByPrincipal" resultType="java.util.Map">
+    select p.id , p.name
+    from project p,
+    volume v
+    where
+    p.id = v.project_id
+    and v.principal = #{name}
+    group by v.project_id
     </select>
     <select id="queryByDesigner" resultType="java.util.Map">
     SELECT DISTINCT
         p.id AS pid,
         p.NAME AS projectName,
+        p.director,
+        p.general,
         v.id AS vid,
         v.number,
         v.NAME AS volumeName,
-        v.grade,
-        v.planned_publication_date,
-        t.id AS tid,
-        t.NAME AS tecName,
-        checker.`NAME` AS checker,
-        general.`name` AS general,
-        principal.`name` as principal
+        v.dep,
+        v.tec,
+        v.state,
+        v.principal,
+        v.chief,
+        v.designer,
+        v.checker,
+        v.planned_shot_date,
+        v.shot_date,
+        v.proofreading_date,
+        v.rollId,
+        v.planned_publication_date
     FROM
+        volume v,
         project p
-		LEFT JOIN volume v on p.id  = v.project_id
-        LEFT JOIN project_user pu ON p.id = pu.project_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 1
-        ) AS general ON general.project_id = p.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 2
-        ) AS principal ON principal.project_id = p.id and v.tec_id = principal.tid
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 5
-        ) AS checker ON checker.volume_id = v.id,
-        volume_user vu,
-        technology t
     WHERE
         v.project_id = p.id
-        AND v.id = vu.volume_id
-        AND vu.user_id = #{id}
-        AND vu.power_id = 4
-        AND t.id = v.tec_id
-        and p.state = 0
+    and v.designer = #{name}
+    and v.state in ('尚未开展','正在设计','正在校审')
     ORDER BY
+        field(v.state,'正在设计','正在校审','尚未开展'),
         p.NAME,
         v.number
     </select>
@@ -481,67 +390,33 @@
     SELECT DISTINCT
         p.id AS pid,
         p.NAME AS projectName,
+        p.director,
+        p.general,
         v.id AS vid,
         v.number,
         v.NAME AS volumeName,
-        v.grade,
-        v.planned_publication_date,
-        t.id AS tid,
-        t.NAME AS tecName,
-        designer.`NAME` AS designer,
-        general.`name` AS general,
-        principal.`name` as principal
+        v.dep,
+        v.tec,
+        v.state,
+        v.principal,
+        v.chief,
+        v.designer,
+        v.checker,
+        v.planned_shot_date,
+        v.shot_date,
+        v.proofreading_date,
+        v.formId,
+        v.wfInstId,
+        v.planned_publication_date
     FROM
+        volume v,
         project p
-        LEFT JOIN volume v on p.id  = v.project_id
-        LEFT JOIN project_user pu ON p.id = pu.project_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 1
-        ) AS general ON general.project_id = p.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 2
-        ) AS principal ON principal.project_id = p.id AND v.tec_id = principal.tid
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 4
-        ) AS designer ON designer.volume_id = v.id,
-        volume_user vu,
-        technology t
     WHERE
         v.project_id = p.id
-        AND v.id = vu.volume_id
-        AND vu.user_id = #{id}
-        AND vu.power_id = 5
-        AND t.id = v.tec_id
-        and p.state = 0
+    and v.checker = #{name}
+    and v.state in ('正在设计','正在校审')
     ORDER BY
+    field(v.state,'正在校审','正在设计'),
         p.NAME,
         v.number
     </select>
@@ -653,111 +528,121 @@
         project
         where id = #{id}
     </select>
-    <select id="queryExcel" resultType="java.util.Map">
-        SELECT DISTINCT
-        p.id AS pid,
-        p.NAME AS projectName,
-        p.manage_days AS manageDays,
-        p.design_days AS designDays,
-        p.spare_days AS spareDays,
-        v.id AS vid,
-        v.number,
-        v.NAME AS volumeName,
-        v.grade,
-        v.planned_publication_date,
-        v.actual_publication_date,
-        v.professional_date,
-        v.withdrawal_date,
-        v.shot_date,
-        v.complete_time,
-        v.headman_date,
-        v.checker_date,
-        t.id AS tid,
-        t.NAME AS tecName,
-        principal.`name` AS principal,
-        general.`name` AS general,
-        designer.`name` AS designer,
-        checker.`NAME` AS checker,
-        designer.`id` AS designerId,
-        checker.`id` AS checkerId,
-        u.NAME AS creator,
-        GROUP_CONCAT(distinct designerList.proportion, "$", designerList.remarks , "$" , designerList.date ORDER BY designerList.date DESC SEPARATOR '##' ) AS designerList,
-        GROUP_CONCAT(distinct checkerList.proportion, "$", checkerList.remarks , "$" , checkerList.date ORDER BY checkerList.date DESC SEPARATOR '##' ) AS checkerList,
-        GROUP_CONCAT(distinct principalList.proportion, "$", principalList.remarks , "$" , principalList.date ORDER BY principalList.date DESC SEPARATOR '##' ) AS principalList,
-        GROUP_CONCAT(distinct headmanList.proportion, "$", headmanList.remarks  , "$" , headmanList.date Order BY headmanList.date DESC SEPARATOR '##' ) AS headmanList
+       <select id="queryExcel" resultType="java.util.Map">
+    SELECT DISTINCT
+      p.id AS pid,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      v.id AS vid,
+      v.number,
+      v.NAME AS volumeName,
+      v.dep,
+      v.tec,
+      v.state,
+      v.principal,
+      v.chief,
+      v.designer,
+      v.checker,
+      v.planned_shot_date,
+      v.shot_date,
+      v.proofreading_date,
+      v.complete_time,
+      v.formId,
+      v.wfInstId,
+      v.rollId,
+      v.planned_publication_date,
+      v.actual_publication_date,
+      GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+      GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
     FROM
-        project p
-        LEFT JOIN volume v ON v.project_id = p.id
-        LEFT JOIN project_user pu ON p.id = pu.project_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 1
-        ) AS general ON general.project_id = p.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            pu.project_id,
-            pu.power_id,
-            u.tid
-        FROM
-            `user` u,
-            project_user pu
-        WHERE
-            u.id = pu.user_id
-            AND pu.power_id = 2
-        ) AS principal ON principal.project_id = p.id
-        AND principal.tid = v.tec_id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 4
-        ) AS designer ON designer.volume_id = v.id
-        LEFT JOIN (
-        SELECT DISTINCT
-            u.id,
-            u.NAME,
-            vu.volume_id
-        FROM
-            `user` u,
-            `volume_user` vu
-        WHERE
-            u.id = vu.user_id
-            AND vu.power_id = 5
-        ) AS checker ON checker.volume_id = v.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS designerList ON v.id = designerList.volume_id
-        AND designerList.user_id = designer.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS checkerList ON v.id = checkerList.volume_id
-        AND checkerList.user_id = checker.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` FROM proportion ) AS principalList ON v.id = principalList.volume_id
-        AND principalList.user_id = principal.id
-        LEFT JOIN ( SELECT proportion, remarks, volume_id, user_id, `date` ,type FROM proportion ) AS headmanList ON v.id = headmanList.volume_id
-        AND headmanList.type = 3
-        LEFT JOIN `user` u ON u.id = p.creator,
-        technology t
+      project p,
+      volume v
+      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
+      AND p1.type = 0
+      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
+      AND p2.type = 1
     WHERE
-        v.tec_id = t.id
-        and p.state = 0
-    group by v.id
-    ORDER BY
-        p.NAME,
-        v.number
+      v.project_id = p.id
+      AND date_format( v.planned_publication_date, '%m' ) = #{thisMonth}
+    GROUP BY
+      v.id UNION
+    DISTINCT SELECT DISTINCT
+      p.id AS pid,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      v.id AS vid,
+      v.number,
+      v.NAME AS volumeName,
+      v.dep,
+      v.tec,
+      v.state,
+      v.principal,
+      v.chief,
+      v.designer,
+      v.checker,
+      v.planned_shot_date,
+      v.shot_date,
+      v.proofreading_date,
+      v.complete_time,
+      v.formId,
+      v.wfInstId,
+      v.rollId,
+      v.planned_publication_date,
+      v.actual_publication_date,
+      GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+      GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+    FROM
+      project p,
+      volume v
+      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
+      AND p1.type = 0
+      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
+      AND p2.type = 1
+    WHERE
+      v.project_id = p.id
+      AND date_format( v.shot_date, '%m' ) = #{thisMonth}
+    GROUP BY
+      v.id
+      UNION DISTINCT
+      SELECT DISTINCT
+      p.id AS pid,
+      p.NAME AS projectName,
+      p.director,
+      p.general,
+      v.id AS vid,
+      v.number,
+      v.NAME AS volumeName,
+      v.dep,
+      v.tec,
+      v.state,
+      v.principal,
+      v.chief,
+      v.designer,
+      v.checker,
+      v.planned_shot_date,
+      v.shot_date,
+      v.proofreading_date,
+      v.complete_time,
+      v.formId,
+      v.wfInstId,
+      v.rollId,
+      v.planned_publication_date,
+      v.actual_publication_date,
+      GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+      GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+    FROM
+      project p,
+      volume v
+      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
+      AND p1.type = 0
+      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >=  #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
+      AND p2.type = 1
+    WHERE
+      v.project_id = p.id
+      AND date_format( v.complete_time, '%m' ) = #{thisMonth}
+    GROUP BY
+      v.id
     </select>
 </mapper>

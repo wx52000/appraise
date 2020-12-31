@@ -5,6 +5,7 @@ import wxx.java.appraise.entity.ExcelProject;
 import wxx.java.appraise.entity.Project;
 import wxx.java.appraise.entity.Volume;
 
+import java.util.List;
 import java.util.Map;
 
 @Repository
@@ -15,6 +16,8 @@ public interface VolumeDao {
     void addExcelVolume(ExcelProject excelProject);
 
     Map queryById(Integer id);
+
+    List<Map> queryByProjectId(Map map);
 
     void upd(Volume volume);
 

@@ -24,8 +24,8 @@
         `date` = values(`date`)
     </insert>
     <insert id="backups">
-        insert into user_score_backups(grade_id , score_id  , designer , personal , coordinate , `month` , `year`)
-        select *
+        insert into user_score_backups(grade_id , score_id  , designer , personal , coordinate , `month` , `year`,date)
+        select grade_id , score_id  , designer , personal , coordinate , `month` , `year`,date
         from user_score
     </insert>
     <delete id="del">
@@ -68,27 +68,62 @@
         order by department , technology
     </select>
     <select id="queryByScoreId" resultType="java.util.Map">
-    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
-    AVG (coordinate ) AS coordinate,
-     AVG (( designer + personal + coordinate )/ 3) AS score
+    select `month`, if(designer=0,NULL,designer) as designer ,
+    if(personal=0,NULL,personal) as personal
+    ,IF(coordinate=0,NULL,coordinate) as coordinate,
+          ( m.designer + m.personal + m.coordinate )/(
+      3-m.bedei - m.beper - m.becoo) as score
+    from (
+    select `month`, IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
     from user_score
-    where score_id = #{id}
+    where score_id = #{id}) as m
     </select>
   <select id="queryByScoreIdPast" resultType="java.util.Map">
-    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
-    AVG (coordinate ) AS coordinate,
-     AVG (( designer + personal + coordinate )/ 3) AS score
+    select  if(`month`=0,NULL,`month`)as `month`, if(designer=0,NULL,designer) as designer ,
+    if(personal=0,NULL,personal) as personal
+    ,IF(coordinate=0,NULL,coordinate) as coordinate,
+          ( m.designer + m.personal + m.coordinate )/(
+      3-m.bedei - m.beper - m.becoo) as score
+    from (
+    select `month`,
+        IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
     from user_score_backups
-    where score_id = #{id}
+    where score_id = #{id}) as m
     group by `month`
     order by `month` desc
     limit 2
   </select>
     <select id="queryScore" resultType="java.util.Map" parameterType="user">
-        SELECT distinct m.sNAME AS name, m.department, m.technology, m.score , m.username
+        SELECT distinct m.sNAME AS name, m.department, m.technology, m.username,
+      ( m.designer + m.personal + m.coordinate )/(
+      3-m.bedei - m.beper - m.becoo) as score
         FROM(
         SELECT u.NAME AS sName, d.NAME AS department, t.NAME AS technology, u.username,
-        s.score_id ,  AVG (( designer + personal + coordinate )/ 3) AS score
+        s.score_id ,        IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+      IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+      IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+      ISNULL(
+      AVG( designer )) AS bedei,
+      ISNULL(
+      AVG( personal )) AS beper,
+      ISNULL(
+      AVG( coordinate )) AS becoo
         FROM
         user_score s,
         `USER` u,
@@ -129,10 +164,20 @@
         </where>
     </select>
     <select id="queryScorePast" resultType="java.util.Map">
-      SELECT distinct m.sNAME AS name, m.department, m.technology, m.score , m.username
+      SELECT distinct m.sNAME AS name, m.department, m.technology, m.username,
+      ( m.designer + m.personal + m.coordinate )/(
+      3-m.bedei - m.beper - m.becoo) as score
       FROM(
       SELECT u.NAME AS sName, d.NAME AS department, t.NAME AS technology, u.username,
-      s.score_id ,  AVG (( designer + personal + coordinate )/ 3) AS score
+      s.score_id , IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+      IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+      IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+      ISNULL(
+      AVG( designer )) AS bedei,
+      ISNULL(
+      AVG( personal )) AS beper,
+      ISNULL(
+      AVG( coordinate )) AS becoo
       FROM
       user_score_backups s,
       `USER` u,
@@ -251,8 +296,20 @@
       </if>
     </select>
     <select id="excel1" resultType="wxx.java.appraise.entity.PersonalExcel" parameterType="user">
-        SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
-        s.score_id, AVG(( designer + personal + coordinate )/ 3) AS score
+        select name, department, technology, username,m.score_id,
+            ( m.designer + m.personal + m.coordinate )/(
+        3-m.bedei - m.beper - m.becoo) as score
+        from (SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
+        s.score_id,
+        IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
         FROM
         user_score s,
         `USER` u,
@@ -263,11 +320,23 @@
         AND u.tid = t.id
         AND s.score_id = u.id
         GROUP BY
-        s.score_id
+        s.score_id) as m
     </select>
   <select id="excel2" resultType="wxx.java.appraise.entity.PersonalExcel">
-        SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
-        s.score_id, AVG(( designer + personal + coordinate )/ 3) AS score
+        select name, department, technology, username,m.score_id,
+            ( m.designer + m.personal + m.coordinate )/(
+        3-m.bedei - m.beper - m.becoo) as score
+        from (SELECT u.NAME AS name, d.NAME AS department, t.NAME AS technology, u.username,
+        s.score_id,
+        IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
         FROM
         user_score_backups s,
         `USER` u,
@@ -280,7 +349,7 @@
         AND s.month = #{thisMonth}
         AND S.year = #{thisYear}
         GROUP BY
-        s.score_id
+        s.score_id) as m
   </select>
   <select id="detail" resultType="java.lang.String">
     SELECT

@@ -17,7 +17,7 @@
     </insert>
     <update id="backups">
         insert into tec_score_backups(grade_id , tec_id , designer , personal , coordinate , `month` , `year` , `date`)
-        select *
+        select grade_id , tec_id , designer , personal , coordinate , `month` , `year` , `date`
         from tec_score
     </update>
     <delete id="delete">
@@ -43,31 +43,67 @@
         and t.did = d.id
     </select>
   <select id="queryByScoreId" resultType="java.util.Map">
-    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
-    AVG (coordinate ) AS coordinate,
-     AVG (( designer + personal + coordinate )/ 3) AS score
+    select  if(`month`=0,NULL,`month`)as `month`, if(designer=0,NULL,designer) as designer ,
+    if(personal=0,NULL,personal) as personal
+    ,IF(coordinate=0,NULL,coordinate) as coordinate,
+          ( m.designer + m.personal + m.coordinate )/(
+      3-m.bedei - m.beper - m.becoo) as score
+    from
+    (select `month`,IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
     from tec_score s,
     `user` u
     where u.id = #{id}
-    and u.tid = s.tec_id
+    and u.tid = s.tec_id) as m
     group by `month`
   </select>
   <select id="queryByScoreIdPast" resultType="java.util.Map">
-    select `month`, AVG ( designer  ) AS designer , AVG ( personal ) AS personal,
-    AVG (coordinate ) AS coordinate,
-     AVG (( designer + personal + coordinate )/ 3) AS score
+    select `month`,  if(designer=0,NULL,designer) as designer ,
+    if(personal=0,NULL,personal) as personal
+    ,IF(coordinate=0,NULL,coordinate) as coordinate,
+          ( m.designer + m.personal + m.coordinate )/(
+      3-m.bedei - m.beper - m.becoo) as score
+    from
+    (select
+     `month`,IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
+     from tec_score_backups s,
     `user` u
     where u.id = #{id}
-    and u.tid = s.tec_id
+    and u.tid = s.tec_id) as m
     group by `month`
     limit 2
   </select>
     <select id="queryScore" resultType="java.util.Map">
-        SELECT distinct  m.department, m.technology, m.score
-        FROM(
-        SELECT d.NAME AS department, t.NAME AS technology,
-        AVG(( s.designer + s.personal + s.coordinate )/ 3) AS score ,s.tec_id
-        FROM
+        SELECT distinct  m.department, m.technology,
+      ( m.designer + m.personal + m.coordinate )/(
+      3-m.bedei - m.beper - m.becoo) as score
+      FROM(
+        SELECT d.NAME AS department, t.NAME AS technology,s.tec_id,
+        IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
+      FROM
         tec_score s,
         department d,
         technology t
@@ -88,10 +124,20 @@
         </where>
     </select>
   <select id="queryScorePast" resultType="java.util.Map">
-    SELECT distinct  m.department, m.technology, m.score
+    SELECT distinct  m.department, m.technology,
+    ( m.designer + m.personal + m.coordinate )/(
+    3-m.bedei - m.beper - m.becoo) as score
     FROM(
-    SELECT d.NAME AS department, t.NAME AS technology,
-    AVG(( s.designer + s.personal + s.coordinate )/ 3) AS score ,s.tec_id
+    SELECT d.NAME AS department, t.NAME AS technology,s.tec_id,
+    IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+    IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+    IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+    ISNULL(
+    AVG( designer )) AS bedei,
+    ISNULL(
+    AVG( personal )) AS beper,
+    ISNULL(
+    AVG( coordinate )) AS becoo
     FROM
     tec_score_backups s,
     department d,
@@ -177,10 +223,20 @@
     </if>
   </select>
     <select id="excel" resultType="wxx.java.appraise.entity.TechnologyExcel">
-        SELECT distinct  m.department, m.technology, m.score
+        SELECT distinct  m.department, m.technology,
+        ( m.designer + m.personal + m.coordinate )/(
+        3-m.bedei - m.beper - m.becoo) as score
         FROM(
-        SELECT d.NAME AS department, t.NAME AS technology,
-        AVG(( designer + personal + coordinate )/ 3) AS score ,s.tec_id
+        SELECT d.NAME AS department, t.NAME AS technology,s.tec_id,
+        IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
         FROM
         tec_score s,
         department d,
@@ -191,10 +247,20 @@
         GROUP BY s.tec_id) as m
     </select>
   <select id="excel1" resultType="wxx.java.appraise.entity.TechnologyExcel">
-        SELECT distinct  m.department, m.technology, m.score
+        SELECT distinct  m.department, m.technology,
+        ( m.designer + m.personal + m.coordinate )/(
+        3-m.bedei - m.beper - m.becoo) as score
         FROM(
-        SELECT d.NAME AS department, t.NAME AS technology,
-        AVG(( designer + personal + coordinate )/ 3) AS score ,s.tec_id
+        SELECT d.NAME AS department, t.NAME AS technology,s.tec_id,
+        IFNULL( round( AVG( designer ), 3 ), 0 ) AS designer,
+        IFNULL( round( AVG( personal ), 3 ), 0 ) AS personal,
+        IFNULL( round( AVG( coordinate ), 3 ), 0 ) AS coordinate,
+        ISNULL(
+        AVG( designer )) AS bedei,
+        ISNULL(
+        AVG( personal )) AS beper,
+        ISNULL(
+        AVG( coordinate )) AS becoo
         FROM
         tec_score_backups s,
         department d,

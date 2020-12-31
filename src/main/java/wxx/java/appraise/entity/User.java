@@ -43,9 +43,9 @@ public class User {
 
     private Integer selectType;
 
+    private long monthMin;
 
-
-
+    private long monthMax;
     public User() {
     }
 
@@ -210,5 +210,21 @@ public class User {
 
   public void setUsers(List<Integer> users) {
     this.users = users;
+  }
+
+  public long getMonthMin() {
+    return monthMin;
+  }
+
+  public void setMonthMin(long monthMin) {
+    this.monthMin = monthMin;
+  }
+
+  public long getMonthMax() {
+    return monthMax;
+  }
+
+  public void setMonthMax(long monthMax) {
+    this.monthMax = monthMax;
   }
 }

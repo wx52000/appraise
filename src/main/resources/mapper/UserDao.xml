@@ -191,6 +191,10 @@
         where u.id &lt;&gt; #{id}
         and u.did = d.id
         and u.tid = t.id
+    <if test="name != null and name != ''">
+      and (u.name like "%"#{name}"%"
+      or u.username like "%"#{name}"%")
+    </if>
     <if test="dIds != null and dIds != ''">
       and d.id in
       <foreach collection="dIds" item="item" separator="," close=")" open="(">
