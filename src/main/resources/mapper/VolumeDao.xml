@@ -273,6 +273,7 @@
     LEFT JOIN ( SELECT * FROM proportion WHERE #{max}> date and date  >= #{min} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
     AND p2.type = 1
     where  v.project_id = #{id}
+    and
 		GROUP BY v.id
   </select>
 </mapper>

@@ -35,6 +35,8 @@ public class Project {
 
     private Integer spider;
 
+    private List<String> pickerDate;
+
     public Integer getId() {
         return id;
     }
@@ -155,5 +157,13 @@ public class Project {
 
   public void setSpider(Integer spider) {
     this.spider = spider;
+  }
+
+  public List<String> getPickerDate() {
+    return pickerDate;
+  }
+
+  public void setPickerDate(List<String> pickerDate) {
+    this.pickerDate = pickerDate;
   }
 }

@@ -299,6 +299,22 @@ public class ProjectServiceImpl implements ProjectService {
         User user = new User();
         user.setThisMonth(month);
         Calendar calendar1 = Calendar.getInstance();
+        if (calendar1.get(Calendar.MONTH) == 0){
+          if (month == 0){
+            user.setThisMonth(12);
+          }
+          else if (month == -1){
+            user.setThisMonth(11);
+          }
+          else user.setThisMonth(month);
+        }
+        else if (calendar1.get(Calendar.MONTH) == 1){
+          if (month == 0){
+            user.setThisMonth(12);
+          }
+          else user.setThisMonth(month);
+        }
+        else user.setThisMonth(month);
         calendar1.set(Calendar.MONTH,month-1);
         calendar1.set(Calendar.DAY_OF_MONTH, 1);// 设置为1号,当前日期既为本月第一天
         calendar1.set(Calendar.HOUR_OF_DAY, 0);

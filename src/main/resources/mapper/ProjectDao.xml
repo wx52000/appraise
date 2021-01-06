@@ -529,120 +529,120 @@
         where id = #{id}
     </select>
        <select id="queryExcel" resultType="java.util.Map">
-    SELECT DISTINCT
-      p.id AS pid,
-      p.NAME AS projectName,
-      p.director,
-      p.general,
-      v.id AS vid,
-      v.number,
-      v.NAME AS volumeName,
-      v.dep,
-      v.tec,
-      v.state,
-      v.principal,
-      v.chief,
-      v.designer,
-      v.checker,
-      v.planned_shot_date,
-      v.shot_date,
-      v.proofreading_date,
-      v.complete_time,
-      v.formId,
-      v.wfInstId,
-      v.rollId,
-      v.planned_publication_date,
-      v.actual_publication_date,
-      GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
-      GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
-    FROM
-      project p,
-      volume v
-      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
-      AND p1.type = 0
-      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
-      AND p2.type = 1
-    WHERE
-      v.project_id = p.id
-      AND date_format( v.planned_publication_date, '%m' ) = #{thisMonth}
-    GROUP BY
-      v.id UNION
-    DISTINCT SELECT DISTINCT
-      p.id AS pid,
-      p.NAME AS projectName,
-      p.director,
-      p.general,
-      v.id AS vid,
-      v.number,
-      v.NAME AS volumeName,
-      v.dep,
-      v.tec,
-      v.state,
-      v.principal,
-      v.chief,
-      v.designer,
-      v.checker,
-      v.planned_shot_date,
-      v.shot_date,
-      v.proofreading_date,
-      v.complete_time,
-      v.formId,
-      v.wfInstId,
-      v.rollId,
-      v.planned_publication_date,
-      v.actual_publication_date,
-      GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
-      GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
-    FROM
-      project p,
-      volume v
-      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
-      AND p1.type = 0
-      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
-      AND p2.type = 1
-    WHERE
-      v.project_id = p.id
-      AND date_format( v.shot_date, '%m' ) = #{thisMonth}
-    GROUP BY
-      v.id
-      UNION DISTINCT
       SELECT DISTINCT
-      p.id AS pid,
-      p.NAME AS projectName,
-      p.director,
-      p.general,
-      v.id AS vid,
-      v.number,
-      v.NAME AS volumeName,
-      v.dep,
-      v.tec,
-      v.state,
-      v.principal,
-      v.chief,
-      v.designer,
-      v.checker,
-      v.planned_shot_date,
-      v.shot_date,
-      v.proofreading_date,
-      v.complete_time,
-      v.formId,
-      v.wfInstId,
-      v.rollId,
-      v.planned_publication_date,
-      v.actual_publication_date,
-      GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
-      GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
-    FROM
-      project p,
-      volume v
-      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
-      AND p1.type = 0
-      LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >=  #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
-      AND p2.type = 1
-    WHERE
-      v.project_id = p.id
-      AND date_format( v.complete_time, '%m' ) = #{thisMonth}
-    GROUP BY
-      v.id
-    </select>
+        p.id AS pid,
+        p.NAME AS projectName,
+        p.director,
+        p.general,
+        v.id AS vid,
+        v.number,
+        v.NAME AS volumeName,
+        v.dep,
+        v.tec,
+        v.state,
+        v.principal,
+        v.chief,
+        v.designer,
+        v.checker,
+        v.planned_shot_date,
+        v.shot_date,
+        v.proofreading_date,
+        v.complete_time,
+        v.formId,
+        v.wfInstId,
+        v.rollId,
+        v.planned_publication_date,
+        v.actual_publication_date,
+        GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+        GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+      FROM
+        project p,
+        volume v
+        LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
+        AND p1.type = 0
+        LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
+        AND p2.type = 1
+      WHERE
+        v.project_id = p.id
+        AND date_format( v.planned_publication_date, '%m' ) = #{thisMonth}
+      GROUP BY
+        v.id UNION
+      DISTINCT SELECT DISTINCT
+        p.id AS pid,
+        p.NAME AS projectName,
+        p.director,
+        p.general,
+        v.id AS vid,
+        v.number,
+        v.NAME AS volumeName,
+        v.dep,
+        v.tec,
+        v.state,
+        v.principal,
+        v.chief,
+        v.designer,
+        v.checker,
+        v.planned_shot_date,
+        v.shot_date,
+        v.proofreading_date,
+        v.complete_time,
+        v.formId,
+        v.wfInstId,
+        v.rollId,
+        v.planned_publication_date,
+        v.actual_publication_date,
+        GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+        GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+      FROM
+        project p,
+        volume v
+        LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
+        AND p1.type = 0
+        LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
+        AND p2.type = 1
+      WHERE
+        v.project_id = p.id
+        AND date_format( v.shot_date, '%m' ) = #{thisMonth}
+      GROUP BY
+        v.id
+        UNION DISTINCT
+        SELECT DISTINCT
+        p.id AS pid,
+        p.NAME AS projectName,
+        p.director,
+        p.general,
+        v.id AS vid,
+        v.number,
+        v.NAME AS volumeName,
+        v.dep,
+        v.tec,
+        v.state,
+        v.principal,
+        v.chief,
+        v.designer,
+        v.checker,
+        v.planned_shot_date,
+        v.shot_date,
+        v.proofreading_date,
+        v.complete_time,
+        v.formId,
+        v.wfInstId,
+        v.rollId,
+        v.planned_publication_date,
+        v.actual_publication_date,
+        GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+        GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
+      FROM
+        project p,
+        volume v
+        LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >= #{monthMin} ORDER BY date) AS p1 ON p1.volume_id = v.id
+        AND p1.type = 0
+        LEFT JOIN ( SELECT * FROM proportion WHERE  #{monthMax} > date AND date >=  #{monthMin} ORDER BY date) AS p2 ON p2.volume_id = v.id
+        AND p2.type = 1
+      WHERE
+        v.project_id = p.id
+        AND date_format( v.complete_time, '%m' ) = #{thisMonth}
+      GROUP BY
+        v.id
+      </select>
 </mapper>

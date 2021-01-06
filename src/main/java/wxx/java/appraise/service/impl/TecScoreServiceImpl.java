@@ -10,6 +10,7 @@ import wxx.java.appraise.entity.*;
 import wxx.java.appraise.service.TecScoreService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +49,11 @@ public class TecScoreServiceImpl implements TecScoreService {
       List<Map> list = new ArrayList<>();
       list.add(tecScoreDao.queryByScoreId(user));
       list.addAll(tecScoreDao.queryByScoreIdPast(user));
+      Map map = null;
+      list.remove(map);
+      Map map1 = new HashMap();
+      map1.put("month",0);
+      list.remove(map1);
     return list;
   }
 

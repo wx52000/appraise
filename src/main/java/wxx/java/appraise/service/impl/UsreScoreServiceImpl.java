@@ -15,6 +15,7 @@ import wxx.java.appraise.entity.UserScore;
 import wxx.java.appraise.service.UserScoreService;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -53,6 +54,11 @@ public class UsreScoreServiceImpl implements UserScoreService {
       List<Map> list = new ArrayList<>();
       list.add(userScoreDao.queryByScoreId(user));
       list.addAll(userScoreDao.queryByScoreIdPast(user));
+      Map map = null;
+      list.remove(map);
+      Map map1 = new HashMap();
+      map1.put("month",0);
+      list.remove(map1);
       return list;
     }
 

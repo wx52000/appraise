@@ -32,13 +32,12 @@ public class ExcelHandler implements WriteHandler {
         Workbook workbook = cell.getSheet().getWorkbook();
         CellStyle cellStyle = workbook.createCellStyle();
         if (cell.getRowIndex() > 0) {
-            if (list.get(cell.getRowIndex() - 1).getPlannedPublicationDate() != null) {
-                if (list.get(cell.getRowIndex() - 1).getActualPublicationDate() != null) {
+            if (list.get(cell.getRowIndex() - 1).getPlanned_shot_date() != null) {
+                if (list.get(cell.getRowIndex() - 1).getShotDate() != null) {
 
-                    if (DateUtils.compareDate(list.get(cell.getRowIndex() - 1).getPlannedPublicationDate(),list.get(cell.getRowIndex() - 1).getActualPublicationDate()) == -1) {
+                    if (DateUtils.compareDate(list.get(cell.getRowIndex() - 1).getPlanned_shot_date(),list.get(cell.getRowIndex() - 1).getShotDate()) == -1) {
                         cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);//设置前景填充样式
                         cellStyle.setFillForegroundColor(HSSFColor.RED.index);//前景填充色
-
                     }
                 }else {
                         if (DateUtils.compareDate(list.get(cell.getRowIndex()-1).getPlannedPublicationDate(),nowDate) == -1 ) {

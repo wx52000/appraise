@@ -12,7 +12,7 @@ public interface VolumeService {
 
     Map queryById(Integer id);
 
-    List<Map> queryByProjectId(Integer id);
+    List<Map> queryByProjectId(Project project);
 
     void upd(Volume volume);
 

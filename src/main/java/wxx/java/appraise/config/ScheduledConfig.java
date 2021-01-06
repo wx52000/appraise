@@ -59,7 +59,8 @@ public class ScheduledConfig {
 //      String[] cmdArr = new String[]{"G:","/c","cd G:\\python_project\\zpepdi\\zpepdi\\zpepdi","/C",
 //        "pyhton start_scrapy.py"};
     try {
-      Process process = Runtime.getRuntime().exec("C:\\Users\\admin\\Desktop\\评价系统\\spider.bat");
+//      Process process = Runtime.getRuntime().exec("C:\\Users\\admin\\Desktop\\评价系统\\spider.bat");
+      Process process = Runtime.getRuntime().exec("C:\\Users\\Administrator\\Desktop\\spider.bat");
 //      Process process = Runtime.getRuntime().exec(cmdArr);
       InputStream fis=process.getInputStream();
       InputStreamReader isr=new InputStreamReader(fis);
@@ -75,4 +76,5 @@ public class ScheduledConfig {
       e.printStackTrace();
     }
   }
+
 }

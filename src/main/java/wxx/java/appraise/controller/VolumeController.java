@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import wxx.java.appraise.entity.Project;
 import wxx.java.appraise.entity.Volume;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.VolumeService;
@@ -25,8 +26,8 @@ public class VolumeController {
     }
 
     @RequestMapping("queryByProjectId")
-    public Result queryByProjectId(@RequestHeader Integer id){
-      return Result.ok(volumeService.queryByProjectId(id));
+    public Result queryByProjectId(@RequestBody Project project){
+      return Result.ok(volumeService.queryByProjectId(project));
     }
 
     @RequestMapping("upd")
