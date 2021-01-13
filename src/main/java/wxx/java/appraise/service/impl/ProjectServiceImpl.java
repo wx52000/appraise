@@ -302,17 +302,26 @@ public class ProjectServiceImpl implements ProjectService {
         if (calendar1.get(Calendar.MONTH) == 0){
           if (month == 0){
             user.setThisMonth(12);
+            user.setThisYear(calendar1.get(Calendar.YEAR)-1);
           }
           else if (month == -1){
             user.setThisMonth(11);
+            user.setThisYear(calendar1.get(Calendar.YEAR)-1);
           }
-          else user.setThisMonth(month);
+          else {
+            user.setThisMonth(month);
+            user.setThisYear(calendar1.get(Calendar.YEAR));
+          }
         }
         else if (calendar1.get(Calendar.MONTH) == 1){
           if (month == 0){
             user.setThisMonth(12);
+            user.setThisYear(calendar1.get(Calendar.YEAR)-1);
           }
-          else user.setThisMonth(month);
+          else {
+            user.setThisMonth(month);
+            user.setThisYear(calendar1.get(Calendar.YEAR));
+          }
         }
         else user.setThisMonth(month);
         calendar1.set(Calendar.MONTH,month-1);
@@ -326,6 +335,7 @@ public class ProjectServiceImpl implements ProjectService {
         long max = calendar1.getTimeInMillis();
         user.setMonthMin(min);
         user.setMonthMax(max);
+        user.setSqlDate(user.getThisYear() + "-" + user.getThisMonth() + "-31");
         List<Map> maps = projectDao.queryExcel(user);
         List<ExcelProject> list = new ArrayList<>();
         for (Map map : maps){

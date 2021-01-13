@@ -46,6 +46,8 @@ public class User {
     private long monthMin;
 
     private long monthMax;
+
+    private String sqlDate;
     public User() {
     }
 
@@ -226,5 +228,14 @@ public class User {
 
   public void setMonthMax(long monthMax) {
     this.monthMax = monthMax;
+  }
+
+
+  public String getSqlDate() {
+    return sqlDate;
+  }
+
+  public void setSqlDate(String sqlDate) {
+    this.sqlDate = sqlDate;
   }
 }

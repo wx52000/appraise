@@ -273,7 +273,14 @@
     LEFT JOIN ( SELECT * FROM proportion WHERE #{max}> date and date  >= #{min} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
     AND p2.type = 1
     where  v.project_id = #{id}
-    and
+    <if test="minDate != null and minDate != ''">
+    and ( ( v.planned_publication_date &gt;= #{minDate}
+    and v.planned_publication_date &lt;= #{maxDate})
+    or ( v.shot_date &gt;= #{minDate}
+      and v.shot_date &lt;= #{maxDate})
+    or (v.planned_shot_date &gt;= #{minDate}
+      and v.planned_shot_date &lt;= #{maxDate}))
+    </if>
 		GROUP BY v.id
   </select>
 </mapper>
