@@ -11,6 +11,8 @@ import wxx.java.appraise.entity.Volume;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.VolumeService;
 
+import java.util.Map;
+
 @RestController
 @RequestMapping("volume")
 public class VolumeController {
@@ -40,5 +42,10 @@ public class VolumeController {
     public Result add(@RequestBody Volume volume){
         volumeService.add(volume);
         return Result.ok();
+    }
+
+    @RequestMapping("query")
+  public Result query(@RequestBody Map<String,String> params){
+      return Result.ok(volumeService.queryVolume(params.get("user"),params.get("volume")));
     }
 }

@@ -102,21 +102,21 @@ public class ExcelProject extends BaseRowModel {
     private String checkerRemark;
 
 
-//    private Integer principalId;
-//    @ExcelProperty(value = "主设人校" ,index = 27)
-//    private String principal;
-//
+    private Integer principalId;
+    @ExcelProperty(value = "主设人校" ,index = 28)
+    private String principal;
+
 //    @ExcelProperty(value = "完成日期" ,index = 28)
 //    private String principalCompletionDate;
-//
-//    @ExcelProperty(value = "上周完成比例(%)" ,index = 29)
-//    private String principalLastWeek;
-//
-//    @ExcelProperty(value = "本周完成比例(%)" ,index = 30)
-//    private String principalNowWeek;
-//
-//    @ExcelProperty(value = "延期原因" ,index = 31)
-//    private String principalRemark;
+
+    @ExcelProperty(value = "上周完成比例(%)" ,index = 29)
+    private String principalLastWeek;
+
+    @ExcelProperty(value = "本周完成比例(%)" ,index = 30)
+    private String principalNowWeek;
+
+    @ExcelProperty(value = "延期原因" ,index = 31)
+    private String principalRemark;
 //
 //    private Integer headmanId;
 //    @ExcelProperty(value = "组长校" ,index = 32)
@@ -402,4 +402,44 @@ public class ExcelProject extends BaseRowModel {
     public void setCheckerId(Integer checkerId) {
         this.checkerId = checkerId;
     }
+
+  public Integer getPrincipalId() {
+    return principalId;
+  }
+
+  public void setPrincipalId(Integer principalId) {
+    this.principalId = principalId;
+  }
+
+  public String getPrincipal() {
+    return principal;
+  }
+
+  public void setPrincipal(String principal) {
+    this.principal = principal;
+  }
+
+  public String getPrincipalLastWeek() {
+    return principalLastWeek;
+  }
+
+  public void setPrincipalLastWeek(String principalLastWeek) {
+    this.principalLastWeek = principalLastWeek;
+  }
+
+  public String getPrincipalNowWeek() {
+    return principalNowWeek;
+  }
+
+  public void setPrincipalNowWeek(String principalNowWeek) {
+    this.principalNowWeek = principalNowWeek;
+  }
+
+  public String getPrincipalRemark() {
+    return principalRemark;
+  }
+
+  public void setPrincipalRemark(String principalRemark) {
+    this.principalRemark = principalRemark;
+  }
 }

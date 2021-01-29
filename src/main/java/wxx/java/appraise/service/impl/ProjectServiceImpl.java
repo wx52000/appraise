@@ -411,7 +411,8 @@ public class ProjectServiceImpl implements ProjectService {
                         String[] report = designerData[i].split("\\$",-1);
                         if (report.length >= 1 ) {
                             calendar.setTimeInMillis(Long.parseLong(report[2]));
-                            if (calendar.get(Calendar.MONTH) == month) {
+                          System.out.println(calendar.get(Calendar.MONTH));
+                            if (calendar.get(Calendar.MONTH)+1 == month) {
                                 int day = calendar.get(Calendar.DAY_OF_MONTH);
                                 if (calendar.get(Calendar.WEEK_OF_MONTH) == 1) {
                                     excelProject.setDesignerOne(report[0]);
@@ -462,12 +463,13 @@ public class ProjectServiceImpl implements ProjectService {
                     if (checkerData[i] != null) {
                         String[] report = checkerData[i].split("\\$", -1);
                         calendar.setTimeInMillis(Long.parseLong(report[2]));
-                        if (calendar.get(Calendar.MONTH) == month) {
+                        if (calendar.get(Calendar.MONTH)+1 == month) {
                             if (calendar.get(Calendar.WEEK_OF_MONTH) == week) {
                                 excelProject.setCheckerNowWeek(report[0]);
                                 excelProject.setCheckerRemark(report[1]);
                             }
-                            if (calendar.get(Calendar.WEEK_OF_MONTH) == week - 1) {
+                            else {
+                              if (excelProject.getCheckerLastWeek() == null)
                                 excelProject.setCheckerLastWeek(report[0]);
                             }
                         }else if (calendar.get(Calendar.MONTH) == month - 1) {
@@ -477,39 +479,38 @@ public class ProjectServiceImpl implements ProjectService {
                     }
                     }
                 }
-//            if (map.get("principal") != null) {
-//                excelProject.setPrincipal(map.get("principal").toString());
-//            }
+            if (map.get("principal") != null) {
+                excelProject.setPrincipal(map.get("principal").toString());
+            }
 //            if (map.get("complete_time") != null) {
 //                if (StringUtils.isInteger(map.get("complete_time").toString())){
 //                    excelProject.setPrincipalCompletionDate(Time.longToString(map.get("complete_time").toString()));
 //                }else
 //                    excelProject.setPrincipalCompletionDate(map.get("complete_time").toString());
 //            }
-//            if (map.get("principalList") != null && map.get("principalList") != null) {
-//                String []principalData = map.get("principalList").toString().split("##");
-//                int principalLength;
-//                if (principalData.length >= 3){
-//                    principalLength = 3;
-//                }else {
-//                    principalLength = principalData.length;
-//                }
-//                for (int i = 0 ; i < principalLength ; i++ ) {
-//                    if(principalData[i] != null) {
-//                        String[] report = principalData[i].split("\\$", -1);
-//                        calendar.setTimeInMillis(Long.parseLong(report[2]));
-//                        if (calendar.get(Calendar.MONTH) == month) {
-//                            if (calendar.get(Calendar.WEEK_OF_MONTH) == week) {
-//                                excelProject.setPrincipalNowWeek(report[0]);
-//                                excelProject.setPrincipalRemark(report[1]);
-//                            }
-//                            if (calendar.get(Calendar.WEEK_OF_MONTH) == week - 1) {
-//                                excelProject.setPrincipalLastWeek(report[0]);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
+            if (map.get("principalList") != null && map.get("principalList") != null) {
+                String []principalData = map.get("principalList").toString().split("##");
+                int principalLength;
+                if (principalData.length >= 3){
+                    principalLength = 3;
+                }else {
+                    principalLength = principalData.length;
+                }
+                for (int i = 0 ; i < principalLength ; i++ ) {
+                    if(principalData[i] != null) {
+                        String[] report = principalData[i].split("\\$", -1);
+                        calendar.setTimeInMillis(Long.parseLong(report[2]));
+                        if (calendar.get(Calendar.MONTH) == month) {
+                            if (calendar.get(Calendar.WEEK_OF_MONTH) == week) {
+                                excelProject.setPrincipalNowWeek(report[0]);
+                                excelProject.setPrincipalRemark(report[1]);
+                            }
+                            else if (excelProject.getPrincipalLastWeek() != null)
+                                excelProject.setPrincipalLastWeek(report[0]);
+                            }
+                        }
+                    }
+                }
 //            excelProject.setHeadman("");
 //            if (map.get("headman_date") != null) {
 //                if (StringUtils.isInteger(map.get("headman_date").toString())) {

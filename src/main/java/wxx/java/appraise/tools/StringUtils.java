@@ -1,6 +1,7 @@
 package wxx.java.appraise.tools;
 
 import java.util.Random;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class StringUtils {
@@ -33,6 +34,16 @@ public class StringUtils {
             sb.append(allChar.charAt(random.nextInt(allChar.length())));
         }
         return sb.toString();
+    }
+    //判断字符串是否包含中文
+    public static boolean isContainChinese(String str) {
+
+      Pattern p = Pattern.compile("[\u4e00-\u9fa5]");
+      Matcher m = p.matcher(str);
+      if (m.find()) {
+        return true;
+      }
+      return false;
     }
 
 }

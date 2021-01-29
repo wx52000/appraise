@@ -17,4 +17,6 @@ public interface VolumeService {
     void upd(Volume volume);
 
     void add(Volume volume);
+
+    List<Map> queryVolume(String user,String volume);
 }

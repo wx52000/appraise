@@ -264,14 +264,16 @@
         and t.id = v.tec_id
     </select>
   <select id="queryByProjectId" resultType="java.util.Map" parameterType="map">
-    select v.*,
-		GROUP_CONCAT(distinct p1.proportion, "$", p1.remarks , "$" , p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
-		GROUP_CONCAT(distinct p2.proportion, "$", p2.remarks , "$" , p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
-    from  volume v
-    LEFT JOIN ( SELECT * FROM proportion WHERE #{max}> date and date >= #{min} ORDER BY date LIMIT 4 ) AS p1 ON p1.volume_id = v.id
-    AND p1.type = 0
-    LEFT JOIN ( SELECT * FROM proportion WHERE #{max}> date and date  >= #{min} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
-    AND p2.type = 1
+    SELECT
+    v.*,
+    GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.week ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
+    GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.week ORDER BY p2.date DESC SEPARATOR '##' ) AS checkerList,
+    GROUP_CONCAT( DISTINCT p3.proportion, "$", p3.remarks, "$", p3.week ORDER BY p3.date DESC SEPARATOR '##' ) AS principalList
+    FROM
+    volume v
+    LEFT JOIN ( SELECT *,	WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 0 ORDER BY date ) AS p1 ON p1.volume_id = v.id
+    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 1 ORDER BY date ) AS p2 ON p2.volume_id = v.id
+    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 2 ORDER BY date ) AS p3 ON p3.volume_id = v.id
     where  v.project_id = #{id}
     <if test="minDate != null and minDate != ''">
     and ( ( v.planned_publication_date &gt;= #{minDate}
@@ -283,4 +285,66 @@
     </if>
 		GROUP BY v.id
   </select>
+    <select id="queryVolume" resultType="java.util.Map">
+    <if test="user != null and user !=''">
+    SELECT
+      v.id,
+      v.`name`,
+      v.number,
+      v.designer,
+      v.checker,
+      v.principal,
+      v.state,
+       v.rollId,
+       p.general,
+      p.`name` as projectName
+    FROM
+      project p,
+      volume v
+    WHERE
+      p.id = v.project_id
+      AND (
+        v.checker = #{user}
+        OR v.designer = #{user}
+        OR ( v.principal = #{user}
+        AND v.principal NOT LIKE "%;%" )
+      OR ((
+          SUBSTRING_INDEX( v.principal, "", 1 )= #{user}
+          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{user})
+    AND v.principal LIKE "%;%")
+    	OR ( p.general = "周步登" AND p.general NOT LIKE "%;%" )
+      OR ((
+          SUBSTRING_INDEX( p.general, "", 1 )= #{user}
+          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{user}
+          )
+        AND p.general LIKE "%;%"
+        )
+	  )
+    </if>
+	  <if test="user != null and volume != null and user !='' and volume !=''">
+      union distinct
+    </if>
+    <if test="volume != null and volume !=''">
+      SELECT
+      v.id,
+      v.`name`,
+      v.number,
+      v.designer,
+      v.checker,
+      v.principal,
+      v.rollId,
+      v.state,
+      p.general,
+      p.`name` as projectName
+      FROM
+      project p,
+      volume v
+      WHERE
+      p.id = v.project_id
+      AND (
+      v.number like "%"#{volume}"%"
+      or v.name like "%"#{volume}"%"
+      )
+    </if>
+    </select>
 </mapper>

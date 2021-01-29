@@ -33,6 +33,7 @@ public interface ProjectDao {
 //作为主设人查询
     List<Map> queryByPrincipal(User user);
     List<Map> queryProByPrincipal(User user);
+    List<Map> queryDesigner(User user);
 //作为设计人查询
     List<Map> queryByDesigner(User user);
 //作为互校人查询
