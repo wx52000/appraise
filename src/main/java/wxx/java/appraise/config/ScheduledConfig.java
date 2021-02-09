@@ -1,9 +1,12 @@
 package wxx.java.appraise.config;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.batch.BatchProperties;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.SchedulingConfigurer;
+import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import wxx.java.appraise.service.GradeScoreService;
 import wxx.java.appraise.service.GradeTecService;
 import wxx.java.appraise.service.TecScoreService;
@@ -13,11 +16,14 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.Method;
+import java.util.concurrent.Executors;
 
 //定时任务，用于清空评价表
 @Configuration
 @EnableScheduling
-public class ScheduledConfig {
+public class ScheduledConfig implements SchedulingConfigurer {
+
     private GradeScoreService gradeScoreService;
     private GradeTecService gradeTecService;
     private UserScoreService userScoreService;
@@ -46,12 +52,11 @@ public class ScheduledConfig {
     }
     @Scheduled(cron = setTime)
     public void  reset(){
-//        gradeScoreService.resetState();
-//        gradeTecService.resetState();
-        userScoreService.backups();
-        tecScoreService.backups();
-        userScoreService.delete();
-        tecScoreService.delete();
+//        userScoreService.backups();
+//        tecScoreService.backups();
+//        userScoreService.delete();
+//        tecScoreService.delete();
+      System.out.println("运行定时重置任务");
     }
 
   @Scheduled(cron = "0 0 0 * * ?")
@@ -77,4 +82,21 @@ public class ScheduledConfig {
     }
   }
 
+  @Override
+  public void configureTasks(ScheduledTaskRegistrar scheduledTaskRegistrar) {
+      Method[] methods = BatchProperties.Job.class.getMethods();
+      int defaultPoolSize = 3;
+      int corePoolSize = 0;
+      if (methods != null && methods.length > 0) {
+        for (Method method : methods) {
+          Scheduled annotation = method.getAnnotation(Scheduled.class);
+          if (annotation != null) {
+            corePoolSize++;
+          }
+        }
+        if (defaultPoolSize > corePoolSize)
+          corePoolSize = defaultPoolSize;
+      }
+    scheduledTaskRegistrar.setScheduler(Executors.newScheduledThreadPool(corePoolSize));
+    }
 }

@@ -25,7 +25,9 @@ public class ProportionServiceImpl implements ProportionService {
 
     @Override
     public void add(@RequestBody Proportion proportion) {
-
+      if (proportion.getRemarks() == null){
+        proportion.setRemarks("");
+      }
         proportion.setDate(Time.getLongDate());
         proportionDao.add(proportion);
     }

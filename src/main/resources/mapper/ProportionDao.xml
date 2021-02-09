@@ -13,6 +13,7 @@
         from proportion
         where volume_id = #{volumeId}
         and user_id = #{userId}
+        and `type` = #{type}
         order by `date` DESC
         limit 0,1
     </select>

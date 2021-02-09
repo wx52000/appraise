@@ -16,6 +16,8 @@ public interface UserDao {
 
     User queryById(Integer id);
 
+    Map queryLimits(Integer id);
+
     void add(User user);
 
     void addExcel(List<ExcelData> list);
@@ -37,8 +39,14 @@ public interface UserDao {
 
     //根据专业查询，用于前端transfer的数据
     List<Map> queryByT(@Param("id") Integer id , @Param("mode") Integer mode);
-
+    //主任查询
+    List<Map> queryByDirector(User user);
+    //经理查询
+    List<Map> queryByManager(User user);
+    //组长查询
+    List<Map> queryByHeadman(User user);
     List<Map> queryNotSelf(User user);
+    List<Map> queryByGAndP(User user);
 
     List<Map> queryNotScore(User user);
     //已进行评价的人员名单
@@ -61,6 +69,5 @@ public interface UserDao {
     void paw(User user);
 
     List<Map> queryPrincipal(Integer id);
-
 
 }

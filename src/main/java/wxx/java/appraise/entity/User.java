@@ -47,6 +47,8 @@ public class User {
 
     private long monthMax;
 
+    private String branch;
+
     private String sqlDate;
     public User() {
     }
@@ -237,5 +239,13 @@ public class User {
 
   public void setSqlDate(String sqlDate) {
     this.sqlDate = sqlDate;
+  }
+
+  public String getBranch() {
+    return branch;
+  }
+
+  public void setBranch(String branch) {
+    this.branch = branch;
   }
 }

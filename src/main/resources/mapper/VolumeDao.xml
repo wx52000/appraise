@@ -312,7 +312,7 @@
           SUBSTRING_INDEX( v.principal, "", 1 )= #{user}
           OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{user})
     AND v.principal LIKE "%;%")
-    	OR ( p.general = "周步登" AND p.general NOT LIKE "%;%" )
+    	OR ( p.general = #{user} AND p.general NOT LIKE "%;%" )
       OR ((
           SUBSTRING_INDEX( p.general, "", 1 )= #{user}
           OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{user}

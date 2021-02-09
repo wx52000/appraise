@@ -104,6 +104,33 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
+  public List<Map> queryToScore(User user) {
+    Map map = userDao.queryLimits(user.getId());
+    if (map.get("limits") == null){
+      return userDao.queryByGAndP(user);
+    }else if (Integer.valueOf(map.get("limits").toString()) == 0) {
+      return userDao.queryNotSelf(user);
+    }
+    else if (Integer.valueOf(map.get("limits").toString()) == 1) {
+      user.setBranch(map.get("branch").toString());
+      return userDao.queryByDirector(user);
+    }
+    else if (Integer.valueOf(map.get("limits").toString()) == 2) {
+      return userDao.queryByManager(user);
+    }
+    else if (Integer.valueOf(map.get("limits").toString()) == 3) {
+      return userDao.queryByHeadman(user);
+    }
+//    if (user1.getGrade() == 1) {
+//      PageHelper.startPage(user.getPageIndex(), user.getPageSize(), true);
+//      PageInfo<Map> pageInfo = new PageInfo<>(userDao.queryByGAndP(user));
+//    }else
+//      return null;
+    else
+      return userDao.queryByGAndP(user);
+  }
+
+  @Override
     public PageInfo<Map> queryNotScore(User user) {
         PageHelper.startPage(user.getPageIndex(),user.getPageSize(),true);
         PageInfo<Map> pageInfo = new PageInfo<>(userDao.queryNotScore(user));

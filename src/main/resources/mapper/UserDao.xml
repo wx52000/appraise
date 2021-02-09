@@ -53,7 +53,7 @@
         where u.id = #{id}
     </delete>
     <select id="login" resultType="java.util.Map">
-        select `name` , u.id , pid , paw_state as pawState , tid ,
+        select `name` , u.id , pid , paw_state as pawState , tid ,did ,
         GROUP_CONCAT(up.position_id) as `position` ,u.grade
         from `user` u left join
         user_position up on up.user_id = u.id
@@ -62,18 +62,21 @@
     </select>
     <select id="queryById" resultType="wxx.java.appraise.entity.User">
         select *
-        from user
+        from `user`
         where id = #{id}
     </select>
     <select id="query" resultType="java.util.Map" parameterType="user">
-        select u.id , u.name , u.username , u.grade , d.name as department , t.name as technology , p.name as power
-        from `user` u,
-        technology t ,
-        power p ,
-        department d
-        where u.pid = p.id
-        and u.tid = t.id
-        and u.did = d.id
+      select u.id , u.name , u.username , u.grade , d.name as department ,
+      t.name as technology , p.name as power ,GROUP_CONCAT(ps.`name`) as `position`
+      from `user` u left join
+      user_position up on u.id = up.user_id
+      left join `position` ps on ps.id = up.position_id,
+      technology t ,
+      power p ,
+      department d
+      where u.pid = p.id
+      and u.tid = t.id
+      and u.did = d.id
         <if test="name != null and name != ''">
         and u.name like "%"#{name}"%"
         </if>
@@ -92,11 +95,13 @@
                 #{item}
             </foreach>
         </if>
+      GROUP BY u.id
         <if test="selectName != null and selectName != ''">
             order by ${selectName}
         </if>
         <if test="selectType == 1">
         desc
+
         </if>
     </select>
     <select id="queryByTid" resultType="java.util.Map">
@@ -196,10 +201,10 @@
         where u.id &lt;&gt; #{id}
         and u.did = d.id
         and u.tid = t.id
-    <if test="name != null and name != ''">
-      and (u.name like "%"#{name}"%"
-      or u.username like "%"#{name}"%")
-    </if>
+<!--    <if test="name != null and name != ''">-->
+<!--      and (u.name like "%"#{name}"%"-->
+<!--      or u.username like "%"#{name}"%")-->
+<!--    </if>-->
     <if test="dIds != null and dIds != ''">
       and d.id in
       <foreach collection="dIds" item="item" separator="," close=")" open="(">
@@ -218,6 +223,276 @@
     <if test="selectType == 1">
       desc
     </if>
+  </select>
+  <select id="queryByGAndP" resultType="java.util.Map">
+    SELECT
+    v.designer AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `USER` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.`name` = v.designer
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",-1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",-1 )= #{name}
+
+    )
+    AND ((
+    v.shot_date != ""
+    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR v.actual_publication_date >= #{sqlDate} ))
+    OR ( v.shot_date = "" AND v.start_date != "" )) UNION
+    SELECT
+    principal AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+
+     (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = v.principal
+    AND v.principal NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";",- 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    p.general AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = p.general
+    AND p.general NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", 1 )
+    AND p.general LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", - 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", - 1 )
+    AND p.general LIKE "%;%"
   </select>
   <select id="queryToupd" resultType="java.util.Map">
     select u.id , u.name , u.username , u.grade , d.name as department , t.name as technology , p.name as power
@@ -379,5 +654,897 @@
      <if test="mode == 0 ">
       and  u.grade = 1
      </if>
+  </select>
+  <select id="queryLimits" resultType="java.util.Map">
+SELECT
+	u.id AS uid,
+	u.did AS did,
+	p.`name` AS `position`,
+	p.limits,
+	d.`name` AS department,
+	d.branch
+FROM
+	`user` u
+	LEFT JOIN user_position up ON u.id = up.user_id
+	LEFT JOIN position p ON p.id = up.position_id
+	LEFT JOIN department d ON d.id = up.department_id
+WHERE
+	u.id = #{id}
+ORDER BY
+	p.`limits`
+	LIMIT 1
+  </select>
+  <select id="queryByDirector" resultType="java.util.Map">
+    select
+    u.name AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    from
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    where
+    d.id in ${branch}
+    AND u.id &lt;&gt; #{id}
+    and d.id= u.did
+    and u.tid = t.id
+    union
+    SELECT
+    v.designer AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `USER` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.`name` = v.designer
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",-1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",-1 )= #{name}
+
+    )
+    AND ((
+    v.shot_date != ""
+    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR v.actual_publication_date >= #{sqlDate} ))
+    OR ( v.shot_date = "" AND v.start_date != "" )) UNION
+    SELECT
+    principal AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+
+     (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = v.principal
+    AND v.principal NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";",- 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    p.general AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = p.general
+    AND p.general NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", 1 )
+    AND p.general LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", - 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", - 1 )
+    AND p.general LIKE "%;%"
+  </select>
+  <select id="queryByManager" resultType="java.util.Map">
+    select
+    u.name AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    from
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    where
+    d.id = #{did}
+    AND u.id &lt;&gt; #{id}
+    and d.id= u.did
+    and u.tid = t.id
+    union
+    SELECT
+    v.designer AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `USER` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.`name` = v.designer
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",-1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",-1 )= #{name}
+
+    )
+    AND ((
+    v.shot_date != ""
+    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR v.actual_publication_date >= #{sqlDate} ))
+    OR ( v.shot_date = "" AND v.start_date != "" )) UNION
+    SELECT
+    principal AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+
+     (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = v.principal
+    AND v.principal NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";",- 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    p.general AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = p.general
+    AND p.general NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", 1 )
+    AND p.general LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", - 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", - 1 )
+    AND p.general LIKE "%;%"
+  </select>
+  <select id="queryByHeadman" resultType="java.util.Map">
+   select
+    u.name AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    from
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    where
+    t.id = #{tid}
+    AND u.id &lt;&gt; #{id}
+    and d.id= u.did
+    and u.tid = t.id
+    union
+        SELECT
+    v.designer AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `USER` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.`name` = v.designer
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",-1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",-1 )= #{name}
+
+    )
+    AND ((
+    v.shot_date != ""
+    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR v.actual_publication_date >= #{sqlDate} ))
+    OR ( v.shot_date = "" AND v.start_date != "" )) UNION
+    SELECT
+    principal AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+
+     (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = v.principal
+    AND v.principal NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    volume v,
+    project p,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( v.principal, ";",- 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
+    AND v.principal LIKE "%;%" UNION
+    SELECT
+    p.general AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = p.general
+    AND p.general NOT LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", 1 )
+    AND p.general LIKE "%;%" UNION
+    SELECT
+    SUBSTRING_INDEX( p.general, ";", - 1 ) AS `name`,
+    u.id,
+    u.username,
+    d.name AS department,
+    t.name AS technology,
+    us.designer,
+    us.personal,
+    us.coordinate
+    FROM
+    project p,
+    volume v,
+    `user` u
+    LEFT JOIN user_score us ON us.grade_id = #{id}
+    AND u.id = us.score_id,
+    department d,
+    technology t
+    WHERE
+    (
+    v.principal = #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
+
+    OR p.general = #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
+
+    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+
+    )
+    AND p.id = v.project_id
+    AND u.id &lt;&gt; #{id}
+    AND u.did = d.id
+    AND u.tid = t.id
+    AND u.`name` = SUBSTRING_INDEX( p.general, ";", - 1 )
+    AND p.general LIKE "%;%"
   </select>
 </mapper>

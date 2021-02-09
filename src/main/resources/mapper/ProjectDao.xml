@@ -293,10 +293,8 @@
       project p,
       (SELECT id, SUBSTRING_INDEX(principal,';',1) as p FROM volume WHERE principal like '%;%') as v1,
       volume v
-    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 4 ) AS p1 ON p1.volume_id = v.id
-    AND p1.type = 0
-    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
-    AND p2.type = 1
+    LEFT JOIN ( SELECT *,	WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 0 ORDER BY date ) AS p1 ON p1.volume_id = v.id
+    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 1 ORDER BY date ) AS p2 ON p2.volume_id = v.id
     WHERE
       v.project_id = p.id
       AND v1.p = #{name}
@@ -332,10 +330,8 @@
       project p,
       (SELECT id, SUBSTRING_INDEX(principal,';',-1) as p FROM volume WHERE principal like '%;%') as v1,
       volume v
-    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 4 ) AS p1 ON p1.volume_id = v.id
-    AND p1.type = 0
-    LEFT JOIN ( SELECT * FROM proportion WHERE #{monthMax}> date and date >= #{monthMin} ORDER BY date LIMIT 1 ) AS p2 ON p2.volume_id = v.id
-    AND p2.type = 1
+    LEFT JOIN ( SELECT *,	WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 0 ORDER BY date ) AS p1 ON p1.volume_id = v.id
+    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 1 ORDER BY date ) AS p2 ON p2.volume_id = v.id
     WHERE
       v.project_id = p.id
       AND v1.p = #{name}

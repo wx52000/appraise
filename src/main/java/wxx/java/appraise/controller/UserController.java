@@ -75,6 +75,11 @@ public class UserController {
       return Result.ok(userService.queryNotSelf(user));
     }
 
+    @RequestMapping("queryToScore")
+    public Result queryToScore(@RequestBody User user){
+      return Result.ok(userService.queryToScore(user));
+    }
+
     @RequestMapping("queryNotScore")
     public Result queryNotScore(@RequestBody User user){
         return Result.ok(userService.queryNotScore(user));

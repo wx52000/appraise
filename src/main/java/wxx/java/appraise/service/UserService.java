@@ -33,7 +33,9 @@ public interface UserService {
 
     List<Map> queryByTid(Integer id);
 
-      PageInfo<Map> queryNotSelf(User user);
+    PageInfo<Map> queryNotSelf(User user);
+    //用于被打分的数据查询
+    List<Map> queryToScore(User user);
 
     PageInfo<Map> queryNotScore(User user);
 
