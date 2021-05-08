@@ -42,4 +42,11 @@ public interface ProjectDao {
     List<Map> queryByHeadman(User user);
 
     List<Map> queryExcel(User user);
+
+    List<Map> drawLine(Integer id);
+
+    //用于虚拟项目关联实体
+    List<Map> queryAll();
+
+    List<Map> queryPrincipal(Integer id);
 }

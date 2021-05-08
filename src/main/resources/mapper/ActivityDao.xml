@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.ActivityDao">
+  <insert id="setProject" keyProperty="id" useGeneratedKeys="true">
+    insert into activity
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="workday != null">
+        `workday`,
+      </if>
+      <if test="creatDate != null">
+        `create_date`,
+      </if>
+      <if test="creatUser != null">
+        `create_user`,
+      </if>
+      <if test="start_date != null">
+        `start_date`,
+      </if>
+      <if test="end_date != null">
+        `end_date`,
+      </if>
+      <if test="state != null">
+        `state`,
+      </if>
+      <if test="checker != null">
+        `checker`,
+      </if>
+    </trim>
+    values
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name},
+      </if>
+      <if test="workday != null">
+        #{workday},
+      </if>
+      <if test="creatDate != null">
+        #{creatDate},
+      </if>
+      <if test="creatUser != null">
+        #{creatUser},
+      </if>
+      <if test="start_date != null">
+        #{start_date},
+      </if>
+      <if test="end_date != null">
+        #{end_date},
+      </if>
+      <if test="state != null">
+        #{state},
+      </if>
+      <if test="checker != null">
+        #{checker},
+      </if>
+    </trim>
+    on duplicate key update
+    workday = values(workday)
+  </insert>
+  <insert id="addGeneral">
+    insert into activity_leader(user_id,activity_id,`role`)
+    values
+    <foreach collection="list" item="item" separator=",">
+      ( #{item} , #{id} ,1)
+    </foreach>
+    on duplicate key update
+    `role` = 1
+  </insert>
+  <insert id="addPrincipal">
+    insert into activity_leader(user_id,activity_id,`role`,`group` )
+    values
+    <foreach collection="list" item="item" separator=",">
+      (#{item.id},#{id},2,#{item.group})
+    </foreach>
+    on duplicate key update
+    `group` = values(`group`)
+  </insert>
+  <insert id="addDesigner">
+    insert ignore into activity_user(user_id,activity_id,principal_group)
+    values
+    <foreach collection="list" item="item" separator=",">
+      <foreach collection="item.list" item="i" separator=",">
+        (#{i},#{id},#{item.principal})
+      </foreach>
+    </foreach>
+    on duplicate key update
+    principal_group = values(principal_group)
+  </insert>
+  <update id="state">
+    update activity
+    set `state` = #{state} ,checker = #{checker}
+    where id = #{id}
+  </update>
+  <delete id="deleteRole">
+    delete
+    from activity_leader
+    where
+    activity_id = #{id}
+    and user_id in
+    <foreach collection="list" item="item" open="(" close=")" separator=",">
+      #{item.id}
+    </foreach>
+  </delete>
+  <delete id="deleteDesigner">
+    delete
+    from activity_user
+    where
+    activity_id = #{id}
+    and user_id in
+    <foreach collection="list" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </delete>
+  <select id="queryRole" resultType="java.util.Map">
+    select vl.user_id as id, u.name as `name`
+    from  activity_leader vl,
+          `user` u
+    where u.id = vl.user_id
+      and  activity_id = #{id}
+      and `role` = #{role}
+  </select>
+  <select id="queryDesignerId" resultType="java.lang.Integer">
+    select user_id
+    from  activity_user
+    where activity_id = #{id}
+  </select>
+  <select id="query" resultType="java.util.Map">
+    select vp.id, vp.name, vp.start_date, vp.end_date, vp.workday,
+           GROUP_CONCAT(u.name SEPARATOR ";") as general ,u1.name as create_user,
+           vp.create_date
+    from activity vp
+           left join  activity_leader vl on vp.id = vl.activity_id left JOIN
+         `user` u on u.id = vl.user_id and vl.role = 1,
+         `user` u1
+    where u1.id = vp.create_user
+    GROUP BY vp.id
+  </select>
+  <select id="queryByRole" resultType="java.lang.String">
+    select u.name
+    from activity_leader vu,
+         `user` u
+    where activity_id = #{id}
+      and `role` = #{role}
+      and u.id = vu.user_id
+  </select>
+  <select id="queryByRole1" resultType="java.lang.String">
+    select u.id
+    from activity_leader vu,
+         `user` u
+    where activity_id = #{id}
+      and `role` = #{role}
+      and u.id = vu.user_id
+  </select>
+  <select id="queryByGroup" resultType="java.lang.String">
+    select concat_ws("-",u.did,u.tid,u.id)
+    from activity_leader vu,
+         `user` u
+    where activity_id = #{id}
+      and u.id = vu.user_id
+  </select>
+  <select id="queryGroup" resultType="java.util.Map">
+    select u.id as id, vu.`group` as `group`
+    from activity_leader vu,
+         `user` u
+    WHERE activity_id = #{id}
+      and `role` = #{role}
+      and u.id = vu.user_id
+      and `group` in (
+      SELECT `group`
+      FROM activity_leader
+      WHERE activity_id = #{id}
+    and `role` = #{role}
+      GROUP BY `group`
+      HAVING count(id) > 1)
+  </select>
+</mapper>

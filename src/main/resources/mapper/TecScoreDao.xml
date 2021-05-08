@@ -281,7 +281,10 @@
         LEFT JOIN tec_score s ON u.id = s.grade_id
         AND s.tec_id = #{id}
     WHERE
-      u.grade = 1
+    u.name in
+    <foreach collection="userList" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
     ORDER BY u.username
   </select>
   <select id="detailPast" resultType="java.lang.String">
@@ -294,7 +297,10 @@
         AND s.month = #{user.thisMonth}
         AND S.year = #{user.thisYear}
     WHERE
-      u.grade = 1
+    u.name in
+    <foreach collection="userList" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
     ORDER BY u.username
   </select>
   <select id="part" resultType="wxx.java.appraise.entity.TecPartExcel">

@@ -22,7 +22,7 @@ public interface UserScoreService {
 
     List<Map> query(User user);
 
-    List<List<String>> detail(User user);
+    List<List<String>> detail(User user,List<String> userName);
 
     void add(List<UserScore> list);
 

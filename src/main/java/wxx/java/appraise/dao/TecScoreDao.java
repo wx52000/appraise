@@ -30,9 +30,10 @@ public interface TecScoreDao {
 
     List<Map> queryPast(User user);
 
-    List<String> detail(Integer id);
+    List<String> detail(@Param("id") Integer id,@Param("userList") List<String> userName);
 
-    List<String> detailPast(@Param("tid") Integer tid,@Param("user")User user);
+    List<String> detailPast(@Param("tid") Integer tid,@Param("user")User user,
+                            @Param("userList") List<String> userName);
 
     //本月数据
     List<TechnologyExcel> excel(User user);

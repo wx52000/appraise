@@ -14,10 +14,7 @@ import wxx.java.appraise.entity.UserOut;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.UserService;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -84,7 +81,9 @@ public class UserServiceImpl implements UserService {
 
   @Override
   public Map queryToupd(Integer id) {
-    return userDao.queryToupd(id);
+      Map map = userDao.queryToupd(id);
+      map.put("position",userDao.queryPosition(id));
+    return map;
   }
 
   @Override
@@ -104,30 +103,47 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public List<Map> queryToScore(User user) {
+  public Result queryToScore(User user) {
     Map map = userDao.queryLimits(user.getId());
-    if (map.get("limits") == null){
-      return userDao.queryByGAndP(user);
-    }else if (Integer.valueOf(map.get("limits").toString()) == 0) {
-      return userDao.queryNotSelf(user);
-    }
-    else if (Integer.valueOf(map.get("limits").toString()) == 1) {
-      user.setBranch(map.get("branch").toString());
-      return userDao.queryByDirector(user);
-    }
-    else if (Integer.valueOf(map.get("limits").toString()) == 2) {
-      return userDao.queryByManager(user);
-    }
-    else if (Integer.valueOf(map.get("limits").toString()) == 3) {
-      return userDao.queryByHeadman(user);
-    }
-//    if (user1.getGrade() == 1) {
-//      PageHelper.startPage(user.getPageIndex(), user.getPageSize(), true);
-//      PageInfo<Map> pageInfo = new PageInfo<>(userDao.queryByGAndP(user));
-//    }else
-//      return null;
-    else
-      return userDao.queryByGAndP(user);
+    if (Integer.valueOf(map.get("grade").toString()) == 1) {
+      if (map.get("limits") == null) {
+        return Result.ok(userDao.queryByGAndP(user));
+      } else if (Integer.valueOf(map.get("limits").toString()) == 0 || Integer.valueOf(map.get("limits").toString()) == 1) {
+        return Result.ok(userDao.queryNotSelf(user));
+      }
+      //经理
+      else if (Integer.valueOf(map.get("limits").toString()) == 2) {
+        return Result.ok(userDao.queryByManager(user));
+      }
+      //组长
+      else if (Integer.valueOf(map.get("limits").toString()) == 3) {
+        return Result.ok(userDao.queryByHeadman(user));
+      } else
+        return Result.ok(userDao.queryByGAndP(user));
+    }else
+      return Result.build(1001,"暂无打分权限");
+  }
+
+  @Override
+  public Result queryScoreList(User user) {
+    Map map = userDao.queryLimits(user.getId());
+    if (Integer.valueOf(map.get("grade").toString()) == 1) {
+      if (map.get("limits") == null) {
+        return Result.ok(userDao.queryByGAndPList(user));
+      } else if (Integer.valueOf(map.get("limits").toString()) == 0 || Integer.valueOf(map.get("limits").toString()) == 1) {
+        return Result.ok(userDao.queryNotSelfList(user));
+      }
+      //经理
+      else if (Integer.valueOf(map.get("limits").toString()) == 2) {
+        return Result.ok(userDao.queryByManagerList(user));
+      }
+      //组长
+      else if (Integer.valueOf(map.get("limits").toString()) == 3) {
+        return Result.ok(userDao.queryByHeadmanList(user));
+      } else
+        return Result.ok(userDao.queryByGAndP(user));
+    }else
+      return Result.ok(null);
   }
 
   @Override
@@ -138,12 +154,44 @@ public class UserServiceImpl implements UserService {
     }
 
   @Override
+  public Result queryAppriseAll() {
+      User user = new User();
+    Calendar calendar = Calendar.getInstance();
+    Integer year = calendar.get(Calendar.YEAR);
+    Integer month;
+    if (calendar.get(Calendar.MONTH)%3 == 2) {
+      if (calendar.get(Calendar.DAY_OF_MONTH) >= 25) {
+        month = calendar.get(Calendar.MONTH)-2;
+      }else
+        month = calendar.get(Calendar.MONTH)-3;
+    }else
+      month = calendar.get(Calendar.MONTH)-3-calendar.get(Calendar.MONTH)%3;
+    if (month <=0)
+      year--;
+    user.setSqlDate(year + "-" + month + "-1");
+    return  Result.ok(userDao.queryAppriseAll(user));
+  }
+
+  @Override
   public List<UserOut> queryAppraise(User user) {
     return userDao.queryAppraise(user);
   }
 
   @Override
   public List<UserOut> queryNotAppraise(User user) {
+    Calendar calendar = Calendar.getInstance();
+    Integer year = calendar.get(Calendar.YEAR);
+    Integer month;
+    if (calendar.get(Calendar.MONTH)%3 == 2) {
+      if (calendar.get(Calendar.DAY_OF_MONTH) >= 25) {
+        month = calendar.get(Calendar.MONTH)-2;
+      }else
+      month = calendar.get(Calendar.MONTH)-3;
+    }else
+      month = calendar.get(Calendar.MONTH)-3-calendar.get(Calendar.MONTH)%3;
+    if (month <=0)
+      year--;
+    user.setSqlDate(year + "-" + month + "-1");
     return userDao.queryNotAppraise(user);
   }
 
@@ -205,6 +253,58 @@ public class UserServiceImpl implements UserService {
         map.put("children" , tecList);
         list.add(map);
       }
+    return list;
+  }
+
+  @Override
+  public List<Map> userAllAndState(Integer id) {
+    List<Map> list = new ArrayList<>();
+    List<Department> dep = departmentDao.queryNotUser();
+    for (int i = 0 ; i < dep.size(); i++){
+      Map map = new HashMap();
+      map.put("id",dep.get(i).getId());
+      map.put("pid",0);
+      map.put("label",dep.get(i).getName());
+      List<Map> tecList = new ArrayList<>();
+      List<Map> tec = technologyDao.queryBydepNoU(dep.get(i).getId());
+      for (int j = 0; j < tec.size(); j++){
+        Map map1 = new HashMap();
+        map1.put("id",dep.get(i).getId() + "-" + tec.get(j).get("id"));
+        map1.put("pid" , dep.get(i).getId());
+        map1.put("label", tec.get(j).get("name"));
+        map1.put("children", userDao.queryByTAndState(id,(Integer) tec.get(j).get("id")));
+        tecList.add(map1);
+      }
+      map.put("children" , tecList);
+      list.add(map);
+    }
+    return list;
+  }
+
+  @Override
+  public List<Map> userAllAndGroup(Integer id,Integer mode) {
+    List<Map> list = new ArrayList<>();
+    List<Department> dep = departmentDao.queryNotUser();
+    for (int i = 0 ; i < dep.size(); i++){
+      Map map = new HashMap();
+      map.put("id", "d-" + dep.get(i).getId());
+      map.put("label",dep.get(i).getName());
+      List<Map> tecList = new ArrayList<>();
+      List<Map> tec = technologyDao.queryBydepNoU(dep.get(i).getId());
+      for (int j = 0; j < tec.size(); j++){
+        Map map1 = new HashMap();
+        map1.put("id", "t-" + dep.get(i).getId() + "-" + tec.get(j).get("id"));
+        map1.put("label", tec.get(j).get("name"));
+        if (mode == 0) {
+          map1.put("children", userDao.queryByTAndGroup((Integer) tec.get(j).get("id"), id));
+        }else if (mode == 1){
+          map1.put("children", userDao.queryByTAndGroup1((Integer) tec.get(j).get("id"), id));
+        }
+        tecList.add(map1);
+      }
+      map.put("children" , tecList);
+      list.add(map);
+    }
     return list;
   }
 

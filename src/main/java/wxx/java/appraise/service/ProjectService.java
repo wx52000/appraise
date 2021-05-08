@@ -40,4 +40,9 @@ public interface ProjectService {
 
     List<ExcelProject> queryExcel(Integer month);
 
+    Result drawLine(Integer id);
+
+    Result queryAll();
+
+    Result queryPrincipal(Integer id);
 }

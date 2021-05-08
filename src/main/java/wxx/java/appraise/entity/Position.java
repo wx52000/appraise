@@ -6,6 +6,8 @@ public class Position {
 
     private String name;
 
+    private double weight;
+
 
     public Integer getId() {
         return id;
@@ -22,4 +24,12 @@ public class Position {
     public void setName(String name) {
         this.name = name;
     }
+
+  public double getWeight() {
+    return weight;
+  }
+
+  public void setWeight(double weight) {
+    this.weight = weight;
+  }
 }

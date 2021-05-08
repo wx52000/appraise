@@ -37,6 +37,8 @@ public class User {
 
     private List<Integer> dIds;
 
+    private List<Integer> pIds;
+
     private List<Integer> users;
 
     private String selectName;
@@ -190,6 +192,14 @@ public class User {
     public void setdIds(List<Integer> dIds) {
         this.dIds = dIds;
     }
+
+  public List<Integer> getpIds() {
+    return pIds;
+  }
+
+  public void setpIds(List<Integer> pIds) {
+    this.pIds = pIds;
+  }
 
   public String getSelectName() {
     return selectName;

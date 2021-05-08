@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.VirtualDao">
+  <resultMap id="queryDesigner" type="java.util.Map">
+    <result column="id" property="principal" jdbcType="INTEGER"/>
+    <result column="name" property="name" jdbcType="VARCHAR"/>
+    <result column="vid" property="vid" jdbcType="VARCHAR"/>
+    <collection property="list" column="id = id , vid = vid"
+                javaType="ARRAYLIST" select="queryDesignerByGroup"/>
+  </resultMap>
+  <insert id="setProject" keyProperty="id" useGeneratedKeys="true" >
+    insert into virtual_project
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+    <if test="name != null">
+      `name`,
+    </if>
+      <if test="number != null">
+        `number`,
+      </if>
+      <if test="workday != null">
+        `workday`,
+      </if>
+      <if test="creatDate != null">
+        `create_date`,
+      </if>
+      <if test="creatUser != null">
+        `create_user`,
+      </if>
+    </trim>
+    values
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="name != null">
+        #{name},
+      </if>
+      <if test="number != null">
+        #{number},
+      </if>
+      <if test="workday != null">
+        #{workday},
+      </if>
+      <if test="creatDate != null">
+        #{creatDate},
+      </if>
+      <if test="creatUser != null">
+        #{creatUser}
+      </if>
+    </trim>
+    on duplicate key update
+    workday = values(workday)
+  </insert>
+  <insert id="addGeneral">
+    insert into virtual_leader(user_id,virtual_id,`role`)
+    values
+    <foreach collection="list" item="item" separator=",">
+    ( #{item} , #{id} ,1)
+    </foreach>
+    on duplicate key update
+    `role` = 1
+  </insert>
+  <insert id="addPrincipal">
+    insert into virtual_leader(user_id,virtual_id,`role`,`group` )
+    values
+    <foreach collection="list" item="item" separator=",">
+    (#{item.id},#{id},2,#{item.group})
+    </foreach>
+    on duplicate key update
+    `group` = values(`group`)
+  </insert>
+  <insert id="addDesigner">
+    insert ignore into virtual_user(user_id,virtual_id,principal_group)
+    values
+    <foreach collection="list" item="item" separator=",">
+        <foreach collection="item.list" item="i" separator=",">
+        (#{i},#{id},#{item.principal})
+        </foreach>
+    </foreach>
+    on duplicate key update
+    principal_group = values(principal_group)
+  </insert>
+  <update id="leaderWorkday">
+    <foreach collection="list" item="item" separator=";">
+    <if test="item.workday != null or item.manage_workday != null">
+    update virtual_leader
+    set workday = #{item.workday},
+        manage_workday = #{item.manage_workday}
+    where user_id = #{item.id}
+        and `role` = 2
+        and virtual_id = #{id}
+    </if>
+    </foreach>
+  </update>
+  <update id="designerWorkday">
+    <foreach collection="list" item="item" separator=";">
+        <foreach collection="item.list" item="i" separator=";">
+          <if test="i.workday != null">
+        update virtual_user
+        set workday = #{i.workday}
+        where user_id = #{i.id}
+        and virtual_id = #{id}
+      and principal_group = #{item.principal}
+          </if>
+        </foreach>
+    </foreach>
+  </update>
+  <delete id="deleteRole">
+    delete
+    from virtual_leader
+    where
+    virtual_id = #{id}
+    and user_id in
+    <foreach collection="list" item="item" open="(" close=")" separator=",">
+      #{item.id}
+    </foreach>
+  </delete>
+  <delete id="deleteDesigner">
+    delete
+    from virtual_user
+    where
+    virtual_id = #{id}
+    and user_id in
+    <foreach collection="list" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
+  </delete>
+  <select id="queryRole" resultType="java.util.Map">
+    select vl.user_id as id, u.name as `name`
+    from  virtual_leader vl,
+         `user` u
+    where u.id = vl.user_id
+    and  virtual_id = #{id}
+    and `role` = #{role}
+  </select>
+  <select id="queryDesignerId" resultType="java.lang.Integer">
+    select user_id
+    from  virtual_user
+    where virtual_id = #{id}
+  </select>
+  <select id="query" resultType="java.util.Map">
+    select vp.id, vp.name, vp.number, vp.workday,
+     GROUP_CONCAT(u.name SEPARATOR ";") as general
+    from virtual_project vp
+    left join  virtual_leader vl on vp.id = vl.virtual_id left JOIN
+		`user` u on u.id = vl.user_id and vl.role = 1
+		GROUP BY vp.id
+  </select>
+  <select id="queryByRole" resultType="java.lang.String">
+    select u.name
+    from virtual_leader vu,
+    `user` u
+    where virtual_id = #{id}
+    and `role` = #{role}
+    and u.id = vu.user_id
+    </select>
+  <select id="queryByRole1" resultType="java.lang.String">
+    select u.id
+    from virtual_leader vu,
+         `user` u
+    where virtual_id = #{id}
+      and `role` = #{role}
+      and u.id = vu.user_id
+  </select>
+  <select id="queryByGroup" resultType="java.lang.String">
+    select concat_ws("-",u.did,u.tid,u.id)
+    from virtual_leader vu,
+         `user` u
+    where virtual_id = #{id}
+      and u.id = vu.user_id
+  </select>
+  <select id="queryGroup" resultType="java.util.Map">
+    select u.id as id, vu.`group` as `group`
+    from virtual_leader vu,
+         `user` u
+    where virtual_id = #{id}
+      and `role` = #{role}
+      and u.id = vu.user_id
+        and `group` in (
+          SELECT `group`
+          FROM virtual_leader
+          WHERE virtual_id = #{id}
+            and `role` = #{role}
+          GROUP BY `group`
+          HAVING count(id) > 1
+      )
+  </select>
+  <select id="queryDesignerByVirtual" resultMap="queryDesigner">
+    select distinct u.id as id , u.name as name ,
+           case when #{vid} Is Null then Null
+            else #{vid} end as vid
+    from `user` u,
+         virtual_user vu
+    where vu.virtual_id = #{id}
+          and u.id = vu.principal_group
+  </select>
+  <select id="queryDesignerByGroup" resultType="java.lang.Integer">
+    select user_id
+    from virtual_user
+    where principal_group = #{id}
+    and virtual_id = #{vid}
+  </select>
+  <select id="queryPrincipalWorkday" resultType="java.util.Map">
+    select u.id, u.name, vl.workday, vl.manage_workday
+    from `user` u left  join
+         virtual_leader vl on u.id = vl.user_id and vl.virtual_id = #{id}
+            and vl.`role` = 2
+    where u.id in
+    <foreach collection="list" item="item" separator="," open="(" close=")">
+      #{item}
+    </foreach>
+  </select>
+  <select id="queryDesignerWorkday" resultType="java.util.Map">
+    select u.id, u.name, vl.workday
+    from `user` u left  join
+    virtual_user vl on u.id = vl.user_id and vl.virtual_id = #{id}
+                           and vl.principal_group = #{principal}
+    where u.id in
+    <foreach collection="list" item="item" separator="," open="(" close=")">
+      #{item}
+    </foreach>
+  </select>
+</mapper>

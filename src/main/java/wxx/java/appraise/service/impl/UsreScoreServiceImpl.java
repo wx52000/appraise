@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static wxx.java.appraise.tools.AppraiseDate.appDate;
+import static wxx.java.appraise.tools.AppraiseDate.*;
 
 @Transactional
 @Service
@@ -72,75 +72,78 @@ public class UsreScoreServiceImpl implements UserScoreService {
 
     @Override
     public List<Map> queryScore(User user) {
-      Map<Object,Integer> map = appDate();
-      Integer month = map.get("month");
-      Integer year = map.get("year");
-      user.setThisYear(year);
-      User user1 = userDao.queryById(user.getId());
-      user.setPid(user1.getPid());
-      if (month == user.getThisMonth()) {
+//      Map<Object,Integer> map = appDate();
+//      Integer month = map.get("month");
+//      Integer year = map.get("year");
+//      user.setThisYear(year);
+//      User user1 = userDao.queryById(user.getId());
+//      user.setPid(user1.getPid());
+//      if (month == user.getThisMonth()) {
+//        return userScoreDao.queryScore(user);
+//      }else {
+//        if ( month == 1){
+//          user.setThisYear(--year);
+//      }else if (month == 2){
+//          if (user.getThisMonth() == 12){
+//            user.setThisYear(--year);
+//          }
+//        }
+//        return userScoreDao.queryScorePast(user);
+//      }
+      if (quarter(user.getThisMonth())){
         return userScoreDao.queryScore(user);
-      }else {
-        if ( month == 1){
-          user.setThisYear(--year);
-      }else if (month == 2){
-          if (user.getThisMonth() == 12){
-            user.setThisYear(--year);
-          }
-        }
+      }else{
+        user.setThisYear(year(user.getThisMonth()));
         return userScoreDao.queryScorePast(user);
       }
+
     }
 
     @Override
     public List<Map> query(User user) {
-      Map<Object,Integer> map = appDate();
-      Integer month = map.get("month");
-      Integer year = map.get("year");
-      user.setThisYear(year);
-      User user1 = userDao.queryById(user.getId());
-      user.setPid(user1.getPid());
-      if (month == user.getThisMonth()) {
+//      Map<Object,Integer> map = appDate();
+//      Integer month = map.get("month");
+//      Integer year = map.get("year");
+//      user.setThisYear(year);
+//      User user1 = userDao.queryById(user.getId());
+//      user.setPid(user1.getPid());
+//      if (month == user.getThisMonth()) {
+//        return userScoreDao.query(user);
+//      }else {
+//        if ( month == 1){
+//          user.setThisYear(--year);
+//        }else if (month == 2){
+//          if (user.getThisMonth() == 12){
+//            user.setThisYear(--year);
+//          }
+//        }
+//        return userScoreDao.queryPast(user);
+//      }
+      if (quarter(user.getThisMonth())){
         return userScoreDao.query(user);
-      }else {
-        if ( month == 1){
-          user.setThisYear(--year);
-        }else if (month == 2){
-          if (user.getThisMonth() == 12){
-            user.setThisYear(--year);
-          }
-        }
+      }else{
+        user.setThisYear(year(user.getThisMonth()));
         return userScoreDao.queryPast(user);
       }
     }
 
   @Override
-  public List<List<String>> detail(User user) {
+  public List<List<String>> detail(User user,List<String> userName) {
     List<List<String>> data = new ArrayList<>();
     List<Map> users = userDao.queryAll();
-    Map<Object,Integer> map = appDate();
-    Integer month = map.get("month");
-    Integer year = map.get("year");
-    user.setThisYear(year);
-    if (month == user.getThisMonth()) {
+    if (quarter(user.getThisMonth())) {
       for (int i = 0; i< users.size() ; i++){
         List<String> list = new ArrayList<>();
         list.add(users.get(i).get("name").toString());
-        list.addAll(userScoreDao.detail((Integer) users.get(i).get("id")));
+        list.addAll(userScoreDao.detail((Integer) users.get(i).get("id"),userName));
         data.add(list);
       }
     }else {
-      if ( month == 1){
-        user.setThisYear(--year);
-      }else if (month == 2){
-        if (user.getThisMonth() == 12){
-          user.setThisYear(--year);
-        }
-      }
+      user.setThisYear(year(user.getThisMonth()));
       for (int i = 0; i< users.size() ; i++){
         List<String> list = new ArrayList<>();
         list.add(users.get(i).get("name").toString());
-        list.addAll(userScoreDao.detailPast(user,(Integer) users.get(i).get("id")));
+        list.addAll(userScoreDao.detailPast(user,(Integer) users.get(i).get("id"),userName));
         data.add(list);
       }
     }
@@ -159,22 +162,12 @@ public class UsreScoreServiceImpl implements UserScoreService {
 
     @Override
     public List<PersonalExcel> excel1(User user) {
-      Map<Object,Integer> map = appDate();
-      Integer month = map.get("month");
-      Integer year = map.get("year");
-      user.setThisYear(year);
       User user1 = userDao.queryById(user.getId());
       user.setPid(user1.getPid());
-      if (month.equals(user.getThisMonth())) {
+      if (quarter(user.getThisMonth())) {
         return userScoreDao.excel1(user);
       }else {
-        if ( month == 1){
-          user.setThisYear(--year);
-        }else if (month == 2){
-          if (user.getThisMonth() == 12){
-            user.setThisYear(--year);
-          }
-        }
+        user.setThisYear(year(user.getThisMonth()));
         return userScoreDao.excel2(user);
       }
     }
@@ -195,11 +188,7 @@ public class UsreScoreServiceImpl implements UserScoreService {
           .add(Integer.valueOf(toData.get(i).get("id").toString()
             .substring(toData.get(i).get("id").toString().lastIndexOf( "-" )+1)));
       }
-      Map<Object,Integer> map = appDate();
-      Integer month1 = map.get("month");
-      Integer year = map.get("year");
-      user.setThisYear(year);
-      if (month1.equals(user.getThisMonth())) {
+      if (quarter(user.getThisMonth())) {
         if (toData.size() > 0) {
           if (mode == 0) {
             return userScoreDao.part0(user);
@@ -209,13 +198,7 @@ public class UsreScoreServiceImpl implements UserScoreService {
         }else
           return  null;
       }else {
-        if ( month1 == 1){
-          user.setThisYear(--year);
-        }else if (month1 == 2){
-          if (user.getThisMonth() == 12){
-            user.setThisYear(--year);
-          }
-        }
+        user.setThisYear(year(user.getThisMonth()));
         if (toData.size() > 0) {
           if (mode == 0) {
             return userScoreDao.partPast0(user);

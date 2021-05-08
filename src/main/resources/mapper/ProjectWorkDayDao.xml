@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.ProjectWorkDayDao">
+  <insert id="setProWorkDay">
+        insert into project_workday
+            (project_id, workDay, `type`)
+        values
+    <foreach collection="list" item="item" separator=",">
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="item.value != null and item.value != ''">
+          #{id}, #{item.value}, #{item.type}
+        </if>
+      </trim>
+    </foreach>
+      on duplicate key update
+      workDay = values(workDay)
+  </insert>
+  <update id="setTecWorkDay">
+    insert into workday_tec
+    (project_id, volume_tec, `ratio`,`type` )
+    values
+    <foreach collection="list" item="item" separator=",">
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="item.ratio != null and item.ratio != ''">
+          #{id}, #{item.name}, #{item.ratio}/100 , #{type}
+        </if>
+      </trim>
+    </foreach>
+    on duplicate key update
+    ratio = values(ratio)
+  </update>
+  <insert id="setUserWorkDay">
+    insert into workday_user
+    (project_id, `user`, `ratio`,`type` )
+    values
+    <foreach collection="list" item="item" separator=",">
+      <trim prefix="(" suffix=")" suffixOverrides=",">
+        <if test="item.ratio != null and item.ratio != ''">
+          #{id}, #{item.name}, #{item.ratio}/100 , #{type}
+        </if>
+      </trim>
+    </foreach>
+    on duplicate key update
+    ratio = values(ratio)
+  </insert>
+  <select id="queryLegend" resultType="java.lang.String">
+    select w.`name` as `name`
+    from project_workday pw,
+    workday w
+    where pw.project_id = #{id}
+    and pw.type = w.id
+    and w.id &lt;&gt; 1
+    union
+    select distinct volume_tec as `name`
+    from workday_tec
+    where project_id = #{id}
+  </select>
+  <select id="queryProWorkDay" resultType="java.util.Map">
+    select w.`name` as `name` ,pw.workDay as `value` , pw.type as type
+    from project_workday pw,
+    workday w
+    where pw.project_id = #{id}
+    and pw.type = w.id
+    and w.id &lt;&gt; 1
+  </select>
+  <select id="queryTecWorkDay" resultType="java.util.Map">
+    select wt.volume_tec as `name` ,(pw.workDay * wt.ratio) as `value`
+    from project_workday pw,
+    workday_tec wt
+    where pw.project_id = #{id}
+    and pw.project_id = wt.project_id
+    and pw.type = 3
+   </select>
+  <select id="queryUsedTecWorkDay" resultType="java.util.Map">
+    select distinct tec , SUM(v.workday) as used, (pw.workDay* wt.ratio) as have
+		FROM volume v,
+		workday_tec wt,
+		project_workday pw
+		WHERE v.project_id  = #{id}
+		and pw.project_id = v.project_id
+		and wt.project_id = pw.project_id
+		and wt.volume_tec = v.tec
+		and pw.type = 3
+		GROUP BY tec
+  </select>
+  <select id="queryUsedWorkDay" resultType="java.util.Map">
+    select distinct  SUM(v.workday) as used ,pw.workDay as have
+		FROM volume v,
+		workday_tec wt,
+		project_workday pw
+		WHERE v.project_id  = #{id}
+		and pw.project_id = v.project_id
+		and wt.project_id = pw.project_id
+		and wt.volume_tec = v.tec
+		GROUP BY v.project_id
+  </select>
+  <select id="queryTecWorkDayRatio" resultType="java.util.Map">
+    select v.tec as `name` , wt.ratio*100 as ratio
+    from volume v
+		LEFT JOIN workday_tec wt on v.tec = wt.volume_tec and wt.project_id = v.project_id and wt.type = 3
+		WHERE
+		v.project_id = #{id}
+		GROUP BY v.tec
+  </select>
+  <select id="queryReserveWorkDayRatio" resultType="java.util.Map">
+    select v.tec as `name` , wt.ratio*100 as ratio
+    from volume v
+           LEFT JOIN workday_tec wt on v.tec = wt.volume_tec and wt.project_id = v.project_id and wt.type = 4
+    WHERE
+      v.project_id = #{id}
+    GROUP BY v.tec
+  </select>
+</mapper>

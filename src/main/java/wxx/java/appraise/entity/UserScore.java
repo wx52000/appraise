@@ -18,6 +18,7 @@ public class UserScore {
 
     private Long date;
 
+    private Integer role;
 
 
     public Integer getId() {
@@ -77,4 +78,12 @@ public class UserScore {
     public void setDate(Long date) {
       this.date = date;
     }
+
+  public Integer getRole() {
+    return role;
+  }
+
+  public void setRole(Integer role) {
+    this.role = role;
+  }
 }

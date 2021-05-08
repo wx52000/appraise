@@ -31,7 +31,7 @@ public class ScheduledConfig implements SchedulingConfigurer {
 
     //此处为每月自动更新时间
     public static final Integer setDay = 25;
-    private static final String setTime =  "0 0 0 25 * ?";
+    private static final String setTime =  "0 0 0 25 */3 ?";
 
     @Autowired
     public  void  setUserScore(GradeScoreService gradeScoreService){
@@ -52,10 +52,10 @@ public class ScheduledConfig implements SchedulingConfigurer {
     }
     @Scheduled(cron = setTime)
     public void  reset(){
-//        userScoreService.backups();
-//        tecScoreService.backups();
-//        userScoreService.delete();
-//        tecScoreService.delete();
+        userScoreService.backups();
+        tecScoreService.backups();
+        userScoreService.delete();
+        tecScoreService.delete();
       System.out.println("运行定时重置任务");
     }
 

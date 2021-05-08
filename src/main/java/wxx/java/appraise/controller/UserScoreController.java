@@ -85,8 +85,9 @@ public class UserScoreController {
         User user = new User();
         user.setThisMonth(Integer.valueOf(request.getParameter("month")));
         ExcelProperty excelProperty = new ExcelProperty();
+        List<String> userName = userService.queryGrade();
         Future<String> future = excelProperty
-          .personalDetailsExcel(userService.queryGrade(),userScoreService.detail(user));
+          .personalDetailsExcel(userName,userScoreService.detail(user,userName));
         s = future.get();
         String fileName = user.getThisMonth()+ "月个人评分详情表.xlsx";
         Download.downloadFile( response , "excel.xlsx" , fileName);

@@ -41,9 +41,10 @@ public interface UserScoreDao {
     //以往数据
     List<PersonalExcel> excel2(User user);
     //本月数据
-    List<String> detail(Integer id);
+    List<String> detail(@Param("id") Integer id,@Param("nameList")List<String> nameList);
     //以往数据
-    List<String> detailPast(@Param("user") User user,@Param("uid")Integer uid);
+    List<String> detailPast(@Param("user") User user,@Param("uid")Integer uid,
+                            @Param("nameList")List<String> nameList);
 
     //根据打分人
     List<PartExcel> part0(User user);

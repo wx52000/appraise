@@ -35,9 +35,13 @@ public interface UserService {
 
     PageInfo<Map> queryNotSelf(User user);
     //用于被打分的数据查询
-    List<Map> queryToScore(User user);
+    Result queryToScore(User user);
+
+    Result queryScoreList(User user);
 
     PageInfo<Map> queryNotScore(User user);
+
+    Result queryAppriseAll();
 
     List<UserOut> queryAppraise(User user);
     //没有进行评价的人员名单
@@ -58,4 +62,8 @@ public interface UserService {
     List<Map> queryPrincipal(Integer id);
 
     List<Map> userAll(Integer mode);
+
+    List<Map> userAllAndState(Integer id);
+
+    List<Map> userAllAndGroup(Integer id,Integer mode);
 }

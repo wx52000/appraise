@@ -25,6 +25,11 @@ public class ProjectController {
         this.projectService = projectService;
     }
 
+    @RequestMapping("drawLine")
+    public Result drawLine(@RequestHeader Integer id){
+      return projectService.drawLine(id);
+    }
+
     @RequestMapping("add")
     public Result add(@RequestBody Project project){
         projectService.add(project);
@@ -110,5 +115,14 @@ public class ProjectController {
         return Result.ok(s);
     }
 
+    @RequestMapping("queryAll")
+    public Result queryAll(){
+      return projectService.queryAll();
+    }
+
+    @RequestMapping("queryPrincipal")
+    public Result queryPrincipal(@RequestHeader Integer id){
+      return projectService.queryPrincipal(id);
+    }
 
 }

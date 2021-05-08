@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.ScoreManageDao">
+  <insert id="setScoreMange">
+    insert into score_manage(
+    score_id, scored_id, `state`
+    )
+    values (#{scoreId}, #{scoredId}, #{state})
+    on duplicate key update
+    `state` = values(`state`)
+  </insert>
+  <delete id="del">
+    delete
+    from score_manage
+    where score_id = #{scoreId}
+    and scored_id = #{scoredId}
+  </delete>
+</mapper>

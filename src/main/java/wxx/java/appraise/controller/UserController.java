@@ -77,7 +77,12 @@ public class UserController {
 
     @RequestMapping("queryToScore")
     public Result queryToScore(@RequestBody User user){
-      return Result.ok(userService.queryToScore(user));
+      return userService.queryToScore(user);
+    }
+
+    @RequestMapping("queryScoreList")
+    public Result queryScoreList(@RequestBody User user){
+      return userService.queryScoreList(user);
     }
 
     @RequestMapping("queryNotScore")
@@ -85,6 +90,10 @@ public class UserController {
         return Result.ok(userService.queryNotScore(user));
     }
 
+    @RequestMapping("queryAppriseAll")
+    public Result queryAppriseAll(){
+      return userService.queryAppriseAll();
+    }
     @RequestMapping("queryAppraise")
     public Result queryAppraise(@RequestBody User user){
       return Result.ok(userService.queryAppraise(user));
@@ -120,10 +129,20 @@ public class UserController {
         userService.paw(user);
         return Result.ok();
     }
-
+    //普通树
     @RequestMapping("userAll")
     public Result userAll(@RequestHeader Integer mode){
       return Result.ok(userService.userAll(mode));
+    }
+    //评价管理树，包含是否可评价状态
+    @RequestMapping("userAllAndState")
+    public Result userAllAndState(@RequestHeader Integer id){
+      return Result.ok(userService.userAllAndState(id));
+    }
+    //主设人选择树，包含主设人分组
+    @RequestMapping("userAllAndGroup")
+    public Result userAllAndGroup(@RequestHeader Integer id,@RequestHeader Integer mode){
+      return Result.ok(userService.userAllAndGroup(id,mode));
     }
 
   @RequestMapping("excel")

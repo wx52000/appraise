@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static wxx.java.appraise.tools.AppraiseDate.appDate;
+import static wxx.java.appraise.tools.AppraiseDate.*;
 
 @Service
 public class TecScoreServiceImpl implements TecScoreService {
@@ -67,75 +67,77 @@ public class TecScoreServiceImpl implements TecScoreService {
 
     @Override
     public List<Map> queryScore(User user) {
-      Map<Object,Integer> map = appDate();
-      Integer month = map.get("month");
-      Integer year = map.get("year");
-      user.setThisYear(year);
-      User user1 = userDao.queryById(user.getId());
-      user.setPid(user1.getPid());
-      if (month == user.getThisMonth()) {
+//      Map<Object,Integer> map = appDate();
+//      Integer month = map.get("month");
+//      Integer year = map.get("year");
+//      user.setThisYear(year);
+//      User user1 = userDao.queryById(user.getId());
+//      user.setPid(user1.getPid());
+//      if (month == user.getThisMonth()) {
+//        return tecScoreDao.queryScore(user);
+//      }else {
+//        if ( month == 1){
+//          user.setThisYear(--year);
+//        }else if (month == 2){
+//          if (user.getThisMonth() == 12){
+//            user.setThisYear(--year);
+//          }
+//        }
+//        return tecScoreDao.queryScorePast(user);
+//      }
+      if (quarter(user.getThisMonth())){
         return tecScoreDao.queryScore(user);
-      }else {
-        if ( month == 1){
-          user.setThisYear(--year);
-        }else if (month == 2){
-          if (user.getThisMonth() == 12){
-            user.setThisYear(--year);
-          }
-        }
+      }else{
+        user.setThisYear(year(user.getThisMonth()));
         return tecScoreDao.queryScorePast(user);
       }
     }
 
     @Override
     public List<Map> query(User user) {
-      Map<Object,Integer> map = appDate();
-      Integer month = map.get("month");
-      Integer year = map.get("year");
-      user.setThisYear(year);
-      User user1 = userDao.queryById(user.getId());
-      user.setPid(user1.getPid());
-      if (month == user.getThisMonth()) {
+//      Map<Object,Integer> map = appDate();
+//      Integer month = map.get("month");
+//      Integer year = map.get("year");
+//      user.setThisYear(year);
+//      User user1 = userDao.queryById(user.getId());
+//      user.setPid(user1.getPid());
+//      if (month == user.getThisMonth()) {
+//        return tecScoreDao.query(user);
+//      }else {
+//        if ( month == 1){
+//          user.setThisYear(--year);
+//        }else if (month == 2){
+//          if (user.getThisMonth() == 12){
+//            user.setThisYear(--year);
+//          }
+//        }
+//        return tecScoreDao.queryPast(user);
+//      }
+      if (quarter(user.getThisMonth())){
         return tecScoreDao.query(user);
-      }else {
-        if ( month == 1){
-          user.setThisYear(--year);
-        }else if (month == 2){
-          if (user.getThisMonth() == 12){
-            user.setThisYear(--year);
-          }
-        }
+      }else{
+        user.setThisYear(year(user.getThisMonth()));
         return tecScoreDao.queryPast(user);
       }
     }
 
   @Override
-  public List<List<String>> detail(User user) {
+  public List<List<String>> detail(User user,List<String> userName) {
     List<List<String>> data = new ArrayList<>();
     List<Technology> tec = technologyDao.queryNotUser();
-    Map<Object,Integer> map = appDate();
-    Integer month = map.get("month");
-    Integer year = map.get("year");
-    user.setThisYear(year);
-    if (month == user.getThisMonth()) {
+    if (quarter(user.getThisMonth())) {
       for (int i = 0; i< tec.size() ; i++){
         List<String> list = new ArrayList<>();
         list.add(tec.get(i).getName());
-        list.addAll(tecScoreDao.detail(tec.get(i).getId()));
+        list.addAll(tecScoreDao.detail(tec.get(i).getId(),userName));
         data.add(list);
       }
     }else {
-      if ( month == 1){
-        user.setThisYear(--year);
-      }else if (month == 2){
-        if (user.getThisMonth() == 12){
-          user.setThisYear(--year);
-        }
-      }
+      user.setThisYear(year(user.getThisMonth()));
       for (int i = 0; i< tec.size() ; i++){
         List<String> list = new ArrayList<>();
         list.add(tec.get(i).getName());
-        list.addAll(tecScoreDao.detailPast(tec.get(i).getId(),user));
+        list.addAll(tecScoreDao.detailPast(tec.get(i).getId(),user,userName));
         data.add(list);
       }
     }
@@ -144,22 +146,12 @@ public class TecScoreServiceImpl implements TecScoreService {
 
   @Override
     public List<TechnologyExcel> excel(User user) {
-    Map<Object,Integer> map = appDate();
-    Integer month = map.get("month");
-    Integer year = map.get("year");
-    user.setThisYear(year);
     User user1 = userDao.queryById(user.getId());
     user.setPid(user1.getPid());
-    if (month == user.getThisMonth()) {
+    if (quarter(user.getThisMonth())) {
       return tecScoreDao.excel(user);
     }else {
-      if ( month == 1){
-        user.setThisYear(--year);
-      }else if (month == 2){
-        if (user.getThisMonth() == 12){
-          user.setThisYear(--year);
-        }
-      }
+      user.setThisYear(year(user.getThisMonth()));
       return tecScoreDao.excel1(user);
     }
     }
@@ -175,20 +167,10 @@ public class TecScoreServiceImpl implements TecScoreService {
         .add(Integer.valueOf(toData.get(i).get("id").toString()
           .substring(toData.get(i).get("id").toString().lastIndexOf( "-" )+1)));
     }
-    Map<Object,Integer> map = appDate();
-    Integer month1 = map.get("month");
-    Integer year = map.get("year");
-    user.setThisYear(year);
-    if (month1 == user.getThisMonth()) {
+    if (quarter(user.getThisMonth())) {
       return tecScoreDao.part(user);
     }else {
-      if ( month1 == 1){
-        user.setThisYear(--year);
-      }else if (month1 == 2){
-        if (user.getThisMonth() == 12){
-          user.setThisYear(--year);
-        }
-      }
+      user.setThisYear(year(user.getThisMonth()));
       return tecScoreDao.partPast(user);
     }
   }

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="wxx.java.appraise.dao.NewsDao">
+  <select id="newsCount" resultType="java.lang.Integer">
+    select count(*)
+    from activity
+    where `state` = 0
+    and create_user &lt;&gt; #{id}
+  </select>
+  <select id="query" resultType="java.util.Map">
+    select a.id as id, a.`name` as name, workday, create_date, u.name as create_user , start_date, end_date
+    from activity a,
+         `user` u
+    where a.`state` = 0
+    and a.create_user &lt;&gt; #{id}
+    and u.id = a.create_user
+  </select>
+</mapper>

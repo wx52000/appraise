@@ -71,8 +71,9 @@ public class TecScoreController {
         User user = new User();
         user.setThisMonth(Integer.valueOf(request.getParameter("month")));
         ExcelProperty excelProperty = new ExcelProperty();
+        List<String> userName = userService.queryGrade();
         Future<String> future = excelProperty
-          .personalDetailsExcel(userService.queryGrade(),tecScoreService.detail(user));
+          .personalDetailsExcel(userName,tecScoreService.detail(user,userName));
         s = future.get();
         String fileName = user.getThisMonth() + "月个人评分详情表.xlsx";
         Download.downloadFile( response , "excel.xlsx" , fileName);

@@ -165,6 +165,7 @@
         v.number,
         v.NAME AS volumeName,
         v.grade,
+        v.workday,
         v.planned_publication_date,
         v.actual_publication_date,
         v.professional_date,
@@ -243,6 +244,7 @@
       v.chief,
       v.designer,
       v.checker,
+      v.workday,
       v.planned_shot_date,
       v.shot_date,
       v.proofreading_date,
@@ -279,6 +281,7 @@
       v.chief,
       v.designer,
       v.checker,
+      v.workday,
       v.planned_shot_date,
       v.shot_date,
       v.proofreading_date,
@@ -316,6 +319,7 @@
       v.chief,
       v.designer,
       v.checker,
+      v.workday,
       v.planned_shot_date,
       v.shot_date,
       v.proofreading_date,
@@ -419,6 +423,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -453,6 +458,7 @@
         v.professional_date,
         v.withdrawal_date,
         v.shot_date,
+        v.workday,
         v.complete_time,
         v.headman_date,
         v.checker_date,
@@ -540,10 +546,13 @@
         v.number
     </select>
     <select id="queryById" resultType="java.util.Map">
-        select id , `name` , days , manage_days ,  design_days , spare_days , state
+        select p.id , p.`name` , p.state , p.`number`, count(v.id) as `count`, p.general
         from
-        project
-        where id = #{id}
+        project p,
+        volume v
+        where p.id = #{id}
+        and p.id = v.project_id
+        group by p.id
     </select>
        <select id="queryExcel" resultType="java.util.Map">
       SELECT DISTINCT
@@ -561,6 +570,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -600,6 +610,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -640,6 +651,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -680,6 +692,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -718,6 +731,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -757,6 +771,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -795,6 +810,7 @@
         v.chief,
         v.designer,
         v.checker,
+        v.workday,
         v.planned_shot_date,
         v.shot_date,
         v.proofreading_date,
@@ -819,4 +835,33 @@
       GROUP BY
         v.id
       </select>
+  <select id="drawLine" resultType="java.util.Map">
+    select distinct state as `name` , count(id) as `value`
+    from volume
+    where  project_id = #{id}
+    group by state
+  </select>
+  <select id="queryAll" resultType="java.util.Map">
+    select id, name, number
+    from project
+  </select>
+  <select id="queryPrincipal" resultType="java.util.Map">
+    SELECT v.principal as name, wu.ratio
+    FROM volume v
+    left join workday_user wu on v.principal = wu.`user` and wu.project_id = #{id}
+    WHERE v.project_id = #{id}
+      and principal not like "%;%"
+    UNION
+    SELECT SUBSTRING_INDEX(v.principal,";",1) as name, wu.ratio
+    FROM volume v
+    left join workday_user wu on SUBSTRING_INDEX(v.principal,";",1) = wu.`user` and wu.project_id = #{id}
+    WHERE v.project_id = #{id}
+      and principal like ";"
+    UNION
+    SELECT SUBSTRING_INDEX(v.principal,";",-1) as name, wu.ratio
+    FROM volume v
+    left join workday_user wu on SUBSTRING_INDEX(v.principal,";",-1) = wu.`user` and wu.project_id = #{id}
+    WHERE v.project_id = #{id}
+      and principal like "%;%"
+  </select>
 </mapper>

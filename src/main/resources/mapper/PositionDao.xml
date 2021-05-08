@@ -1,8 +1,26 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="wxx.java.appraise.dao.PositionDao">
-    <select id="query" resultType="java.util.Map">
-      select id ,  `name`
-      from `position`
+    <update id="update">
+      <foreach collection="list" item="item" separator=";">
+      update user_weight
+      <set>
+       weight = #{item.weight}
+       </set>
+      where id = #{item.id}
+      </foreach>
+    </update>
+  <select id="query" resultType="java.util.Map">
+    select id , `name`
+    from `position`
+    where id not in (0,13,14)
+  </select>
+    <select id="queryByWeight" resultType="java.util.Map">
+      select uw.id ,  p.`name` , uw.grade_w,uw.weight
+      from `position` p,
+			user_weight uw
+			WHERE uw.grade_w = p.weight
+			and uw.score_w = #{id}
+			GROUP BY p.weight
     </select>
 </mapper>

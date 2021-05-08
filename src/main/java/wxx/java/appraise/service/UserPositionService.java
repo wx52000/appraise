@@ -1,10 +1,11 @@
 package wxx.java.appraise.service;
 
-import wxx.java.appraise.entity.UserPosition;
-
-import java.util.List;
+import java.util.Map;
 
 public interface UserPositionService {
 
-    void upd(List<UserPosition> userPositions);
+
+  void add(Map map);
+
+  void del(Integer id);
 }

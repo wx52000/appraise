@@ -22,7 +22,7 @@ public interface TecScoreService {
 
     List<Map> query(User user);
 
-    List<List<String>> detail(User user);
+    List<List<String>> detail(User user,List<String> userName);
 
     List<TechnologyExcel> excel(User user);
 

@@ -1,20 +1,32 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="wxx.java.appraise.dao.UserPositionDao">
-    <insert id="add" parameterType="list">
-        insert into user_position(user_id , position_id)
-        values
-        <foreach collection="list" item="item" separator=",">
-        (#{item.userId} , #{item.positionId})
-        </foreach>
+    <insert id="add" parameterType="map">
+          insert into user_position(`user_id`,`position_id`,department_id)
+          values
+      <foreach collection="list" item="item" separator=",">
+           (#{id},#{item.position},#{item.depId})
+      </foreach>
     </insert>
-    <delete id="del" parameterType="list">
+  <update id="upd">
+    <foreach collection="list" item="item" separator=";">
+    update user_position
+    <set>
+    <if test="item.position != null and item.position !=''">
+    position_id = #{item.position},
+    </if>
+    <if test="item.depId != null and item.depId !=''">
+      department_id = #{item.depId}
+    </if>
+    </set>
+    where id = #{item.id}
+    </foreach>
+  </update>
+  <delete id="del" parameterType="integer">
         delete
         from user_position
-        where id in
-        <foreach collection="list" item="item" separator="," open="(" close=")">
-            #{item.id}
-        </foreach>
+        where id =
+            #{id}
     </delete>
     <select id="queryByUserId" resultType="java.lang.Integer">
         select position_id

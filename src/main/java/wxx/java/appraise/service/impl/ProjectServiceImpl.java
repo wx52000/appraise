@@ -223,17 +223,6 @@ public class ProjectServiceImpl implements ProjectService {
     @Override
     public Map queryById(Integer id) {
         Map map = projectDao.queryById(id);
-        List<Map> list = userDao.queryPrincipal(id);
-        List<List> lists = new ArrayList<>();
-        for (Map map1 : list){
-            List list1 = new ArrayList();
-            list1.add(map1.get("tid"));
-            if (map1.get("uid") != null && map1.get("uid") !=""){
-            list1.add(map1.get("uid"));
-            }
-            lists.add(list1);
-        }
-        map.put("tec" , lists);
         return map;
     }
 
@@ -546,4 +535,19 @@ public class ProjectServiceImpl implements ProjectService {
         }
         return list;
     }
+
+  @Override
+  public Result drawLine(Integer id) {
+    return Result.ok(projectDao.drawLine(id));
+  }
+
+  @Override
+  public Result queryAll() {
+    return Result.ok(projectDao.queryAll());
+  }
+
+  @Override
+  public Result queryPrincipal(Integer id) {
+    return Result.ok(projectDao.queryPrincipal(id));
+  }
 }

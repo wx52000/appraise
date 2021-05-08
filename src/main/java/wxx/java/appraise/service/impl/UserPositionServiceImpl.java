@@ -4,10 +4,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wxx.java.appraise.dao.UserPositionDao;
-import wxx.java.appraise.entity.UserPosition;
 import wxx.java.appraise.service.UserPositionService;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 @Transactional
 @Service
@@ -18,9 +20,31 @@ public class UserPositionServiceImpl implements UserPositionService {
     public void setUserPositionService(UserPositionDao userPositionDao){
         this.userPositionDao = userPositionDao;
     }
-    @Override
-    public void upd(List<UserPosition> list) {
-        userPositionDao.del(list);
-        userPositionDao.add(list);
+
+  @Override
+  public void add(Map map) {
+    List list = (List) Arrays.asList(map.get("userPosition")).get(0);
+    List list1 = new ArrayList();
+    int lenght = list.size();
+    for (int i = 0; i< lenght ; i++ ){
+      if (list.get(i) != null) {
+        Map map1 = (Map<String, String>) list.get(i);
+        if (map1.get("id").toString() != null && !map1.get("id").toString().equals("")) {
+          list1.add(list.get(i));
+          list.remove(i);
+          lenght--;
+          i--;
+        }
+      }
     }
+    if (list.size()>0)
+      userPositionDao.add(Integer.valueOf(map.get("id").toString()),list);
+    if (list1.size()>0)
+      userPositionDao.upd(list1);
+  }
+
+  @Override
+  public void del(Integer id) {
+      userPositionDao.del(id);
+  }
 }
