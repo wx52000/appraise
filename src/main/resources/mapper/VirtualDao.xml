@@ -20,10 +20,10 @@
       <if test="workday != null">
         `workday`,
       </if>
-      <if test="creatDate != null">
+      <if test="createDate != null">
         `create_date`,
       </if>
-      <if test="creatUser != null">
+      <if test="createUser != null">
         `create_user`,
       </if>
     </trim>
@@ -38,11 +38,11 @@
       <if test="workday != null">
         #{workday},
       </if>
-      <if test="creatDate != null">
-        #{creatDate},
+      <if test="createDate != null">
+        #{createDate},
       </if>
-      <if test="creatUser != null">
-        #{creatUser}
+      <if test="createUser != null">
+        #{createUser}
       </if>
     </trim>
     on duplicate key update
@@ -102,6 +102,17 @@
         </foreach>
     </foreach>
   </update>
+  <update id="setDesignerWorkday">
+    <foreach collection="list" item="item" separator=";">
+      <if test="item.workday != null">
+        update virtual_user
+        set workday = #{item.workday}
+        where user_id = #{item.id}
+        and virtual_id = #{id}
+        and principal_group = #{item.group}
+      </if>
+    </foreach>
+  </update>
   <delete id="deleteRole">
     delete
     from virtual_leader
@@ -135,12 +146,25 @@
     from  virtual_user
     where virtual_id = #{id}
   </select>
+  <select id="queryById" resultType="java.util.Map">
+    select vp.id, vp.name, vp.number, vp.workday,
+           GROUP_CONCAT(u.name SEPARATOR ";") as general,
+           u1.name as createUser, vp.create_date as createDate
+    from virtual_project vp
+           left join  virtual_leader vl on vp.id = vl.virtual_id left JOIN
+         `user` u on u.id = vl.user_id and vl.role = 1
+           left join `user` u1 on u1.id = vp.create_user
+      where vp.id = #{id}
+    GROUP BY vp.id
+  </select>
   <select id="query" resultType="java.util.Map">
     select vp.id, vp.name, vp.number, vp.workday,
-     GROUP_CONCAT(u.name SEPARATOR ";") as general
+     GROUP_CONCAT(u.name SEPARATOR ";") as general,
+           u1.name as createUser, vp.create_date as createDate
     from virtual_project vp
     left join  virtual_leader vl on vp.id = vl.virtual_id left JOIN
 		`user` u on u.id = vl.user_id and vl.role = 1
+    left join `user` u1 on u1.id = vp.create_user
 		GROUP BY vp.id
   </select>
   <select id="queryByRole" resultType="java.lang.String">
@@ -216,5 +240,70 @@
     <foreach collection="list" item="item" separator="," open="(" close=")">
       #{item}
     </foreach>
+  </select>
+    <select id="homepage" resultType="java.util.Map">
+      SELECT
+        *
+      FROM
+        (
+          SELECT
+            vp.id,
+            vp.name,
+            vp.number,
+            vp.workday,
+            GROUP_CONCAT( u.NAME SEPARATOR ";" ) as general,
+            vl.`role` as role
+          FROM
+            virtual_project vp,
+            virtual_leader vl,
+            virtual_leader vl1,
+            `user` u
+          WHERE
+            vp.id = vl.virtual_id
+            AND vl.user_id = #{id}
+            AND vl1.virtual_id = vp.id
+            AND vl1.user_id = u.id
+            and vl1.role = 1
+          GROUP BY
+            vp.id UNION
+          SELECT
+            vp.id,
+            vp.name,
+            vp.number,
+            vp.workday,
+            GROUP_CONCAT( u.NAME SEPARATOR ";" ) as general,
+                 3 as role
+          FROM
+            virtual_project vp,
+            virtual_user vl,
+            virtual_leader vl1,
+            `user` u
+          WHERE
+            vp.id = vl.virtual_id
+            AND vl.user_id = #{id}
+            AND vl1.virtual_id = vp.id
+            AND vl1.user_id = u.id
+            and vl1.role = 1
+          GROUP BY
+            vp.id
+        ) AS dataTable
+        group by id
+    </select>
+  <select id="workdayByGroup" resultType="java.util.Map">
+    SELECT
+      u.id,
+      u.name,
+      vu.workday,
+    vu.principal_group as `group`
+    FROM
+      `user` u,
+      virtual_leader vl,
+      virtual_user vu
+    WHERE
+      vl.virtual_id = #{id}
+      AND vl.user_id = #{uid}
+      AND u.id = vu.user_id
+      AND vu.virtual_id = #{id}
+      AND vu.principal_group = vl.GROUP
   </select>
 </mapper>

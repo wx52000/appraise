@@ -96,48 +96,11 @@
       project p,
       volume v
     WHERE
-      general = #{name}
-      AND v.project_id = p.id
-      AND general NOT LIKE '%;%'
-       	GROUP BY v.project_id
-    UNION
-    SELECT DISTINCT
-      p.id,
-      p.number,
-      p.NAME AS projectName,
-      p.director,
-      p.general,
-      p.state,
-      p.projectPhaseID,
-      COUNT(v.id) as amount
-    FROM
-      project p,
-      volume v,
-      ( SELECT id, SUBSTRING_INDEX( general, ';', 1 ) as g FROM project WHERE general LIKE '%;%' ) AS p1
-    WHERE
-      p.id = p1.id
-        AND v.project_id = p.id
-      AND p1.g = #{name}
-      	GROUP BY v.project_id
-    UNION
-    SELECT DISTINCT
-      p.id,
-      p.number,
-      p.NAME AS projectName,
-      p.director,
-      p.general,
-      p.state,
-      p.projectPhaseID,
-      COUNT(v.id) as amount
-    FROM
-      project p,
-      volume v,
-      ( SELECT id, SUBSTRING_INDEX( general, ';', -1 ) as g FROM project WHERE general LIKE '%;%' ) AS p1
-    WHERE
-      p.id = p1.id
-      AND v.project_id = p.id
-      AND p1.g = #{name}
-        GROUP BY v.project_id
+      v.project_id = p.id
+      AND FIND_IN_SET(
+      #{name},
+      REPLACE ( p.general, ";", "," ))
+    GROUP BY v.project_id
     </select>
     <select id="queryProByAdmin" resultType="java.util.Map">
         SELECT DISTINCT
@@ -262,85 +225,10 @@
     LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 1 ORDER BY date ) AS p2 ON p2.volume_id = v.id
     WHERE
       v.project_id = p.id
-      AND v.principal = #{name}
-      and v.principal not like '%;%'
-        GROUP BY v.id
-      union
-      SELECT DISTINCT
-      p.id AS pid,
-      p.NAME AS projectName,
-      p.director,
-      p.general,
-      v.id AS vid,
-      v.number,
-      v.NAME AS volumeName,
-      v.dep,
-      v.tec,
-      v.state,
-      v.principal,
-      v.chief,
-      v.designer,
-      v.checker,
-      v.workday,
-      v.planned_shot_date,
-      v.shot_date,
-      v.proofreading_date,
-      v.formId,
-      v.wfInstId,
-      v.rollId,
-      v.planned_publication_date,
-      v.actual_publication_date,
-    GROUP_CONCAT(distinct p1.proportion, "$", p1.remarks , "$" , p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
-		GROUP_CONCAT(distinct p2.proportion, "$", p2.remarks , "$" , p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
-    FROM
-      project p,
-      (SELECT id, SUBSTRING_INDEX(principal,';',1) as p FROM volume WHERE principal like '%;%') as v1,
-      volume v
-    LEFT JOIN ( SELECT *,	WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 0 ORDER BY date ) AS p1 ON p1.volume_id = v.id
-    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 1 ORDER BY date ) AS p2 ON p2.volume_id = v.id
-    WHERE
-      v.project_id = p.id
-      AND v1.p = #{name}
-      and v.id = v1.id
-      		GROUP BY v.id
-        union
-      SELECT DISTINCT
-      p.id AS pid,
-      p.NAME AS projectName,
-      p.director,
-      p.general,
-      v.id AS vid,
-      v.number,
-      v.NAME AS volumeName,
-      v.dep,
-      v.tec,
-      v.state,
-      v.principal,
-      v.chief,
-      v.designer,
-      v.checker,
-      v.workday,
-      v.planned_shot_date,
-      v.shot_date,
-      v.proofreading_date,
-      v.formId,
-      v.wfInstId,
-      v.rollId,
-      v.planned_publication_date,
-      v.actual_publication_date,
-    GROUP_CONCAT(distinct p1.proportion, "$", p1.remarks , "$" , p1.date ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
-		GROUP_CONCAT(distinct p2.proportion, "$", p2.remarks , "$" , p2.date ORDER BY p1.date DESC SEPARATOR '##' ) AS checkerList
-    FROM
-      project p,
-      (SELECT id, SUBSTRING_INDEX(principal,';',-1) as p FROM volume WHERE principal like '%;%') as v1,
-      volume v
-    LEFT JOIN ( SELECT *,	WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 0 ORDER BY date ) AS p1 ON p1.volume_id = v.id
-    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 1 ORDER BY date ) AS p2 ON p2.volume_id = v.id
-    WHERE
-      v.project_id = p.id
-      AND v1.p = #{name}
-      and v.id = v1.id
-      		GROUP BY v.id
+      AND FIND_IN_SET(
+      #{name},
+      REPLACE ( v.principal, ";", "," ))
+    GROUP BY v.id
     </select>
     <select id="queryProByPrincipal" resultType="java.util.Map">
     select p.id , p.name
@@ -348,27 +236,9 @@
     volume v
     where
     p.id = v.project_id
-    and v.principal = #{name}
-    and v.principal not like '%;%'
-    union distinct
-		    select p.id , p.name
-    from project p,
-    (SELECT id, SUBSTRING_INDEX(principal,';',1) as p FROM volume WHERE principal like '%;%') as v1,
-    volume v
-    where
-    v.project_id = p.id
-    AND v1.p = #{name}
-    and v.id = v1.id
-    union distinct
-		    select p.id , p.name
-    from project p,
-    (SELECT id, SUBSTRING_INDEX(principal,';',-1) as p FROM volume WHERE principal like '%;%') as v1,
-    volume v
-    where
-    v.project_id = p.id
-    AND v1.p = #{name}
-    and v.id = v1.id
-    group by v.project_id
+      AND FIND_IN_SET(
+      #{name},
+      REPLACE ( v.principal, ";", "," ))
     </select>
     <select id="queryDesigner" resultType="java.util.Map">
 
@@ -376,7 +246,6 @@
     <select id="queryByDesigner" resultType="java.util.Map">
     SELECT DISTINCT
         p.id AS pid,
-
         p.NAME AS projectName,
         p.director,
         p.general,
@@ -848,20 +717,149 @@
   <select id="queryPrincipal" resultType="java.util.Map">
     SELECT v.principal as name, wu.ratio
     FROM volume v
-    left join workday_user wu on v.principal = wu.`user` and wu.project_id = #{id}
+    left join workday_user wu on FIND_IN_SET(wu.`user`,REPLACE ( v.principal, ";", "," )) and wu.project_id = #{id}
     WHERE v.project_id = #{id}
-      and principal not like "%;%"
-    UNION
-    SELECT SUBSTRING_INDEX(v.principal,";",1) as name, wu.ratio
-    FROM volume v
-    left join workday_user wu on SUBSTRING_INDEX(v.principal,";",1) = wu.`user` and wu.project_id = #{id}
-    WHERE v.project_id = #{id}
-      and principal like ";"
-    UNION
-    SELECT SUBSTRING_INDEX(v.principal,";",-1) as name, wu.ratio
-    FROM volume v
-    left join workday_user wu on SUBSTRING_INDEX(v.principal,";",-1) = wu.`user` and wu.project_id = #{id}
-    WHERE v.project_id = #{id}
-      and principal like "%;%"
   </select>
+    <select id="homepage" resultType="java.util.Map">
+      SELECT
+        pid,
+        projectName,
+        general,
+        id,
+        number,
+        volumeName,
+        dep,
+        tec,
+        state,
+        principal,
+        designer,
+        checker,
+        workday,
+        planned_start_date,
+        planned_shot_date,
+        shot_date,
+        proofreading_date,
+        formId,
+        wfInstId,
+        rollId,
+        planned_publication_date,
+        actual_publication_date,
+        complete_time,
+        GROUP_CONCAT( role ) as role,
+        true  as hasChildren
+      FROM
+        (
+          SELECT DISTINCT
+            p.id AS pid,
+            p.NAME AS projectName,
+            p.general,
+            v.id AS id,
+            v.number,
+            v.NAME AS volumeName,
+            v.dep,
+            v.tec,
+            v.state,
+            v.principal,
+            v.designer,
+            v.checker,
+            v.workday,
+            v.planned_start_date,
+            v.planned_shot_date,
+            v.shot_date,
+            v.proofreading_date,
+            v.formId,
+            v.wfInstId,
+            v.rollId,
+            v.planned_publication_date,
+            v.actual_publication_date,
+            v.complete_time,
+            1 AS role
+          FROM
+            project p,
+            volume v
+          WHERE
+            v.project_id = p.id
+            AND FIND_IN_SET(
+            #{name},
+            REPLACE ( v.principal, ";", "," ))
+          GROUP BY
+            SUBSTRING_INDEX( v.number, "+", 1 ) UNION
+          SELECT DISTINCT
+            p.id AS pid,
+            p.NAME AS projectName,
+            p.general,
+            v.id AS id,
+            v.number,
+            v.NAME AS volumeName,
+            v.dep,
+            v.tec,
+            v.state,
+            v.principal,
+            v.designer,
+            v.checker,
+            v.workday,
+            v.planned_start_date,
+            v.planned_shot_date,
+            v.shot_date,
+            v.proofreading_date,
+            v.formId,
+            v.wfInstId,
+            v.rollId,
+            v.planned_publication_date,
+            v.actual_publication_date,
+            v.complete_time,
+            2 AS role
+          FROM
+            project p,
+            volume v
+          WHERE
+            v.project_id = p.id
+            AND v.designer = #{name}
+          GROUP BY
+            SUBSTRING_INDEX( v.number, "+", 1 ) UNION
+          SELECT DISTINCT
+            p.id AS pid,
+            p.NAME AS projectName,
+            p.general,
+            v.id AS id,
+            v.number,
+            v.NAME AS volumeName,
+            v.dep,
+            v.tec,
+            v.state,
+            v.principal,
+            v.designer,
+            v.checker,
+            v.workday,
+            v.planned_start_date,
+            v.planned_shot_date,
+            v.shot_date,
+            v.proofreading_date,
+            v.formId,
+            v.wfInstId,
+            v.rollId,
+            v.planned_publication_date,
+            v.actual_publication_date,
+            v.complete_time,
+            3 AS role
+          FROM
+            project p,
+            volume v
+          WHERE
+            v.project_id = p.id
+            AND v.checker = #{name}
+          GROUP BY
+            SUBSTRING_INDEX( v.number, "+", 1 )
+        ) AS dataTable
+      WHERE
+        DATE_FORMAT( planned_start_date, '%Y-%m' ) = #{sqlDate}
+         OR DATE_FORMAT( planned_shot_date, '%Y-%m' ) = #{sqlDate}
+         OR DATE_FORMAT( proofreading_date, '%Y-%m' ) = #{sqlDate}
+         OR DATE_FORMAT( shot_date, '%Y-%m' ) = #{sqlDate}
+         OR DATE_FORMAT( complete_time, '%Y-%m' ) = #{sqlDate}
+         OR DATE_FORMAT( planned_publication_date, '%Y-%m' ) = #{sqlDate}
+         OR DATE_FORMAT( actual_publication_date, '%Y-%m' ) = #{sqlDate}
+      GROUP BY
+        number
+    </select>
 </mapper>

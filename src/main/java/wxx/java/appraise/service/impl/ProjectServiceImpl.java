@@ -12,6 +12,7 @@ import wxx.java.appraise.tools.StringUtils;
 import wxx.java.appraise.tools.Time;
 
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -550,4 +551,14 @@ public class ProjectServiceImpl implements ProjectService {
   public Result queryPrincipal(Integer id) {
     return Result.ok(projectDao.queryPrincipal(id));
   }
+
+  @Override
+  public Result homepage(User user) {
+      user = userDao.queryById(user.getId());
+      Date date = new Date();
+    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM");
+    user.setSqlDate(simpleDateFormat.format(date));
+    return Result.ok(projectDao.homepage(user));
+  }
+
 }

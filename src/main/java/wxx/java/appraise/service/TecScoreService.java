@@ -14,7 +14,7 @@ public interface TecScoreService {
 
     List<Map> queryByGradeId(Integer id);
 
-    List<Map> queryByScoreId(User user);
+    Map queryByScoreId(User user);
 
     void appraise(@Param("list") List<TecScore> list);
 

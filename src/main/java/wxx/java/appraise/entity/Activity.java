@@ -30,13 +30,17 @@ public class Activity {
 
   private List<VirtualDesigner> designer;
 
-  private String creatDate;
+  private String createDate;
 
-  private Integer creatUser;
+  private Integer createUser;
 
   private List<Map> principalWorkday;
 
   private List<Map> designerWorkday;
+
+  private List<PrincipalWorkday> principalData;
+
+  private List<DesignerWorkday> designerData;
 
   public Integer getId() {
     return id;
@@ -143,20 +147,20 @@ public class Activity {
     this.designer = designer;
   }
 
-  public String getCreatDate() {
-    return creatDate;
+  public String getCreateDate() {
+    return createDate;
   }
 
-  public void setCreatDate(String creatDate) {
-    this.creatDate = creatDate;
+  public void setCreateDate(String createDate) {
+    this.createDate = createDate;
   }
 
-  public Integer getCreatUser() {
-    return creatUser;
+  public Integer getCreateUser() {
+    return createUser;
   }
 
-  public void setCreatUser(Integer creatUser) {
-    this.creatUser = creatUser;
+  public void setCreateUser(Integer createUser) {
+    this.createUser = createUser;
   }
 
   public List<Map> getPrincipalWorkday() {
@@ -173,5 +177,21 @@ public class Activity {
 
   public void setDesignerWorkday(List<Map> designerWorkday) {
     this.designerWorkday = designerWorkday;
+  }
+
+  public List<PrincipalWorkday> getPrincipalData() {
+    return principalData;
+  }
+
+  public void setPrincipalData(List<PrincipalWorkday> principalData) {
+    this.principalData = principalData;
+  }
+
+  public List<DesignerWorkday> getDesignerData() {
+    return designerData;
+  }
+
+  public void setDesignerData(List<DesignerWorkday> designerData) {
+    this.designerData = designerData;
   }
 }

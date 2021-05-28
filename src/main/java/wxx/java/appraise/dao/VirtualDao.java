@@ -16,7 +16,7 @@ public interface VirtualDao {
   void setProject(Virtual virtual);
 
   List<Map> query();
-
+   Map queryById(Integer id);
   //返回名字
   List<String> queryByRole(@Param("id") Integer id,@Param("role") Integer role);
   //返回id
@@ -50,5 +50,11 @@ public interface VirtualDao {
   List<Map> queryPrincipalWorkday(VirtualDesigner virtualDesigner);
 
   List<Map> queryDesignerWorkday(VirtualDesigner virtualDesigner);
+
+  List<Map> homepage(Integer id);
+
+  List<Map> workdayByGroup(Integer id,Integer uid);
+
+  void setDesignerWorkday(@Param("list")List<PrincipalWorkday> list,Integer id);
 
 }

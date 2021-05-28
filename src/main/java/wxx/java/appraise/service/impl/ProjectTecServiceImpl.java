@@ -20,4 +20,9 @@ public class ProjectTecServiceImpl implements ProjectTecService {
     public List<Map> query(Integer id) {
         return projectTecDao.query(id);
     }
+
+  @Override
+  public List<String> queryById(Integer id) {
+    return projectTecDao.queryById(id);
+  }
 }

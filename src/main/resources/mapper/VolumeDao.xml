@@ -265,25 +265,22 @@
     </select>
   <select id="queryByProjectId" resultType="java.util.Map" parameterType="map">
     SELECT
-    v.*,
-    GROUP_CONCAT( DISTINCT p1.proportion, "$", p1.remarks, "$", p1.week ORDER BY p1.date DESC SEPARATOR '##' ) AS designerList,
-    GROUP_CONCAT( DISTINCT p2.proportion, "$", p2.remarks, "$", p2.week ORDER BY p2.date DESC SEPARATOR '##' ) AS checkerList,
-    GROUP_CONCAT( DISTINCT p3.proportion, "$", p3.remarks, "$", p3.week ORDER BY p3.date DESC SEPARATOR '##' ) AS principalList
+    *
     FROM
-    volume v
-    LEFT JOIN ( SELECT *,	WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 0 ORDER BY date ) AS p1 ON p1.volume_id = v.id
-    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 1 ORDER BY date ) AS p2 ON p2.volume_id = v.id
-    LEFT JOIN ( SELECT *, WEEK (FROM_UNIXTIME( date /1000)) as week FROM proportion WHERE type = 2 ORDER BY date ) AS p3 ON p3.volume_id = v.id
-    where  v.project_id = #{id}
+    volume
+    where  project_id = #{id}
     <if test="minDate != null and minDate != ''">
-    and ( ( v.planned_publication_date &gt;= #{minDate}
-    and v.planned_publication_date &lt;= #{maxDate})
-    or ( v.shot_date &gt;= #{minDate}
-      and v.shot_date &lt;= #{maxDate})
-    or (v.planned_shot_date &gt;= #{minDate}
-      and v.planned_shot_date &lt;= #{maxDate}))
+    and ( ( planned_publication_date &gt;= #{minDate}
+    and planned_publication_date &lt;= #{maxDate})
+    or ( shot_date &gt;= #{minDate}
+      and shot_date &lt;= #{maxDate})
+    or (planned_shot_date &gt;= #{minDate}
+      and planned_shot_date &lt;= #{maxDate})
+    or (proofreading_date &gt;= #{minDate}
+        and proofreading_date &lt;= #{maxDate})
+    or (complete_time &gt;= #{minDate}
+      and complete_time &lt;= #{maxDate} ))
     </if>
-		GROUP BY v.id
   </select>
     <select id="queryVolume" resultType="java.util.Map">
     <if test="user != null and user !=''">
@@ -347,4 +344,196 @@
       )
     </if>
     </select>
+    <select id="queryByNumber" resultType="java.util.Map">
+      SELECT
+        pid,
+        projectName,
+        director,
+        general,
+        id,
+        number,
+        volumeName,
+        dep,
+        tec,
+        state,
+        principal,
+        designer,
+        checker,
+        workday,
+        planned_start_date,
+        planned_shot_date,
+        shot_date,
+        proofreading_date,
+        formId,
+        wfInstId,
+        rollId,
+        planned_publication_date,
+        actual_publication_date,
+        complete_time,
+        GROUP_CONCAT( role ) as role,
+        DATE_FORMAT( planned_shot_date, "%Y-%m" )
+      FROM
+        (
+          SELECT DISTINCT
+            p.id AS pid,
+            p.NAME AS projectName,
+            p.director,
+            p.general,
+            v.id AS id,
+            v.number,
+            v.NAME AS volumeName,
+            v.dep,
+            v.tec,
+            v.state,
+            v.principal,
+            v.designer,
+            v.checker,
+            v.workday,
+            v.planned_start_date,
+            v.planned_shot_date,
+            v.shot_date,
+            v.proofreading_date,
+            v.formId,
+            v.wfInstId,
+            v.rollId,
+            v.planned_publication_date,
+            v.actual_publication_date,
+            v.complete_time,
+            1 AS role
+          FROM
+            project p,
+            volume v
+          WHERE
+            v.project_id = p.id
+            AND FIND_IN_SET(
+            #{name},
+            REPLACE ( v.principal, ";", "," ))
+            AND FIND_IN_SET(
+            SUBSTRING_INDEX(#{number},"+",1),
+            REPLACE ( v.number, "+", "," ))
+          UNION
+          SELECT DISTINCT
+            p.id AS pid,
+            p.NAME AS projectName,
+            p.director,
+            p.general,
+            v.id AS id,
+            v.number,
+            v.NAME AS volumeName,
+            v.dep,
+            v.tec,
+            v.state,
+            v.principal,
+            v.designer,
+            v.checker,
+            v.workday,
+            v.planned_start_date,
+            v.planned_shot_date,
+            v.shot_date,
+            v.proofreading_date,
+            v.formId,
+            v.wfInstId,
+            v.rollId,
+            v.planned_publication_date,
+            v.actual_publication_date,
+            v.complete_time,
+            2 AS role
+          FROM
+            project p,
+            volume v
+          WHERE
+            v.project_id = p.id
+            AND v.designer = #{name}
+            AND FIND_IN_SET(
+            SUBSTRING_INDEX(#{number},"+",1),
+            REPLACE ( v.number, "+", "," ))
+          union
+          SELECT DISTINCT
+            p.id AS pid,
+            p.NAME AS projectName,
+            p.director,
+            p.general,
+            v.id AS id,
+            v.number,
+            v.NAME AS volumeName,
+            v.dep,
+            v.tec,
+            v.state,
+            v.principal,
+            v.designer,
+            v.checker,
+            v.workday,
+            v.planned_start_date,
+            v.planned_shot_date,
+            v.shot_date,
+            v.proofreading_date,
+            v.formId,
+            v.wfInstId,
+            v.rollId,
+            v.planned_publication_date,
+            v.actual_publication_date,
+            v.complete_time,
+            3 AS role
+          FROM
+            project p,
+            volume v
+          WHERE
+            v.project_id = p.id
+            AND v.checker = #{name}
+            AND FIND_IN_SET(
+            SUBSTRING_INDEX(#{number},"+",1),
+            REPLACE( v.number, "+","," ))
+        ) AS dataTable
+      where number &lt;&gt; #{number}
+      GROUP BY
+        number
+    </select>
+  <select id="queryByDate" resultType="java.util.Map">
+    SELECT
+      p.number as pNumber,p.`name` as pName ,v.*
+    FROM project p,
+         volume v
+    WHERE p.id = v.project_id
+      and p.spider = 0
+      and v.proofreading_date &gt;= #{min}
+      and v.proofreading_date &lt;= #{max}
+  </select>
+  <select id="personalVolume" resultType="java.util.Map">
+    SELECT DISTINCT
+    v.*,
+    p.number as pNumber,
+    p.`name` as pName
+    FROM
+    volume v,
+    project p
+    WHERE
+    v.actual_principal = #{name}
+    AND v.proofreading_date &gt;= #{min}
+    AND v.proofreading_date &lt;= #{max}
+    and p.id = v.project_id UNION
+    SELECT DISTINCT
+    v.*,
+    p.number as pNumber,
+    p.`name` as pName
+    FROM
+    volume v,
+    project p
+    WHERE
+    v.designer = #{name}
+    AND v.proofreading_date &gt;= #{min}
+    AND v.proofreading_date &lt;= #{max}
+      and p.id = v.project_id UNION
+    SELECT DISTINCT
+    v.*,
+    p.number as pNumber,
+    p.`name` as pName
+    FROM
+    volume v,
+    project p
+    WHERE
+    v.checker = #{name}
+    AND v.proofreading_date &gt;= #{min}
+    AND v.proofreading_date &lt;= #{max}
+      and p.id = v.project_id
+  </select>
 </mapper>

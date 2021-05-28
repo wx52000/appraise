@@ -32,6 +32,7 @@ public interface UserScoreDao {
     //查询以前月份详细数据
     List<Map> queryPast(User user);
 
+
     void add(List<UserScore> list);
 
     void del(UserScore userScore);

@@ -20,7 +20,7 @@ public class MessageAspect {
 
     private static final Logger logger = LoggerFactory.getLogger(MessageAspect.class);
 
-    @Pointcut("execution(public * wxx.rent.controller.*.*(..))")
+    @Pointcut("execution(public * wxx.java.appraise.controller.*.*(..))")
     public void pointCutMethod() {
     }
 

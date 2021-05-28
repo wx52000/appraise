@@ -45,4 +45,6 @@ public interface ProjectService {
     Result queryAll();
 
     Result queryPrincipal(Integer id);
+
+    Result homepage(User user);
 }

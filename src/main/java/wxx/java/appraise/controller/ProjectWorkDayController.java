@@ -33,6 +33,21 @@ public class ProjectWorkDayController {
     return proWorkDayService.queryWorkDay(id);
   }
 
+  @RequestMapping("queryTecWorkDay")
+  public Result queryTecWorkDay(@RequestHeader Integer id){
+    return proWorkDayService.queryTecWorkDay(id);
+  }
+
+  @RequestMapping("queryTecVolumeRatio")
+  public Result queryTecVolumeRatio(@RequestHeader Integer id){
+    return proWorkDayService.queryTecVolumeRatio(id);
+  }
+
+  @RequestMapping("setTecVolumeRatio")
+  public Result setTecVolumeRatio(@RequestBody Map map){
+    return proWorkDayService.setTecVolumeRatio(map);
+  }
+
   @RequestMapping("queryReserveWorkday")
   public Result queryReserveWorkDay(@RequestHeader Integer id){
     return proWorkDayService.queryReserveWorkday(id);
@@ -48,8 +63,15 @@ public class ProjectWorkDayController {
     return proWorkDayService.setTecWorkDay(map);
   }
 
+  @RequestMapping("setBackupWorkDay")
+  public Result setBackupWorkDay(@RequestBody Map map){
+    return proWorkDayService.setBackupWorkDay(map);
+  }
+
   @RequestMapping("setUserWorkDay")
   public Result setUserWorkDay(@RequestBody Map map){
     return proWorkDayService.setUserWorkDay(map);
   }
+
+
 }

@@ -49,4 +49,6 @@ public interface ProjectDao {
     List<Map> queryAll();
 
     List<Map> queryPrincipal(Integer id);
+
+    List<Map> homepage(User user);
 }

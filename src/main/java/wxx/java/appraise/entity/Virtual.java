@@ -22,9 +22,9 @@ public class Virtual {
 
   private List<VirtualDesigner> designer;
 
-  private String creatDate;
+  private String createDate;
 
-  private Integer creatUser;
+  private Integer createUser;
 
   private List<PrincipalWorkday> principalData;
 
@@ -96,20 +96,20 @@ public class Virtual {
     this.principal_group = principal_group;
   }
 
-  public String getCreatDate() {
-    return creatDate;
+  public String getCreateDate() {
+    return createDate;
   }
 
-  public void setCreatDate(String creatDate) {
-    this.creatDate = creatDate;
+  public void setCreateDate(String createDate) {
+    this.createDate = createDate;
   }
 
-  public Integer getCreatUser() {
-    return creatUser;
+  public Integer getCreateUser() {
+    return createUser;
   }
 
-  public void setCreatUser(Integer creatUser) {
-    this.creatUser = creatUser;
+  public void setCreateUser(Integer createUser) {
+    this.createUser = createUser;
   }
 
   public List<VirtualDesigner> getDesigner() {

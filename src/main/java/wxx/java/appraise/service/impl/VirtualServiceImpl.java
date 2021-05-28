@@ -5,9 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wxx.java.appraise.dao.UserDao;
 import wxx.java.appraise.dao.VirtualDao;
-import wxx.java.appraise.entity.User;
-import wxx.java.appraise.entity.Virtual;
-import wxx.java.appraise.entity.VirtualDesigner;
+import wxx.java.appraise.entity.*;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.VirtualService;
 
@@ -101,10 +99,22 @@ public class VirtualServiceImpl implements VirtualService {
         virtualDao.deleteDesigner(virtual.getId(),list1);
     }
     if (virtual.getPrincipalData() != null &&!virtual.getPrincipalData().isEmpty()){
-      virtualDao.leaderWorkday(virtual.getId(),virtual.getPrincipalData());
+      for (PrincipalWorkday principalWorkday : virtual.getPrincipalData()){
+        if (principalWorkday.getWorkday() != null || principalWorkday.getManage_workday() != null){
+          virtualDao.leaderWorkday(virtual.getId(),virtual.getPrincipalData());
+          break;
+        }
+      }
     }
     if (virtual.getDesignerData() != null &&!virtual.getDesignerData().isEmpty()){
-      virtualDao.designerWorkday(virtual.getId(),virtual.getDesignerData());
+      out : for (DesignerWorkday designerWorkday : virtual.getDesignerData()) {
+        for (PrincipalWorkday principalWorkday : designerWorkday.getList()){
+          if (principalWorkday.getWorkday() != null) {
+            virtualDao.designerWorkday(virtual.getId(), virtual.getDesignerData());
+            break out;
+          }
+        }
+      }
     }
     return Result.ok();
   }
@@ -117,6 +127,7 @@ public class VirtualServiceImpl implements VirtualService {
   @Override
   public Result queryById(Integer id) {
     Map<String,Object> map = new HashMap();
+    map.put("virtual",virtualDao.queryById(id));
     map.put("general",virtualDao.queryByRole(id,1));
     map.put("principal",virtualDao.queryByRole1(id,2));
     map.put("principal_group",virtualDao.queryGroup(id,2));
@@ -142,6 +153,22 @@ public class VirtualServiceImpl implements VirtualService {
   @Override
   public Result queryDesignerWorkday(VirtualDesigner virtualDesigner) {
     return Result.ok(virtualDao.queryDesignerWorkday(virtualDesigner));
+  }
+
+  @Override
+  public Result setDesignerWorkday(List<PrincipalWorkday> list, Integer id) {
+    virtualDao.setDesignerWorkday(list,id);
+    return Result.ok();
+  }
+
+  @Override
+  public Result workdayByGroup(Integer id, Integer uid) {
+    return Result.ok(virtualDao.workdayByGroup(id,uid));
+  }
+
+  @Override
+  public Result homepage(Integer id) {
+    return Result.ok(virtualDao.homepage(id));
   }
 
 

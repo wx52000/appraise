@@ -27,4 +27,15 @@ public class RangeController {
         rangeService.update(range);
         return  Result.ok();
     }
+
+  @RequestMapping("queryDate")
+  public Result queryDate(){
+    return  Result.ok(rangeService.queryDate());
+  }
+
+  @RequestMapping("updateDate")
+  public  Result updateDate(@RequestBody Range range){
+    rangeService.updateDate(range);
+    return  Result.ok();
+  }
 }

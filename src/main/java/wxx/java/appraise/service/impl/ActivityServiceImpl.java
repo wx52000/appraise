@@ -5,7 +5,9 @@ import org.springframework.stereotype.Service;
 import wxx.java.appraise.dao.ActivityDao;
 import wxx.java.appraise.dao.UserDao;
 import wxx.java.appraise.entity.Activity;
+import wxx.java.appraise.entity.PrincipalWorkday;
 import wxx.java.appraise.entity.User;
+import wxx.java.appraise.entity.VirtualDesigner;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.ActivityService;
 
@@ -101,6 +103,12 @@ public class ActivityServiceImpl implements ActivityService {
       if (list1.size()>0)
         activityDao.deleteDesigner(activity.getId(),list1);
     }
+    if (activity.getPrincipalData() != null &&!activity.getPrincipalData().isEmpty()){
+      activityDao.leaderWorkday(activity.getId(),activity.getPrincipalData());
+    }
+    if (activity.getDesignerData() != null &&!activity.getDesignerData().isEmpty()){
+      activityDao.designerWorkday(activity.getId(),activity.getDesignerData());
+    }
     return Result.ok();
   }
 
@@ -121,9 +129,11 @@ public class ActivityServiceImpl implements ActivityService {
   @Override
   public Result queryById(Integer id) {
     Map<String,Object> map = new HashMap();
+    map.put("activity",activityDao.queryById(id));
     map.put("general",activityDao.queryByRole(id,1));
     map.put("principal",activityDao.queryByRole1(id,2));
     map.put("principal_group",activityDao.queryGroup(id,2));
+    map.put("designer",activityDao.queryDesignerByVirtual(id));
     return Result.ok(map);
   }
 
@@ -139,6 +149,32 @@ public class ActivityServiceImpl implements ActivityService {
       }
     }else
       return Result.build(56,"暂无此权限");
+  }
+
+  @Override
+  public Result queryPrincipalWorkday(VirtualDesigner virtualDesigner) {
+    return Result.ok(activityDao.queryPrincipalWorkday(virtualDesigner));
+  }
+
+  @Override
+  public Result queryDesignerWorkday(VirtualDesigner virtualDesigner) {
+    return Result.ok(activityDao.queryDesignerWorkday(virtualDesigner));
+  }
+
+  @Override
+  public Result homepage(Integer id) {
+    return Result.ok(activityDao.homepage(id));
+  }
+
+  @Override
+  public Result workdayByGroup(Integer id, Integer uid) {
+    return Result.ok(activityDao.workdayByGroup(id,uid));
+  }
+
+  @Override
+  public Result setDesignerWorkday(List<PrincipalWorkday> list, Integer id) {
+    activityDao.setDesignerWorkday(list,id);
+    return Result.ok();
   }
 
 

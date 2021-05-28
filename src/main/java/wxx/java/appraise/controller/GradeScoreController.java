@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import wxx.java.appraise.entity.GradeScore;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.GradeScoreService;
-import wxx.java.appraise.tools.ExcelDataListener;
+import wxx.java.appraise.excel.ExcelDataListener;
 
 @RestController
 @RequestMapping("gradeScore")

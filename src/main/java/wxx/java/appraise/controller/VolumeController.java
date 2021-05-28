@@ -48,4 +48,9 @@ public class VolumeController {
   public Result query(@RequestBody Map<String,String> params){
       return Result.ok(volumeService.queryVolume(params.get("user"),params.get("volume")));
     }
+
+  @RequestMapping("queryByNumber")
+  public Result queryByNumber(@RequestBody Volume volume){
+    return volumeService.queryByNumber(volume);
+  }
 }

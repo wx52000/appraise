@@ -12,7 +12,7 @@ import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.TecScoreService;
 import wxx.java.appraise.service.UserService;
 import wxx.java.appraise.tools.Download;
-import wxx.java.appraise.tools.ExcelProperty;
+import wxx.java.appraise.excel.ExcelProperty;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

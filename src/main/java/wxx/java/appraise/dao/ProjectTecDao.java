@@ -16,5 +16,7 @@ public interface ProjectTecDao {
 
     List<Map> query(Integer id);
 
+    List<String> queryById(Integer id);
+
     void del(Project project);
 }

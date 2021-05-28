@@ -6,10 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import wxx.java.appraise.dao.UserPositionDao;
 import wxx.java.appraise.service.UserPositionService;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Transactional
 @Service
@@ -25,14 +22,14 @@ public class UserPositionServiceImpl implements UserPositionService {
   public void add(Map map) {
     List list = (List) Arrays.asList(map.get("userPosition")).get(0);
     List list1 = new ArrayList();
-    int lenght = list.size();
-    for (int i = 0; i< lenght ; i++ ){
+    int length = list.size();
+    for (int i = 0; i< length ; i++ ){
       if (list.get(i) != null) {
         Map map1 = (Map<String, String>) list.get(i);
         if (map1.get("id").toString() != null && !map1.get("id").toString().equals("")) {
           list1.add(list.get(i));
           list.remove(i);
-          lenght--;
+          length--;
           i--;
         }
       }

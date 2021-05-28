@@ -6,8 +6,12 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import wxx.java.appraise.entity.Activity;
+import wxx.java.appraise.entity.PrincipalWorkday;
+import wxx.java.appraise.entity.VirtualDesigner;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.ActivityService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("activity")
@@ -36,5 +40,30 @@ public class ActivityController {
   @RequestMapping("state")
   public Result state(@RequestBody Activity activity){
     return activityService.state(activity);
+  }
+
+  @RequestMapping("principalWorkday")
+  public Result principalWorkday(@RequestBody VirtualDesigner virtualDesigner){
+    return activityService.queryPrincipalWorkday(virtualDesigner);
+  }
+
+  @RequestMapping("designerWorkday")
+  public Result designerWorkday(@RequestBody VirtualDesigner virtualDesigner){
+    return activityService.queryDesignerWorkday(virtualDesigner);
+  }
+
+  @RequestMapping("workdayByGroup")
+  public Result workdayByGroup(@RequestHeader Integer id,@RequestHeader Integer uid  ){
+    return activityService.workdayByGroup(id,uid);
+  }
+
+  @RequestMapping("setDesignerWorkday")
+  public Result setDesignerWorkday(@RequestBody List<PrincipalWorkday> list, @RequestHeader Integer id){
+    return activityService.setDesignerWorkday(list,id);
+  }
+
+  @RequestMapping("homepage")
+  public Result homepage(@RequestHeader Integer id){
+    return  activityService.homepage(id);
   }
 }

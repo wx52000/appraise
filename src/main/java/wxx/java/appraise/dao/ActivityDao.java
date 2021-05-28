@@ -3,6 +3,8 @@ package wxx.java.appraise.dao;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 import wxx.java.appraise.entity.Activity;
+import wxx.java.appraise.entity.DesignerWorkday;
+import wxx.java.appraise.entity.PrincipalWorkday;
 import wxx.java.appraise.entity.VirtualDesigner;
 
 import java.util.List;
@@ -14,6 +16,8 @@ public interface ActivityDao {
   void setProject(Activity activity);
 
   List<Map> query();
+
+  Map queryById(Integer id);
 
   void state(Activity activity);
 
@@ -30,7 +34,11 @@ public interface ActivityDao {
 
   void addPrincipal(@Param("id")Integer id,@Param("list")List<Map<String,String>> list);
 
+  void leaderWorkday(@Param("id")Integer id ,@Param("list") List<PrincipalWorkday> list);
+
   void addDesigner(@Param("id")Integer id,@Param("list")List<VirtualDesigner> list);
+
+  void designerWorkday(@Param("id")Integer id ,@Param("list")List<DesignerWorkday> list);
 
   void deleteRole(@Param("id")Integer id ,@Param("list") List<Map<String,String>> list);
 
@@ -39,4 +47,16 @@ public interface ActivityDao {
   List<Map<String,String>> queryRole(@Param("id") Integer id,@Param("role") Integer role);
 
   List<Integer> queryDesignerId(Integer id);
+  List<Map> queryDesignerByVirtual(Integer id);
+  List<Integer> queryDesignerByGroup(@Param("id")Integer id , @Param("vid")Integer vid);
+
+  List<Map> queryPrincipalWorkday(VirtualDesigner virtualDesigner);
+
+  List<Map> queryDesignerWorkday(VirtualDesigner virtualDesigner);
+
+  List<Map> homepage(Integer id);
+
+  List<Map> workdayByGroup(Integer id, Integer uid);
+
+  void setDesignerWorkday(@Param("list")List<PrincipalWorkday> list,Integer id);
 }

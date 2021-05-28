@@ -3,12 +3,22 @@
 <mapper namespace="wxx.java.appraise.dao.RangeDao">
     <update id="update">
         update `range`
-        set min = #{min},
-            max = #{max}
+        set `min` = #{min},
+            `max` = #{max}
         where id = 1
     </update>
-    <select id="query" resultType="wxx.java.appraise.entity.Range">
+  <update id="updateDate">
+    update `range_date`
+    set `start` = #{max},
+        `end` = #{min}
+    where id = 1
+  </update>
+  <select id="query" resultType="wxx.java.appraise.entity.Range">
         select *
         from `range`
+    </select>
+    <select id="queryDate" resultType="map">
+      select *
+      from `range_date`
     </select>
 </mapper>

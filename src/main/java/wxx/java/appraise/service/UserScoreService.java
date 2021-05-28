@@ -14,13 +14,14 @@ public interface UserScoreService {
 
     PageInfo<Map> queryByGradeId(User user);
 
-    List<Map> queryByScoreId(User user);
+    Map queryByScoreId(User user);
 
     void appraise(@Param("list") List<UserScore> list);
 
     List<Map> queryScore(User user);
 
     List<Map> query(User user);
+
 
     List<List<String>> detail(User user,List<String> userName);
 

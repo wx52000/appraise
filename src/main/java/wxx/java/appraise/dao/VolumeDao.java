@@ -18,11 +18,17 @@ public interface VolumeDao {
 
     Map queryById(Integer id);
 
-    List<Map> queryByProjectId(Map map);
+    List<Map<String,String>> queryByProjectId(Map map);
+
+    List<Map<String,String>> queryByDate(Map map);
 
     void upd(Volume volume);
 
     void add(Volume volume);
 
     List<Map> queryVolume(@Param("user")String user,@Param("volume")String volume);
+
+    List<Map> queryByNumber(Volume volume);
+
+    List<Map<String,String>> personalVolume(Map map);
 }

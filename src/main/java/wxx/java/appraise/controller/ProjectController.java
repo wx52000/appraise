@@ -7,10 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import wxx.java.appraise.entity.Project;
 import wxx.java.appraise.entity.User;
+import wxx.java.appraise.excel.ExcelProperty;
 import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.ProjectService;
 import wxx.java.appraise.tools.Download;
-import wxx.java.appraise.tools.ExcelProperty;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -105,14 +105,14 @@ public class ProjectController {
         String s = "";
         Integer month = Integer.valueOf(request.getParameter("month"));
         try {
-            ExcelProperty excelProperty = new ExcelProperty();
-            excelProperty.ProjectExcel(projectService.queryExcel(month));
             String fileName = month + "月汇总表.xlsx";
+          ExcelProperty excelProperty = new ExcelProperty();
+          excelProperty.ProjectExcel(projectService.queryExcel(month));
             Download.downloadFile( response , "project.xlsx" , fileName);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return Result.ok(s);
+        return Result.ok();
     }
 
     @RequestMapping("queryAll")
@@ -125,4 +125,8 @@ public class ProjectController {
       return projectService.queryPrincipal(id);
     }
 
+    @RequestMapping("homepage")
+    public Result homepage(@RequestBody User user){
+      return projectService.homepage(user);
+    }
 }

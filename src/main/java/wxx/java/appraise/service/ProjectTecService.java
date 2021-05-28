@@ -7,4 +7,6 @@ import java.util.Map;
 public interface ProjectTecService {
 
     List<Map> query(Integer id);
+
+    List<String> queryById(Integer id);
 }

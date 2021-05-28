@@ -25,4 +25,10 @@
         where pt.project_id = #{id}
         and pt.tec_id = t.id
     </select>
+  <select id="queryById" resultType="java.lang.String">
+    select distinct  tec
+    from
+      volume
+    where project_id = #{id}
+  </select>
 </mapper>

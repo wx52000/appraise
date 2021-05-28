@@ -296,8 +296,10 @@ public class UserServiceImpl implements UserService {
         map1.put("id", "t-" + dep.get(i).getId() + "-" + tec.get(j).get("id"));
         map1.put("label", tec.get(j).get("name"));
         if (mode == 0) {
+          //业务
           map1.put("children", userDao.queryByTAndGroup((Integer) tec.get(j).get("id"), id));
         }else if (mode == 1){
+          //活动
           map1.put("children", userDao.queryByTAndGroup1((Integer) tec.get(j).get("id"), id));
         }
         tecList.add(map1);

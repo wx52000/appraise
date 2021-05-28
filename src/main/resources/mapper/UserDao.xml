@@ -74,7 +74,7 @@
       paw_state AS pawState,
       tid,
       did,
-      up.position_id AS `position`,
+      GROUP_CONCAT(up.position_id) AS `position`,
       u.grade
     FROM
       `user` u
@@ -85,7 +85,6 @@
       AND u.paw = #{paw}
     ORDER BY
       p.id
-      LIMIT 1
     </select>
     <select id="queryById" resultType="wxx.java.appraise.entity.User">
         select *
@@ -93,7 +92,7 @@
         where id = #{id}
     </select>
     <select id="query" resultType="java.util.Map" parameterType="user">
-      select u.id , u.name , u.username , d.name as department ,
+      select u.id , u.name , u.username, u.grade, d.name as department ,
       t.name as technology , p.name as power ,GROUP_CONCAT(pt.`name`) as `position`
       from `user` u left join
       user_position up on u.id = up.user_id
@@ -272,17 +271,11 @@
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
     AND u.tid = t.id
-    AND (
-    p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",-1 )= #{name}
-
-    )
+    AND FIND_IN_SET(#{name},REPLACE (p.general, ";", "," ))
     AND ((
     v.shot_date != ""
-    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR v.actual_publication_date >= #{sqlDate} ))
+    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR
+    v.actual_publication_date >= #{sqlDate} ))
     OR ( v.shot_date = "" AND v.start_date != "" )) UNION
     SELECT
     principal AS `name`,
@@ -303,16 +296,7 @@
     department d,
     technology t
     WHERE
-
-    (
-
-    p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    )
+    FIND_IN_SET(#{name},REPLACE (p.general, ";", "," ))
     AND p.id = v.project_id
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
@@ -342,14 +326,7 @@
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
     AND u.tid = t.id
-    AND (
-    general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    )
+    AND FIND_IN_SET(#{name},REPLACE (p.general, ";", "," ))
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
     AND v.principal LIKE "%;%" UNION
     SELECT
@@ -375,14 +352,7 @@
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
     AND u.tid = t.id
-    AND (
-    p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    )
+    AND FIND_IN_SET(#{name},REPLACE (p.general, ";", "," ))
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
     AND v.principal LIKE "%;%" UNION
     SELECT
@@ -404,14 +374,7 @@
     department d,
     technology t
     WHERE
-    (
-    p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    )
+    FIND_IN_SET(#{name},REPLACE (p.general, ";", "," ))
     AND p.id = v.project_id
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
@@ -437,14 +400,7 @@
     department d,
     technology t
     WHERE
-    (
-    p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    )
+    FIND_IN_SET(#{name},REPLACE (p.general, ";", "," ))
     AND p.id = v.project_id
     AND u.id &lt;&gt; #{id}
     AND u.`name` = SUBSTRING_INDEX( p.general, ";", 1 )
@@ -468,14 +424,7 @@
     department d,
     technology t
     WHERE
-    (
-    p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    )
+    FIND_IN_SET(#{name},REPLACE (p.general, ";", "," ))
     AND p.id = v.project_id
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
@@ -506,22 +455,18 @@
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
     AND u.tid = t.id
-    AND 	p.id in (
+    AND p.id in (
     SELECT
     project_id
     FROM
     volume
     WHERE
-    principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",-1 )= #{name}
-
+    FIND_IN_SET(#{name},REPLACE (principal, ";", "," ))
     )
     AND ((
     v.shot_date != ""
-    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR v.actual_publication_date >= #{sqlDate} ))
+    AND ( v.planned_start_date >= #{sqlDate} OR v.start_date >= #{sqlDate} OR v.shot_date >= #{sqlDate} OR
+    v.actual_publication_date >= #{sqlDate} ))
     OR ( v.shot_date = "" AND v.start_date != "" )) UNION
     SELECT
     principal AS `name`,
@@ -548,12 +493,7 @@
     FROM
     volume
     WHERE
-    principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
-
+    FIND_IN_SET(#{name},REPLACE (principal, ";", "," ))
     )
     AND p.id = v.project_id
     AND u.id &lt;&gt; #{id}
@@ -584,18 +524,13 @@
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
     AND u.tid = t.id
-    AND 	p.id in (
+    AND p.id in (
     SELECT
     project_id
     FROM
     volume
     WHERE
-    principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
-
+    FIND_IN_SET(#{name},REPLACE (principal, ";", "," ))
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
     AND v.principal LIKE "%;%" UNION
@@ -622,18 +557,13 @@
     AND u.id &lt;&gt; #{id}
     AND u.did = d.id
     AND u.tid = t.id
-    AND 	p.id in (
+    AND p.id in (
     SELECT
     project_id
     FROM
     volume
     WHERE
-    principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
-
+    FIND_IN_SET(#{name},REPLACE (principal, ";", "," ))
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
     AND v.principal LIKE "%;%" UNION
@@ -662,11 +592,7 @@
     FROM
     volume
     WHERE
-    principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+    FIND_IN_SET(#{name},REPLACE (principal, ";", "," ))
     )
     AND p.id = v.project_id
     AND u.id &lt;&gt; #{id}
@@ -699,11 +625,7 @@
     FROM
     volume
     WHERE
-    principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+    FIND_IN_SET(#{name},REPLACE (principal, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -735,11 +657,7 @@
     FROM
     volume
     WHERE
-     principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+    FIND_IN_SET(#{name},REPLACE (principal, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -771,7 +689,7 @@
     and u.did = d.id
     and u.tid = t.id
     and sm.state = 0
-    )  as d
+    ) as d
     <where>
     not exists(
         select id
@@ -1014,21 +932,17 @@ WHERE
     SELECT `name`
     FROM `user` u
     WHERE
-EXISTS (
-	SELECT	id
-	FROM
-		volume
-	WHERE
-		u.`name` = volume.principal
-		OR u.`name` = SUBSTRING_INDEX( volume.principal, ";", 1 )
-	OR u.`name` = SUBSTRING_INDEX( volume.principal, ";", 1 ) UNION
-	SELECT id
-	FROM
-		project
-	WHERE
-		u.`name` = project.general
-	OR u.`name` = SUBSTRING_INDEX( project.general, ";", 1 )
-OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
+      EXISTS (
+        SELECT	id
+        FROM
+          volume
+        WHERE
+          FIND_IN_SET(u.name,REPLACE (`principal`, ";", "," )) UNION
+        SELECT id
+        FROM
+          project
+        WHERE
+          FIND_IN_SET(u.name,REPLACE (`general`, ";", "," )))
     ORDER BY username
   </select>
   <select id="queryAll" resultType="java.util.Map">
@@ -1050,16 +964,12 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
        FROM
        volume
        WHERE
-       u.`name` = volume.principal
-       OR u.`name` = SUBSTRING_INDEX( volume.principal, ";", 1 )
-       OR u.`name` = SUBSTRING_INDEX( volume.principal, ";", 1 ) UNION
+       FIND_IN_SET(u.name,REPLACE (`principal`, ";", "," )) UNION
        SELECT id
        FROM
        project
        WHERE
-       u.`name` = project.general
-       OR u.`name` = SUBSTRING_INDEX( project.general, ";", 1 )
-       OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
+       FIND_IN_SET(u.name,REPLACE (`general`, ";", "," )))
      </if>
   </select>
   <select id="queryByTAndState" resultType="java.util.Map">
@@ -1084,12 +994,13 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       and u.tid = t.id
   </select>
   <select id="getGroup" resultType="java.lang.Integer">
-    select v.user_id
+    select distinct v.user_id
     from virtual_leader v
     where  `group` = (select `group`
                       from virtual_leader
                       where user_id = #{id}
                         and virtual_id = #{vid})
+      and virtual_id = #{vid}
       and v.user_id &lt;&gt; #{id}
   </select>
   <select id="queryByTAndGroup1" resultMap="GroupUser1">
@@ -1104,12 +1015,13 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       and u.tid = t.id
   </select>
   <select id="getGroup1" resultType="java.lang.Integer">
-    select v.user_id
+    select distinct v.user_id
     from activity_leader v
     where  `group` = (select `group`
                       from activity_leader
                       where user_id = #{id}
                         and activity_id = #{vid})
+      and activity_id = #{vid}
       and v.user_id &lt;&gt; #{id}
   </select>
   <select id="queryLimits" resultType="java.util.Map">
@@ -1178,18 +1090,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",-1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",-1 )= #{name}
-
+      FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
     )
     AND ((
     v.shot_date != ""
@@ -1215,17 +1117,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     WHERE
 
      (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+         FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+         or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1257,17 +1150,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
@@ -1295,17 +1179,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
@@ -1329,17 +1204,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1367,17 +1233,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1403,17 +1260,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1470,17 +1318,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",-1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",-1 )= #{name}
+    FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND ((
@@ -1507,17 +1346,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     WHERE
 
      (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+    FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1549,17 +1379,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+    FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
@@ -1587,17 +1408,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
@@ -1621,17 +1433,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1659,17 +1462,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1695,17 +1489,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1837,17 +1622,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     WHERE
 
      (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1879,17 +1655,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
@@ -1917,17 +1684,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     AND u.did = d.id
     AND u.tid = t.id
     AND (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
@@ -1951,17 +1709,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -1989,17 +1738,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -2025,17 +1765,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
     technology t
     WHERE
     (
-    v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND p.id = v.project_id
@@ -2096,17 +1827,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       AND u.`name` = v.designer
       AND u.id &lt;&gt;#{id}
     AND (
-	  p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    OR  principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND ((
@@ -2122,17 +1844,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-          OR  principal = #{name}
-
-          OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+          FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+          or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
         )
       AND p.id = v.project_id
       AND u.id &lt;&gt;#{id}
@@ -2148,17 +1861,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       p.id = v.project_id
       AND u.id &lt;&gt;#{id}
     AND (
-			general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    OR  principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
     AND v.principal LIKE "%;%" UNION
@@ -2172,17 +1876,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       p.id = v.project_id
       AND u.id &lt;&gt;#{id}
     AND (
-			p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-    OR  principal = #{name}
-
-    OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
     AND v.principal LIKE "%;%" UNION
@@ -2194,17 +1889,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-          OR  principal = #{name}
-
-          OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
         )
       AND p.id = v.project_id
       AND u.id &lt;&gt;#{id}
@@ -2218,17 +1904,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-          OR  principal = #{name}
-
-          OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
         )
       AND p.id = v.project_id
       AND u.id &lt;&gt;#{id}
@@ -2243,17 +1920,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
-
-          OR  principal = #{name}
-
-          OR SUBSTRING_INDEX( principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( principal, ";",- 1 )= #{name}
+     FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+    or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
         )
       AND p.id = v.project_id
       AND u.id &lt;&gt;#{id}
@@ -2314,17 +1982,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       AND u.id &lt;&gt;#{id}
 
     AND (
-	v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+       or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND ((
@@ -2341,17 +2000,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+       or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id
@@ -2370,17 +2020,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       AND u.id &lt;&gt;#{id}
 
     AND (
-			v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+       or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
@@ -2396,17 +2037,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       AND u.id &lt;&gt;#{id}
 
     AND (
-			v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+       or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
@@ -2419,17 +2051,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+       or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id
@@ -2445,17 +2068,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+       or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id
@@ -2471,17 +2085,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+       or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id
@@ -2529,17 +2134,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
           AND u.`name` = v.designer
           AND u.id &lt;&gt;#{id}
     AND (
-		v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+            FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+            or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND ((
@@ -2556,17 +2152,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+          FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+          or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id
@@ -2583,17 +2170,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       p.id = v.project_id
       AND u.id &lt;&gt;#{id}
     AND (
-				v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";", 1 )
@@ -2608,17 +2186,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       p.id = v.project_id
       AND u.id &lt;&gt;#{id}
     AND (
-				v.principal = #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-    OR p.general = #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-    OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+        FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+        or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
     )
     AND u.`name` = SUBSTRING_INDEX( v.principal, ";",- 1 )
@@ -2631,17 +2200,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+          FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+          or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id
@@ -2656,17 +2216,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+          FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+          or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id
@@ -2681,17 +2232,8 @@ OR u.`name` = SUBSTRING_INDEX( project.general, ";",- 1 ))
       `user` u
     WHERE
       (
-          v.principal = #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( v.principal, ";",- 1 )= #{name}
-
-          OR p.general = #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";", 1 )= #{name}
-
-          OR SUBSTRING_INDEX( p.general, ";",- 1 )= #{name}
+          FIND_IN_SET(#{name},REPLACE (`general`, ";", "," ))
+          or FIND_IN_SET(#{name},REPLACE (`principal`, ";", "," ))
 
         )
       AND p.id = v.project_id

@@ -5,12 +5,16 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.concurrent.Executor;
 
+//事务支持
 @EnableTransactionManagement
+//定时任务
+@EnableScheduling
 @SpringBootApplication(scanBasePackages = {"wxx.java.appraise"})
 @ServletComponentScan(basePackages = "wxx.java.appraise.interceptor")
 @MapperScan(basePackages = "wxx.java.appraise.dao")

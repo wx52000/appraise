@@ -3,10 +3,13 @@ package wxx.java.appraise.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wxx.java.appraise.dao.UserDao;
 import wxx.java.appraise.dao.VolumeDao;
 import wxx.java.appraise.dao.VolumeUserDao;
 import wxx.java.appraise.entity.Project;
+import wxx.java.appraise.entity.User;
 import wxx.java.appraise.entity.Volume;
+import wxx.java.appraise.result.Result;
 import wxx.java.appraise.service.VolumeService;
 
 import java.util.*;
@@ -16,6 +19,7 @@ import java.util.*;
 public class VolumeServiceImpl implements VolumeService {
     private VolumeDao volumeDao;
     private VolumeUserDao volumeUserDao;
+    private UserDao userDao;
     @Autowired
     public void  setVolumeDao(VolumeDao volumeDao){
         this.volumeDao = volumeDao;
@@ -23,6 +27,10 @@ public class VolumeServiceImpl implements VolumeService {
     @Autowired
     public void  setVolumeUserDao(VolumeUserDao volumeUserDao){
         this.volumeUserDao = volumeUserDao;
+    }
+    @Autowired
+    public void setUserDao(UserDao userDao){
+      this.userDao = userDao;
     }
     @Override
     public void addFormPro(Project project) {
@@ -35,26 +43,8 @@ public class VolumeServiceImpl implements VolumeService {
     }
 
   @Override
-  public List<Map> queryByProjectId(Project project) {
+  public List<Map<String, String>> queryByProjectId(Project project) {
         Map map = new HashMap();
-    Calendar calendar = Calendar.getInstance();
-    Calendar calendar1 = Calendar.getInstance();
-    if (calendar1.get(Calendar.MONTH) == 0){
-      if (project.getMonth() == 0){
-        project.setMonth(12);
-        calendar.set(Calendar.YEAR,calendar1.get(Calendar.YEAR)-1);
-      }
-      else if (project.getMonth() == -1){
-        project.setMonth(11);
-        calendar.set(Calendar.YEAR,calendar1.get(Calendar.YEAR)-1);
-      }
-    }
-    else if (calendar1.get(Calendar.MONTH) == 1){
-      if (project.getMonth() == 0){
-        calendar.set(Calendar.YEAR,calendar1.get(Calendar.YEAR)-1);
-        project.setMonth(12);
-      }
-    }
         map.put("id", project.getId());
 
         if (project.getPickerDate() != null) {
@@ -63,6 +53,11 @@ public class VolumeServiceImpl implements VolumeService {
         }
         return volumeDao.queryByProjectId(map);
 
+  }
+
+  @Override
+  public List<Map<String, String>> queryByDate(Map map) {
+    return volumeDao.queryByDate(map);
   }
 
   @Override
@@ -92,5 +87,19 @@ public class VolumeServiceImpl implements VolumeService {
   @Override
   public List<Map> queryVolume(String user, String volume) {
     return volumeDao.queryVolume(user,volume);
+  }
+
+  @Override
+  public Result queryByNumber(Volume volume) {
+      User user = userDao.queryById(volume.getId());
+      volume.setName(user.getName());
+    return Result.ok(volumeDao.queryByNumber(volume));
+  }
+
+  @Override
+  public List<Map<String, String>> personalVolume(Map<String, String> map) {
+    User user = userDao.queryById(Integer.valueOf(map.get("id")));
+    map.put("name",user.getName());
+    return volumeDao.personalVolume(map);
   }
 }

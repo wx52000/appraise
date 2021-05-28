@@ -6,6 +6,8 @@ import wxx.java.appraise.dao.RangeDao;
 import wxx.java.appraise.entity.Range;
 import wxx.java.appraise.service.RangeService;
 
+import java.util.Map;
+
 @Service
 public class RangeServiceImpl implements RangeService {
     private RangeDao rangeDao;
@@ -22,4 +24,14 @@ public class RangeServiceImpl implements RangeService {
     public void update(Range range) {
         rangeDao.update(range);
     }
+
+  @Override
+  public Map queryDate() {
+    return rangeDao.queryDate();
+  }
+
+  @Override
+  public void updateDate(Range range) {
+      rangeDao.updateDate(range);
+  }
 }

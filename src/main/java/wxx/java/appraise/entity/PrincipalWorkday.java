@@ -10,6 +10,8 @@ public class PrincipalWorkday {
 
   private Double workday;
 
+  private Integer group;
+
   public Integer getId() {
     return id;
   }
@@ -40,5 +42,13 @@ public class PrincipalWorkday {
 
   public void setWorkday(Double workday) {
     this.workday = workday;
+  }
+
+  public Integer getGroup() {
+    return group;
+  }
+
+  public void setGroup(Integer group) {
+    this.group = group;
   }
 }
